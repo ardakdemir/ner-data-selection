@@ -1,8 +1,7 @@
 import os
 import sys
 import matplotlib.pyplot as plt
-
-dicts = {"ner": {"token": 0, "truth": 1, "ner_pred": 2}}
+import numpy as np
 
 
 def plot_arrays(arrays, save_path, x_title=None, y_title=None, names=None, title=None):
