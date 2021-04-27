@@ -60,6 +60,19 @@ def unsort_dataset(dataset, orig_idx):
     return dataset
 
 
+def get_sentences_from_dataset(file_path, size=None):
+    sentences = open(file_path).read().split("\n\n")
+    if not size:
+        return sentences
+    else:
+        np.random.shuffle(sentences)
+        return sentences[:size]
+
+
+def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.tsv"):
+    return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
+
+
 def addbiotags(file_name, pref="ENT"):
     d, f = os.path.split(file_name)
     save_path = os.path.join(d, "ent_{}".format(f))
