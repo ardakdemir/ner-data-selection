@@ -75,8 +75,10 @@ def main():
     folder = ROOT_FOLDER
     save_folder = SAVE_FOLDER
     size = 3000
-    models_to_use = [x[2] for x in MODELS]
-    dataset = utils.get_sentence_datasets_from_folder(folder, size = size, file_name="ent_train.tsv")
+    models_to_use = [x[2] for x in MODELS[-1:]]
+    datasets = utils.get_sentence_datasets_from_folder(folder, size = size, file_name="ent_train.tsv")
+    for n,d in datasets:
+        print("{} size {}".format(n,len(d)))
     dataset_to_model_to_states = encode_with_models(datasets, models_to_use, save_folder)
 
 if __name__ == "__main__":
