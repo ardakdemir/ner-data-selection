@@ -61,7 +61,7 @@ def unsort_dataset(dataset, orig_idx):
 
 def get_sentences_from_dataset(file_path, size=None):
     sentences = open(file_path).read().split("\n\n")
-    sentences = [" ".join([x.split()[0] for x in sent.split("\n")]) for sent in sentences]
+    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in sentences]
     if not size:
         return sentences
     else:
