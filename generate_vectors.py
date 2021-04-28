@@ -23,6 +23,7 @@ MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-base', "robertaBase"),
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_2804"
 
+
 def encode_with_models(datasets, models_to_use, save_folder):
     """
 
@@ -31,16 +32,15 @@ def encode_with_models(datasets, models_to_use, save_folder):
     :return:
     """
     dataset_to_model_to_states = {}
-    for dataset_name, dataset  in tqdm(datasets, desc="Datasets"):
+    for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
         for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
             if model_name not in models_to_use: continue
-
             # Load pretrained model/tokenizer
             tokenizer = tokenizer_class.from_pretrained(model_name)
             model = model_class.from_pretrained(model_name)
             model.to(torch.device('cuda'))
-
+            model_to_states[model_name] = {"sents": [], "states": []}
             # Encode text
             start = time.time()
             for sentence in dataset:
@@ -76,10 +76,11 @@ def main():
     save_folder = SAVE_FOLDER
     size = 3000
     models_to_use = [x[2] for x in MODELS[-1:]]
-    datasets = utils.get_sentence_datasets_from_folder(folder, size = size, file_name="ent_train.tsv")
-    for n,d in datasets:
-        print("{} size {}".format(n,len(d)))
+    datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
+    for n, d in datasets:
+        print("{} size {}".format(n, len(d)))
     dataset_to_model_to_states = encode_with_models(datasets, models_to_use, save_folder)
+
 
 if __name__ == "__main__":
     main()
