@@ -31,7 +31,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
     :return:
     """
     dataset_to_model_to_states = {}
-    for dataset, dataset_name in tqdm(datasets, desc="Datasets"):
+    for dataset_name, dataset  in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
         for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
             if model_name not in models_to_use: continue
@@ -43,7 +43,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
 
             # Encode text
             start = time.time()
-            for sentence in corpus:
+            for sentence in dataset:
                 model_to_states[model_name]['sents'].append(sentence)
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncate=True,
