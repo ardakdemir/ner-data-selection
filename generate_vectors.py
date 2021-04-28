@@ -43,7 +43,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
             model_to_states[save_name] = {"sents": [], "states": []}
             # Encode text
             start = time.time()
-            for sentence in dataset:
+            for sentence in tqdm(dataset,desc="sentences.."):
                 model_to_states[save_name]['sents'].append(sentence)
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncate=True,
