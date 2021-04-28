@@ -40,11 +40,11 @@ def encode_with_models(datasets, models_to_use, save_folder):
             tokenizer = tokenizer_class.from_pretrained(model_name)
             model = model_class.from_pretrained(model_name)
             model.to(torch.device('cuda'))
-            model_to_states[model_name] = {"sents": [], "states": []}
+            model_to_states[save_name] = {"sents": [], "states": []}
             # Encode text
             start = time.time()
             for sentence in dataset:
-                model_to_states[model_name]['sents'].append(sentence)
+                model_to_states[save_name]['sents'].append(sentence)
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncate=True,
                                                            max_length=128)])  # Add special tokens takes care of adding [CLS], [SEP], <s>... tokens in the right way for each model.
@@ -57,11 +57,11 @@ def encode_with_models(datasets, models_to_use, save_folder):
                     squeezed = last_hidden_states.squeeze(dim=0)
                     masked = squeezed[:input_ids.shape[1], :]
                     avg_pooled = masked.mean(dim=0)
-                    model_to_states[model_name]['states'].append(avg_pooled.cpu())
+                    model_to_states[save_name]['states'].append(avg_pooled.cpu())
             end = time.time()
             t = round(end - start)
             print('Encoded {}  with {} in {} seconds'.format(dataset_name, model_name, t))
-            np_tensors = [np.array(tensor) for tensor in model_to_states[model_name]['states']]
+            np_tensors = [np.array(tensor) for tensor in model_to_states[save_name]['states']]
             # model_to_states[model_name]['states'] = np.stack(np_tensors)
             save_path = os.path.join(save_folder, "{}_{}_vectors.h5".format(dataset_name, save_name))
             with h5py.File(save_path, "w") as h:
