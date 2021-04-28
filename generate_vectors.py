@@ -43,8 +43,12 @@ def encode_with_models(datasets, models_to_use, save_folder):
             model_to_states[save_name] = {"sents": [], "states": []}
             # Encode text
             start = time.time()
+            i = 0
             for sentence in tqdm(dataset,desc="sentences.."):
                 model_to_states[save_name]['sents'].append(sentence)
+                if i==0:
+                    print(sentence)
+                    i+=1
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncate=True,
                                                            max_length=128)])  # Add special tokens takes care of adding [CLS], [SEP], <s>... tokens in the right way for each model.
