@@ -14,7 +14,8 @@ def parse_args():
     parser.add_argument('--size', type=int, default=500)
     return args
 
-def generate_small_datasets( file_name)
+def generate_small_datasets( file_name):
+    x = 1
 def main():
     args = parser.parse_args()
     root,save = args.root_folder,args.save

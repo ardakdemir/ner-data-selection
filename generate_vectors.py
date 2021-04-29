@@ -79,7 +79,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
 def main():
     folder = ROOT_FOLDER
     save_folder = SAVE_FOLDER
-    size = 3000
+    size = None
     models_to_use = [x[2] for x in MODELS[-1:]]
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
     for n, d in datasets:
