@@ -13,10 +13,7 @@ from itertools import product
 import logging
 import utils
 
-MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-base', "robertaBase"),
-          (RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
-          (BertModel, BertTokenizer, 'bert-base-uncased', "bertBaseUncased"),
-          (BertModel, BertTokenizer, 'bert-large-cased', "bertLargeCased"),
+MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
 
@@ -80,7 +77,7 @@ def main():
     folder = ROOT_FOLDER
     save_folder = SAVE_FOLDER
     size = None
-    models_to_use = [x[2] for x in MODELS[-1:]]
+    models_to_use = [x[2] for x in MODELS]
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
