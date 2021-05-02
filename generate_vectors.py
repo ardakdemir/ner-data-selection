@@ -14,6 +14,9 @@ import logging
 import utils
 from gensim.models import FastText, KeyedVectors
 
+from gensim.utils import tokenize
+
+
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
