@@ -12,13 +12,67 @@ from transformers import *
 from itertools import product
 import logging
 import utils
+from gensim.models import FastText, KeyedVectors
 
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
 
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
-SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_2804_full"
+SAVE_FOLDER = "/home/aakdemir/small_encoded_vectors_0205"
+
+BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
+
+
+def encode_with_bioword2vec(datasets, save_folder):
+    dataset_to_states = {}
+
+    model = KeyedVectors.load_word2vec_format(BioWordVec_FOLDER, binary=True)
+    for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
+        begin = time.time()
+        vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
+        dataset_to_states[dataset_name] = {"BioWord2Vec": vecs}
+        end = time.time()
+        t = round(end - begin, 3)
+
+        save_path = os.path.join(save_folder, "{}_BioWordVec_vectors.h5".format(dataset_name))
+        with h5py.File(save_path, "w") as h:
+            h["vectors"] = vecs
+            h["time"] = [t]
+    return dataset_to_states
+
+
+def get_w2v_sent_reps(dataset, model, max_pool=False):
+    """
+    Encodes the lines in a text file using word2vec
+    """
+    vecs = []
+    toks = []
+    for sent in sentences:
+        vec, sent_toks = encode_sent_with_w2v(sent, model, max_pool)
+        vecs.append(vec)
+        toks.append(sent_toks)
+    return np.stack(vecs), toks
+
+
+def encode_sent_with_w2v(sent, model, max_pool=False):
+    """
+    Encodes a sentence as a sum of its corresponding word2vec embeddings.
+    """
+    MODEL_SIZE = 300
+    toks = list(tokenize(sent))
+    vecs = []
+    for tok in toks:
+        if tok in model:
+            vecs.append(model[tok])
+    if len(vecs):
+        if max_pool:
+            pooled = np.max(np.stack(vecs), axis=0)
+        else:
+            pooled = np.mean(np.stack(vecs), axis=0)
+    else:
+        pooled = model['unk']
+    return pooled, toks
 
 
 def encode_with_models(datasets, models_to_use, save_folder):
@@ -78,12 +132,14 @@ def encode_with_models(datasets, models_to_use, save_folder):
 def main():
     folder = ROOT_FOLDER
     save_folder = SAVE_FOLDER
-    size = None
+    size = 100
     models_to_use = [x[2] for x in MODELS]
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
     dataset_to_model_to_states = encode_with_models(datasets, models_to_use, save_folder)
+    dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
+    combined_dictinoaries = utils.combine_dictionaries(dataset_to_model_to_states, dataset_to_states)
 
 
 if __name__ == "__main__":

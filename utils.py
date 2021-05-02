@@ -20,6 +20,14 @@ def plot_arrays(arrays, save_path, x_title=None, y_title=None, names=None, title
     plt.ylabel(y_title)
     plt.savefig(save_path)
 
+def combine_dictionaries(dics):
+    combined = dics[0]
+    for dic in dics[1:]:
+        for k in combined.keys():
+            if k in dic:
+                combined[k].update(dic[k])
+    return combined
+
 
 def sort_dataset(dataset, desc=True, sort=True):
     idx = [i for i in range(len(dataset))]
