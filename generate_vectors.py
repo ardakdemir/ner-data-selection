@@ -7,8 +7,8 @@ import json
 import h5py
 import os
 from torch.utils.data import Dataset, DataLoader
-# from transformers import AutoTokenizer, AutoModel, BertForPreTraining, BertForTokenClassification, BertConfig
 from transformers import *
+from collections import defaultdict
 from itertools import product
 import logging
 import utils
@@ -24,22 +24,6 @@ SAVE_FOLDER = "/home/aakdemir/small_encoded_vectors_0205"
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 
 
-def encode_with_bioword2vec(datasets, save_folder):
-    dataset_to_states = {}
-
-    model = KeyedVectors.load_word2vec_format(BioWordVec_FOLDER, binary=True)
-    for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
-        begin = time.time()
-        vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
-        dataset_to_states[dataset_name] = vecs
-        end = time.time()
-        t = round(end - begin, 3)
-
-        save_path = os.path.join(save_folder, "{}_BioWordVec_vectors.h5".format(dataset_name))
-        with h5py.File(save_path, "w") as h:
-            h["vectors"] = vecs
-            h["time"] = [t]
-    return {"BioWord2Vec": dataset_to_states}
 
 
 def get_w2v_sent_reps(dataset, model, max_pool=False):
@@ -73,6 +57,29 @@ def encode_sent_with_w2v(sent, model, max_pool=False):
     else:
         pooled = model['unk']
     return pooled, toks
+
+
+
+def encode_with_bioword2vec(datasets, save_folder):
+    dataset_to_states = {}
+
+    model = KeyedVectors.load_word2vec_format(BioWordVec_FOLDER, binary=True)
+    for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
+        begin = time.time()
+        vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
+        dataset_to_states[dataset_name] = vecs
+        end = time.time()
+        t = round(end - begin, 3)
+        save_fold = os.path.join(save_fold,"BioWordVec")
+        if not os.path.isdir(save_fold):
+            os.makedirs(save_fold)
+
+        save_path = os.path.join(save_fold, "{}.h5".format(dataset_name))
+        with h5py.File(save_path, "w") as h:
+            h["vectors"] = vecs
+            h["time"] = [t]
+    return {"BioWord2Vec": dataset_to_states}
+
 
 
 def encode_with_models(datasets, models_to_use, save_folder):
@@ -120,8 +127,10 @@ def encode_with_models(datasets, models_to_use, save_folder):
             print('Encoded {}  with {} in {} seconds'.format(dataset_name, model_name, t))
             np_tensors = [np.array(tensor) for tensor in model_to_states[save_name]['states']]
             # model_to_states[model_name]['states'] = np.stack(np_tensors)
-            if not os.path.isdir(save_folder): os.makedirs(save_folder)
-            save_path = os.path.join(save_folder, "{}_{}_vectors.h5".format(dataset_name, save_name))
+            save_fold = os.path.join(save_fold, save_name)
+            if not os.path.isdir(save_fold):
+                os.makedirs(save_fold)
+            save_path = os.path.join(save_fold, "{}.h5".format(dataset_name))
             with h5py.File(save_path, "w") as h:
                 h["vectors"] = np.stack(np_tensors)
                 h["time"] = [t]
@@ -136,8 +145,10 @@ def main():
     size = 100
     models_to_use = [x[2] for x in MODELS]
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
+
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
+
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, save_folder)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
 
