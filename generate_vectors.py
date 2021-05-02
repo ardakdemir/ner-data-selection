@@ -30,7 +30,7 @@ def get_w2v_sent_reps(dataset, model, max_pool=False):
     """
     vecs = []
     toks = []
-    for sent in sentences:
+    for sent in dataset:
         vec, sent_toks = encode_sent_with_w2v(sent, model, max_pool)
         vecs.append(vec)
         toks.append(sent_toks)
