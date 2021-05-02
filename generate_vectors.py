@@ -24,8 +24,6 @@ SAVE_FOLDER = "/home/aakdemir/small_encoded_vectors_0205"
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 
 
-
-
 def get_w2v_sent_reps(dataset, model, max_pool=False):
     """
     Encodes the lines in a text file using word2vec
@@ -59,7 +57,6 @@ def encode_sent_with_w2v(sent, model, max_pool=False):
     return pooled, toks
 
 
-
 def encode_with_bioword2vec(datasets, save_folder):
     dataset_to_states = {}
 
@@ -70,7 +67,7 @@ def encode_with_bioword2vec(datasets, save_folder):
         dataset_to_states[dataset_name] = vecs
         end = time.time()
         t = round(end - begin, 3)
-        save_fold = os.path.join(save_fold,"BioWordVec")
+        save_fold = os.path.join(save_folder, "BioWordVec")
         if not os.path.isdir(save_fold):
             os.makedirs(save_fold)
 
@@ -79,7 +76,6 @@ def encode_with_bioword2vec(datasets, save_folder):
             h["vectors"] = vecs
             h["time"] = [t]
     return {"BioWordVec": dataset_to_states}
-
 
 
 def encode_with_models(datasets, models_to_use, save_folder):
