@@ -123,7 +123,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
             print('Encoded {}  with {} in {} seconds'.format(dataset_name, model_name, t))
             np_tensors = [np.array(tensor) for tensor in model_to_states[save_name]['states']]
             # model_to_states[model_name]['states'] = np.stack(np_tensors)
-            save_fold = os.path.join(save_fold, save_name)
+            save_fold = os.path.join(save_folder, save_name)
             if not os.path.isdir(save_fold):
                 os.makedirs(save_fold)
             save_path = os.path.join(save_fold, "{}.h5".format(dataset_name))
