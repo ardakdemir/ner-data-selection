@@ -31,7 +31,7 @@ def encode_with_bioword2vec(datasets, save_folder):
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         begin = time.time()
         vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
-        dataset_to_states[dataset_name] = {"BioWord2Vec": vecs}
+        dataset_to_states[dataset_name] = vecs
         end = time.time()
         t = round(end - begin, 3)
 
@@ -39,7 +39,7 @@ def encode_with_bioword2vec(datasets, save_folder):
         with h5py.File(save_path, "w") as h:
             h["vectors"] = vecs
             h["time"] = [t]
-    return dataset_to_states
+    return {"BioWord2Vec": dataset_to_states}
 
 
 def get_w2v_sent_reps(dataset, model, max_pool=False):
@@ -82,7 +82,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
     :param models:
     :return:
     """
-    dataset_to_model_to_states = {}
+    model_to_domain_to_encodings = defaultdict(dict)
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
         for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
@@ -125,8 +125,9 @@ def encode_with_models(datasets, models_to_use, save_folder):
             with h5py.File(save_path, "w") as h:
                 h["vectors"] = np.stack(np_tensors)
                 h["time"] = [t]
-        dataset_to_model_to_states[dataset_name] = model_to_states
-    return dataset_to_model_to_states
+        for k, d in model_to_states.items():
+            model_to_domain_to_encodings[k][dataset_name] = d
+    return model_to_domain_to_encodings
 
 
 def main():
@@ -137,9 +138,14 @@ def main():
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
-    dataset_to_model_to_states = encode_with_models(datasets, models_to_use, save_folder)
+    model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, save_folder)
+    print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
+
     dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
-    combined_dictinoaries = utils.combine_dictionaries(dataset_to_model_to_states, dataset_to_states)
+    print("BioWordVec keys: {}".format(dataset_to_states.keys()))
+
+    model_to_domain_to_encodings.update(dataset_to_states)
+    print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
 
 
 if __name__ == "__main__":
