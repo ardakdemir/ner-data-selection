@@ -78,7 +78,7 @@ def encode_with_bioword2vec(datasets, save_folder):
         with h5py.File(save_path, "w") as h:
             h["vectors"] = vecs
             h["time"] = [t]
-    return {"BioWord2Vec": dataset_to_states}
+    return {"BioWordVec": dataset_to_states}
 
 
 
