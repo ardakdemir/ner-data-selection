@@ -105,6 +105,9 @@ class NerDatasetLoader:
         self.dataset = dataset
         self.batch_size = batch_size
 
+
+    def __len__(self):
+        return len(self.dataset)
     def __getitem__(self, index):
         inps = []
         labs = []

@@ -18,6 +18,8 @@ from gensim.models import FastText, KeyedVectors
 
 from gensim.utils import tokenize
 
+
+
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
@@ -26,6 +28,7 @@ ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
 def parse_args():
@@ -58,6 +61,31 @@ def train():
     inputs, labels = dataset_loader[0]
     print(" ".join([x.shape for x in [inputs,labels]]))
     NerModel(args, biobert_model_tuple)
+    train_model(model,dataset_loader)
+
+
+def train_model(model,dataset_loader):
+    epoch_num = 2
+    # eval_interval = len(dataset_loader)
+    eval_interval = 10
+    model.to(device)
+    model = model.train()
+    optimizer = AdamW(model.parameters())
+    criterion = CrossEntropyLoss(ignore_index=0)
+    for j in tqdm(range(epoch_num), desc="Epochs"):
+        model = model.train()
+        for i in tqdm(range(eval_interval), desc="training"):
+            optimizer.zero_grad()
+            inputs, label = dataset_loader[i]
+            output = model(inputs)
+            print("Bert output shape {}".format(output.shape))
+            label = label.to(self.device)
+            loss = criterion(output,label)
+            loss.backward()
+            optimizer.step()
+
+
+
 
 
 def main():
