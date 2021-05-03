@@ -16,7 +16,6 @@ from gensim.models import FastText, KeyedVectors
 
 from gensim.utils import tokenize
 
-
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
@@ -25,6 +24,7 @@ ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
+
 
 
 def get_w2v_sent_reps(dataset, model, max_pool=False):

@@ -1,13 +1,3 @@
-## not sure if root is needed at this stage
-UNK = "[UNK]"
-PAD = "[PAD]"
-START_TAG = "[CLS]"
-END_TAG   = "[SEP]"
-PAD_IND = 0
-START_IND = 1
-END_IND = 2
-UNK_IND = 3
-VOCAB_PREF = {PAD : PAD_IND, START_TAG : START_IND, END_TAG:END_IND, UNK : UNK_IND}
 
 class Vocab:
 

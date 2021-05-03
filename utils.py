@@ -76,6 +76,16 @@ def get_sentences_from_dataset(file_path, size=None):
         np.random.shuffle(sentences)
         return sentences[:size]
 
+def read_ner_dataset(file_path, size=None):
+    dataset = open(file_path).read().split("\n\n")
+    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in dataset]
+    labels =  [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n"))>0] for sent in dataset]
+    data = zip(sentences,labels)
+    if not size:
+        return list(zip(*data))
+    else:
+        np.random.shuffle(data)
+        return list(zip(*data[:size]))
 
 def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.tsv"):
     return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
