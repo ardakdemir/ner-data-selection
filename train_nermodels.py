@@ -49,9 +49,12 @@ def parse_args():
 def train():
     biobert_model_tuple = MODELS[-1]
     args = parse_args()
-    file_path = 
-    NerDataset
-    NerModel(args, biobert_modeel_tuple)
+    file_path = "biobert_data/datasets/BioNER_2804/s800/ent_test.tsv"
+    tokenizer = BertTokenizer.from_pretrained("dmis-lab/biobert-v1.1")
+
+    ner_dataset = NerDataset(file_path,tokenizer,size = 100)
+    print(ner_dataset[0])
+    NerModel(args, biobert_model_tuple)
 
 
 def main():

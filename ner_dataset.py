@@ -50,7 +50,7 @@ def get_bert_labels(tokens, labels):
 
 
 class NerDataset(Dataset):
-    def __init__(self, file_path, size, tokenizer):
+    def __init__(self, file_path,  tokenizer,size=None):
         sentences, labels = utils.read_ner_dataset(file_path, size=size)
         token_vocab, label_vocab = get_vocab(sentences), get_vocab(labels)
         self.token_vocab = Vocab(token_vocab)
