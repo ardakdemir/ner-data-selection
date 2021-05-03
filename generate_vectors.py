@@ -22,9 +22,9 @@ MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
 
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
+DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0305"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
-
 
 
 def get_w2v_sent_reps(dataset, model, max_pool=False):
@@ -138,11 +138,20 @@ def encode_with_models(datasets, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def main():
-    folder = ROOT_FOLDER
-    save_folder = SAVE_FOLDER
-    size = None
-    models_to_use = [x[2] for x in MODELS]
+def get_domaindev_vectors(folder, size, models_to_use, dev_save_folder):
+    """
+        Get the vectors for the development sets of each dataset
+    :param model_to_domain_to_encodings:
+    :param size:
+    :return:
+    """
+    datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_devel.tsv")
+    model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, dev_save_folder)
+    dataset_to_states = encode_with_bioword2vec(datasets, dev_save_folder)
+    model_to_domain_to_encodings.update(dataset_to_states)
+    return model_to_domain_to_encodings
+
+def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
 
     for n, d in datasets:
@@ -156,6 +165,22 @@ def main():
 
     model_to_domain_to_encodings.update(dataset_to_states)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
+    return model_to_domain_to_encodings
+
+
+def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
+    selected_sentences = {}
+    for model,domain_to_encodings in domaindev_vectors.items():
+        selected_sentences[model] = {}
+        for d, encodings in domaindev_vectors.items():
+            domaintrain_vectors = model_to_domain_to_encodings[model]
+
+def main():
+    folder = ROOT_FOLDER
+    save_folder = SAVE_FOLDER
+    size = 100
+    models_to_use = [x[2] for x in MODELS]
+    get_domaintrain_vectors(folder, size, models_to_use, save_folder)
 
 
 if __name__ == "__main__":
