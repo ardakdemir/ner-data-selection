@@ -1,8 +1,9 @@
-import torch
 import numpy as np
 import time
 from tqdm import tqdm
 import argparse
+from transformers import BertTokenizer, BertForTokenClassification
+import torch
 import json
 import h5py
 import os
@@ -11,14 +12,46 @@ from transformers import *
 from collections import defaultdict
 from itertools import product
 import logging
-import utils
-from vocab import Vocab
 from gensim.models import FastText, KeyedVectors
+
+
 
 CLS_TOKEN = "[CLS]"
 SEP_TOKEN = "[SEP]"
+UNK_TOKEN = "[UNK]"
+PAD_TOKEN = "[PAD]"
 
-special_tokens = [CLS_TOKEN, SEP_TOKEN]
+special_tokens = [CLS_TOKEN, SEP_TOKEN,UNK_TOKEN,PAD_TOKEN]
+
+
+
+def read_ner_dataset(file_path, size=None):
+    dataset = open(file_path).read().split("\n\n")
+    sentences = [[x.split()[0] for x in sent.split("\n") if len(x.split()) > 0] for sent in dataset]
+    labels = [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n")) > 0] for sent in dataset]
+    data = list(zip(sentences, labels))
+    if not size:
+        return list(zip(*data))
+    else:
+        np.random.shuffle(data)
+        return list(zip(*data[:size]))
+    import torch
+
+
+class Vocab:
+
+    def __init__(self, w2ind):
+        self.w2ind = w2ind
+        self.ind2w = [x for x in w2ind.keys()]
+
+    def __len__(self):
+        return len(self.w2ind)
+
+    def map(self, units):
+        return [self.w2ind.get(x, UNK_TOKEN) for x in units]
+
+    def unmap(self, idx):
+        return [self.ind2w[i] for i in idx]
 
 
 def get_vocab(tokens):
@@ -50,21 +83,44 @@ def get_bert_labels(tokens, labels):
 
 
 class NerDataset(Dataset):
-    def __init__(self, file_path,  tokenizer,size=None):
-        sentences, labels = utils.read_ner_dataset(file_path, size=size)
+    def __init__(self, file_path, size=None):
+        sentences, labels = read_ner_dataset(file_path, size=size)
         token_vocab, label_vocab = get_vocab(sentences), get_vocab(labels)
         self.token_vocab = Vocab(token_vocab)
         self.label_vocab = Vocab(label_vocab)
+        self.sentences = sentences
+        self.labels = labels
 
     def __len__(self):
         return len(self.sentences)
 
-    def __getitem(self, index):
-        sentence = " ".join(self.sentences[index])
+    def __getitem__(self, index):
+        tokens = self.sentences[index]
         labels = self.labels[index]
-        inputs = tokenizer(sentence, return_tensors="pt")
-        tokens = tokenizer.convert_ids_to_tokens(inputs["input_ids"][0])
-        labels = get_bert_labels(tokens, labels)
-        labels = self.label_vocab.map(labels)
-        labels = torch.tensor(labels).unsqueeze(0)
-        return inputs, labels
+        return tokens, labels
+
+
+class NerDatasetLoader:
+    def __init__(self, dataset, tokenizer, batch_size=5):
+        self.dataset = dataset
+        self.batch_size = batch_size
+
+    def __getitem__(self, index):
+        inps = []
+        labs = []
+        final_labels = []
+        for b in range(self.batch_size):
+            index = (index + b) % len(self.dataset)
+            tokens, labels = self.dataset[index]
+            inps.append(" ".join(tokens))
+            labs.append(labels)
+
+        inputs = tokenizer(inps, return_tensors="pt", padding=True)
+        for j, lab in enumerate(labs):
+            input_tokens = inputs["input_ids"][j]
+            tokens = tokenizer.convert_ids_to_tokens(input_tokens)
+            l = get_bert_labels(tokens, lab)
+            l = self.dataset.label_vocab.map(l)
+            #             l = torch.tensor(l).unsqueeze(0)
+            final_labels.append(l)
+        return inputs, torch.tensor(final_labels)

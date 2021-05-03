@@ -80,7 +80,7 @@ def read_ner_dataset(file_path, size=None):
     dataset = open(file_path).read().split("\n\n")
     sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in dataset]
     labels =  [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n"))>0] for sent in dataset]
-    data = zip(sentences,labels)
+    data = list(zip(sentences,labels))
     if not size:
         return list(zip(*data))
     else:

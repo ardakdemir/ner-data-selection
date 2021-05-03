@@ -51,9 +51,10 @@ def train():
     args = parse_args()
     file_path = "biobert_data/datasets/BioNER_2804/s800/ent_test.tsv"
     tokenizer = BertTokenizer.from_pretrained("dmis-lab/biobert-v1.1")
-
-    ner_dataset = NerDataset(file_path,tokenizer,size = 100)
-    print(ner_dataset[0])
+    ner_dataset = NerDataset(file_path,size = 100)
+    dataset_loader = NerDatasetLoader(ner_dataset,tokenizer,batch_size=4)
+    inputs, labels = dataset_loader[0]
+    print(" ".join([x.shape for x in [inputs,labels]]))
     NerModel(args, biobert_model_tuple)
 
 
