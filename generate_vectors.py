@@ -178,7 +178,7 @@ def get_dataselect_data(domaintrain_vectors):
     data = []
     for d, vecs in domaintrain_vectors.items():
         data.extend([(d, s, sent) for s, sent in zip(vecs["states"], vecs["sents"])])
-    print("{} sentences. First sentence: {}".format(len(data), data[0])
+    print("{} sentences. First sentence: {}".format(len(data), data[0]))
 
 
 def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
@@ -189,6 +189,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
             domaintrain_vectors = model_to_domain_to_encodings[model]
             data_select_data = get_dataselect_data(domaintrain_vectors)
             selected_sentences[model] = data_select_data
+
     return selected_sentences
 
 
