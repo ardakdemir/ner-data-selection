@@ -151,6 +151,7 @@ def get_domaindev_vectors(folder, size, models_to_use, dev_save_folder):
     model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
+
 def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
 
@@ -167,13 +168,26 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
     return model_to_domain_to_encodings
 
+def select_data(data_select_data, domain_to_encodings):
+    size = 10
+    return data_select_data[:size]
+
+
+def get_dataselect_data(domaintrain_vectors):
+    data = []
+    for d, vecs in domaintrain_vectors.items():
+        data.extend([(d, s, sent) for s, sent in zip(vecs["states"], vecs["sents"])])
+    print("{} sentences. First sentence: {}".format(len(data), data[0])
+
 
 def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
     selected_sentences = {}
-    for model,domain_to_encodings in domaindev_vectors.items():
+    for model, domain_to_encodings in domaindev_vectors.items():
         selected_sentences[model] = {}
         for d, encodings in domaindev_vectors.items():
             domaintrain_vectors = model_to_domain_to_encodings[model]
+            data_select_data = get_dataselect_data(domaintrain_vectors)
+
 
 def main():
     folder = ROOT_FOLDER

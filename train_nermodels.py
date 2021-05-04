@@ -64,6 +64,7 @@ def train():
     train_model(model,dataset_loader)
 
 
+
 def train_model(model,dataset_loader):
     epoch_num = 2
     # eval_interval = len(dataset_loader)
