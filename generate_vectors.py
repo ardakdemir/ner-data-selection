@@ -21,8 +21,8 @@ MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
 
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
-SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
-DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0305"
+SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
+DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 
@@ -168,6 +168,7 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
     return model_to_domain_to_encodings
 
+
 def select_data(data_select_data, domain_to_encodings):
     size = 10
     return data_select_data[:size]
@@ -187,14 +188,19 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         for d, encodings in domaindev_vectors.items():
             domaintrain_vectors = model_to_domain_to_encodings[model]
             data_select_data = get_dataselect_data(domaintrain_vectors)
+            selected_sentences[model] = data_select_data
+    return selected_sentences
 
 
 def main():
     folder = ROOT_FOLDER
+    dev_folder = DEV_SAVE_FOLDER
     save_folder = SAVE_FOLDER
     size = 100
-    models_to_use = [x[2] for x in MODELS]
-    get_domaintrain_vectors(folder, size, models_to_use, save_folder)
+    models_to_use = [x[2] for x in MODELS[-1]]
+    model_to_domain_to_encodings = get_domaintrain_vectors(folder, size, models_to_use, save_folder)
+    domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, dev_save_folder)
+    selected_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
 
 
 if __name__ == "__main__":
