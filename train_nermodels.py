@@ -15,6 +15,7 @@ from conll_eval import evaluate_conll_file
 from ner_dataset import NerDataset, NerDatasetLoader
 from nermodel import NerModel
 from gensim.utils import tokenize
+import matplotlib.pyplot as plt
 
 CLS_TOKEN = "[CLS]"
 SEP_TOKEN = "[SEP]"
@@ -62,7 +63,13 @@ def parse_args():
         "--input_dims", default=768, type=int, required=False,
     )
     parser.add_argument(
-        "--size", default=100, type=int, required=False,
+        "--size", default=-1, type=int, required=False,
+    )
+    parser.add_argument(
+        "--eval_interval", default=-1, type=int, required=False,
+    )
+    parser.add_argument(
+        "--epoch_num", default=10, type=int, required=False,
     )
     parser.add_argument(
         "--output_dim", default=6, type=int, required=False,
@@ -75,8 +82,15 @@ def parse_args():
     return args
 
 
-def load_datasets():
-    to_do = True
+def plot_arrays(arrays, names, xlabel, ylabel, save_path):
+    plt.figure(18, 12)
+    for n, a in zip(names, arrays):
+        plt.plot(a, label=n)
+    plt.legend()
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig(save_path)
+    plt.close()
 
 
 def train(args):
@@ -122,7 +136,11 @@ def train(args):
     dataset_loaders["test"] = test_dataset_loader
 
     model = NerModel(args, model_tuple)
-    trained_model = train_model(model, dataset_loaders, save_folder)
+    trained_model, train_result = train_model(model, dataset_loaders, save_folder, args)
+
+    # Plot train/dev losses
+    plot_save_path = os.path.join(save_folder, "loss_plot.png")
+    plot_arrays([train_result["train_losses"], train_result["dev_losses"]], ["train", "dev"], plot_save_path)
 
     # Evaluate on test_set
     save_path = os.path.join(save_folder, "conll_testout.txt")
@@ -136,7 +154,8 @@ def train(args):
               "precision": test_pre,
               "recall": test_rec,
               "train_dataset_name": train_dataset_name,
-              "f1": test_f1}
+              "f1": test_f1,
+              "train_result": train_result}
     with open(result_save_path, "w") as j:
         json.dump(result, j)
 
@@ -167,11 +186,19 @@ def evaluate(model, dataset_loader, save_path):
     model = model.eval()
     preds = labels = []
     conll_data = []
+    pad_index = dataset_loader.dataset.label_vocab.w2ind["[PAD]"]
+    criterion = CrossEntropyLoss(ignore_index=pad_index)
+    total_loss = 0
     for i in tqdm(range(len(dataset_loader)), desc="evaluation"):
         with torch.no_grad():
             inputs, label, tokens = dataset_loader[i]
             inputs = inputs.to(device)
+            label = label.to(device)
             output = model(inputs)
+            output = output.reshape(b, c, n)
+            loss = criterion(output, label)
+            output = output.reshape(b, n, c)
+            total_loss += loss.detach().cpu().item()
             b, n, c = output.shape
             for l in label:
                 labels.extend(l.detach().cpu().tolist())
@@ -180,34 +207,41 @@ def evaluate(model, dataset_loader, save_path):
                 preds.extend(p.detach().cpu().tolist())
             for t, p, l in zip(tokens, pred.detach().cpu().tolist(), label.detach().cpu().tolist()):
                 conll_data.append(list(zip(t, l, p)))
-        if i > 5: break
+        # if i > 5: break
     write_to_conll_format(conll_data, dataset_loader.dataset.label_vocab, save_path)
     pre, rec, f1 = evaluate_conll_file(open(save_path).readlines())
     print("Pre: {} Rec: {} F1: {}".format(pre, rec, f1))
-
     print("{} preds {} labels...".format(len(preds), len(labels)))
-    return pre, rec, f1
+
+    total_loss = total_loss / len(dataset_loader.dataset)
+    print("Loss: {}".format(total_loss))
+    return pre, rec, f1, total_loss
 
 
-def train_model(model, dataset_loaders, save_folder):
+def train_model(model, dataset_loaders, save_folder, args):
     model_save_path = os.path.join(save_folder, "best_model_weights.pkh")
     eval_save_path = os.path.join(save_folder, "conll_dev_out.txt")
 
-    epoch_num = 2
-    # eval_interval = len(dataset_loader)
-    eval_interval = 5
+    eval_interval = args.eval_interval if args.eval_interval != -1 else len(dataset_loaders["train"])
+    epoch_num = args.epoch_num
+
     model.to(device)
     model = model.train()
+
     optimizer = AdamW(model.parameters())
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 
+    train_losses = []
+    dev_losses = []
     train_loader = dataset_loaders["train"]
     eval_loader = dataset_loaders["devel"]
     best_f1 = -1
     best_model = 0
     for j in tqdm(range(epoch_num), desc="Epochs"):
         model = model.train()
+        total_loss = 0
+        total_num = 0
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, label, tokens = train_loader[i]
@@ -217,18 +251,24 @@ def train_model(model, dataset_loaders, save_folder):
             output = output.reshape(b, c, n)
             label = label.to(device)
             loss = criterion(output, label)
+            total_loss += loss
+            total_num += label.shape[0]
             # loss.backward()
             optimizer.step()
-            print("Loss", loss.item())
-
-        pre, rec, f1 = evaluate(model, eval_loader, eval_save_path)
+            # print("Loss", loss.item())
+            if (i + 1) % 100 == 0:
+                print("Loss at {}: {}".format(str(i + 1), round(total_loss / (i + 1), 3)))
+        pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
+        dev_losses.append(dev_loss)
         if f1 > best_f1:
             best_f1 = f1
             best_model_weights = model.state_dict()
             torch.save(best_model_weights, model_save_path)
 
     model.load_state_dict(torch.load(model_save_path))
-    return model
+    return model, {"train_losses": train_losses,
+                   "dev_losses": dev_losses,
+                   "best_f1": best_f1}
 
 
 def main():
