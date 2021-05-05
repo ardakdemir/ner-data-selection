@@ -14,7 +14,8 @@ from itertools import product
 import logging
 from gensim.models import FastText, KeyedVectors
 from conll_eval import evaluate_conll_file
-
+from ner_dataset import NerDataset, NerDatasetLoader
+from nermodel import NerModel
 from gensim.utils import tokenize
 
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
@@ -110,7 +111,6 @@ def train(args):
     # Evaluate on test_set
     save_path = os.path.join(save_folder, "conll_testout.txt")
     test_pre, test_rec, test_f1 = evaluate(trained_model, dataset_loaders["test"], save_path)
-    print("Test ")
 
 def write_to_conll_format(conll_data, save_path):
     s = ""

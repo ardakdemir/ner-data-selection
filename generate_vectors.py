@@ -169,7 +169,7 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def select_data(data_select_data, domain_to_encodings):
+def select_data(data_select_data, domain_encodings):
     size = 10
     return data_select_data[:size]
 
@@ -183,13 +183,16 @@ def get_dataselect_data(domaintrain_vectors):
 
 def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
     selected_sentences = {}
+    all_sentences = {}
     for model, domain_to_encodings in domaindev_vectors.items():
         selected_sentences[model] = {}
-        for d, encodings in domaindev_vectors.items():
-            domaintrain_vectors = model_to_domain_to_encodings[model]
-            data_select_data = get_dataselect_data(domaintrain_vectors)
-            selected_sentences[model] = data_select_data
+        domaintrain_vectors = model_to_domain_to_encodings[model]
+        data_select_data = get_dataselect_data(domaintrain_vectors)
 
+        for d, encodings in domaindev_vectors.items():
+            selected_data = select_data(data_select_data, domain_encodings)
+            selected_sentences[model] = selected_data
+            all_sentences[model] = data_select_data
     return selected_sentences
 
 
