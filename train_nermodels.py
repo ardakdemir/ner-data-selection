@@ -83,7 +83,7 @@ def parse_args():
 
 
 def plot_arrays(arrays, names, xlabel, ylabel, save_path):
-    plt.figure(18, 12)
+    plt.figure(figsize=(18, 12))
     for n, a in zip(names, arrays):
         plt.plot(a, label=n)
     plt.legend()
@@ -140,7 +140,8 @@ def train(args):
 
     # Plot train/dev losses
     plot_save_path = os.path.join(save_folder, "loss_plot.png")
-    plot_arrays([train_result["train_losses"], train_result["dev_losses"]], ["train", "dev"], plot_save_path)
+    plot_arrays([train_result["train_losses"], train_result["dev_losses"]], ["train", "dev"], "epochs", 'loss',
+                plot_save_path)
 
     # Evaluate on test_set
     save_path = os.path.join(save_folder, "conll_testout.txt")
