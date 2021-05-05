@@ -88,10 +88,12 @@ def train(args):
     if not os.path.isdir(save_folder): os.makedirs(save_folder)
     size = args.size
     batch_size = args.batch_size
+
     target_dataset_path = args.target_dataset_path
+    train_file_path = args.train_file_path
     target_dataset = os.path.split(target_dataset_path)[-1]
     train_dataset_name = os.path.split(train_file_path)[-1]
-    train_file_path = args.train_file_path
+
     dev_file_path = os.path.join(target_dataset_path, "ent_devel.tsv")
     test_file_path = os.path.join(target_dataset_path, "ent_test.tsv")
 

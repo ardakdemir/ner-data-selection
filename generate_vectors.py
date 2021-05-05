@@ -25,6 +25,25 @@ SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+
+def parse_args():
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print("Working  on {}".format(device))
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804", type=str, required=False)
+    parser.add_argument(
+        "--save_folder", default="/home/aakdemir/all_encoded_vectors_0405", type=str, required=False)
+    parser.add_argument(
+        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
+    parser.add_argument(
+        "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
+    args = parser.parse_args()
+    args.device = device
+    return args
 
 
 def get_w2v_sent_reps(dataset, model, max_pool=False):
@@ -63,7 +82,7 @@ def encode_sent_with_w2v(sent, model, max_pool=False):
 def encode_with_bioword2vec(datasets, save_folder):
     dataset_to_states = {}
 
-    model = KeyedVectors.load_word2vec_format(BioWordVec_FOLDER, binary=True)
+    model = KeyedVectors.load_word2vec_format(BIOWORDVEC_FOLDER, binary=True)
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         begin = time.time()
         vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
@@ -98,7 +117,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
             # Load pretrained model/tokenizer
             tokenizer = tokenizer_class.from_pretrained(model_name)
             model = model_class.from_pretrained(model_name)
-            model.to(torch.device('cuda'))
+            model.to(DEVICE)
             model_to_states[save_name] = {"sents": [], "states": []}
             # Encode text
             start = time.time()
@@ -111,7 +130,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncation=True,
                                                            max_length=128)])  # Add special tokens takes care of adding [CLS], [SEP], <s>... tokens in the right way for each model.
-                input_ids = input_ids.to(torch.device('cuda'))
+                input_ids = input_ids.to(DEVICE)
                 with torch.no_grad():
                     output = model(input_ids)
                     last_hidden_states = output[0]
@@ -192,24 +211,31 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         selected_sentences[model] = {}
         for d, encodings in domaindev_vectors.items():
             selected_data = select_data(data_select_data, encodings)
-            selected_sentences[model][d] = {"selected_data":selected_data,
-                                            "all_target_data":encodings}
+            selected_sentences[model][d] = {"selected_data": selected_data,
+                                            "all_target_data": encodings}
 
-    return selected_sentences,all_sentences
+    return selected_sentences, all_sentences
+
 
 def plot_selected_sentences():
     x = 1
 
 
 def main():
-    folder = ROOT_FOLDER
-    dev_folder = DEV_SAVE_FOLDER
-    save_folder = SAVE_FOLDER
+    args = parse_args()
+    global ROOT_FOLDER
+    global DEV_SAVE_FOLDER
+    global SAVE_FOLDER
+    global BIOWORDVEC_FOLDER
+    ROOT_FOLDER = args.root_folder
+    DEV_SAVE_FOLDER = args.dev_save_folder
+    SAVE_FOLDER = args.save_folder
+    BIOWORDVEC_FOLDER = args.biowordvec_folder
     size = 100
     models_to_use = [x[2] for x in [MODELS[-1]]]
-    model_to_domain_to_encodings = get_domaintrain_vectors(folder, size, models_to_use, save_folder)
-    domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, dev_save_folder)
-    selected_sentences,all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
+    model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, size, models_to_use, SAVE_FOLDER)
+    domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, DEV_SAVE_FOLDER)
+    selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
 
 
 if __name__ == "__main__":
