@@ -198,7 +198,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
     return selected_sentences,all_sentences
 
 def plot_selected_sentences():
-
+    x = 1
 def main():
     folder = ROOT_FOLDER
     dev_folder = DEV_SAVE_FOLDER
