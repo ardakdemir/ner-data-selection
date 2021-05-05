@@ -195,6 +195,7 @@ def evaluate(model, dataset_loader, save_path):
             inputs = inputs.to(device)
             label = label.to(device)
             output = model(inputs)
+            b, n, c = output.shape
             output = output.reshape(b, c, n)
             loss = criterion(output, label)
             output = output.reshape(b, n, c)
