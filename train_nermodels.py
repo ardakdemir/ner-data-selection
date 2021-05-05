@@ -57,9 +57,7 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
-        "--target_dataset_path", default="../dataselect_nerresult_0505", type=str, required=False,
-        help="The path to save everything..."
-    )
+        "--target_dataset_path", default="../biobert_data/datasets/BioNER_2804/BC2GM", type=str, required=False)
     parser.add_argument(
         "--input_dims", default=768, type=int, required=False,
     )
@@ -92,6 +90,7 @@ def train(args):
     batch_size = args.batch_size
     target_dataset_path = args.target_dataset_path
     target_dataset = os.path.split(target_dataset_path)[-1]
+    train_dataset_name = os.path.split(train_file_path)[-1]
     train_file_path = args.train_file_path
     dev_file_path = os.path.join(target_dataset_path, "ent_devel.tsv")
     test_file_path = os.path.join(target_dataset_path, "ent_test.tsv")
@@ -134,6 +133,7 @@ def train(args):
               "target_dataset": target_dataset,
               "precision": test_pre,
               "recall": test_rec,
+              "train_dataset_name": train_dataset_name,
               "f1": test_f1}
     with open(result_save_path, "w") as j:
         json.dump(result, j)

@@ -199,12 +199,14 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
 
 def plot_selected_sentences():
     x = 1
+
+
 def main():
     folder = ROOT_FOLDER
     dev_folder = DEV_SAVE_FOLDER
     save_folder = SAVE_FOLDER
     size = 100
-    models_to_use = [x[2] for x in MODELS[-1]]
+    models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(folder, size, models_to_use, save_folder)
     domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, dev_save_folder)
     selected_sentences,all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
