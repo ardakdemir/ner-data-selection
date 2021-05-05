@@ -7,7 +7,9 @@ import json
 import h5py
 import os
 from torch.utils.data import Dataset, DataLoader
-from transformers import *
+# from transformers import *
+from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
+
 from collections import defaultdict
 from itertools import product
 import logging
