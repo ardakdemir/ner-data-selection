@@ -157,7 +157,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def get_domaindev_vectors(folder, size, models_to_use, dev_save_folder):
+def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
     """
         Get the vectors for the development sets of each dataset
     :param model_to_domain_to_encodings:
@@ -165,8 +165,8 @@ def get_domaindev_vectors(folder, size, models_to_use, dev_save_folder):
     :return:
     """
     datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_devel.tsv")
-    model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, dev_save_folder)
-    dataset_to_states = encode_with_bioword2vec(datasets, dev_save_folder)
+    model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
+    dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
     model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
