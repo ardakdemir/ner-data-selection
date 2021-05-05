@@ -94,7 +94,7 @@ def train(args):
     target_dataset = os.path.split(target_dataset_path)[-1]
     train_file_path = args.train_file_path
     dev_file_path = os.path.join(target_dataset_path, "ent_devel.tsv")
-    test_file_path = os.path.join(target_dataset_path, "ent_testl.tsv")
+    test_file_path = os.path.join(target_dataset_path, "ent_test.tsv")
 
     print("Target dataset: {}\nTrain {} dev {} test {}...\n".format(target_dataset, train_file_path, dev_file_path,
                                                                     test_file_path))
@@ -168,6 +168,7 @@ def evaluate(model, dataset_loader, save_path):
     for i in tqdm(range(len(dataset_loader)), desc="evaluation"):
         with torch.no_grad():
             inputs, label, tokens = dataset_loader[i]
+            inputs = inputs.to(device)
             output = model(inputs)
             b, n, c = output.shape
             for l in label:
@@ -208,7 +209,7 @@ def train_model(model, dataset_loaders, save_folder):
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, label, tokens = train_loader[i]
-            inputs = label.to(inputs)
+            inputs = inputs.to(device)
             output = model(inputs)
             b, n, c = output.shape
             output = output.reshape(b, c, n)
