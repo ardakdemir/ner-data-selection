@@ -211,7 +211,7 @@ def evaluate(model, dataset_loader, save_path):
                 preds.extend(p.detach().cpu().tolist())
             for t, p, l in zip(tokens, pred.detach().cpu().tolist(), label.detach().cpu().tolist()):
                 conll_data.append(list(zip(t, l, p)))
-        if i > 5: break
+        # if i > 5: break
     write_to_conll_format(conll_data, dataset_loader.dataset.label_vocab, save_path)
     pre, rec, f1 = evaluate_conll_file(open(save_path).readlines())
     print("Pre: {} Rec: {} F1: {}".format(pre, rec, f1))
