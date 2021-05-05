@@ -6,7 +6,8 @@ import argparse
 import json
 import h5py
 import os
-from transformers import AdamW,RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
+from transformers import AdamW, RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
+    BertTokenizer
 from collections import defaultdict
 from itertools import product
 import logging
@@ -154,7 +155,7 @@ def train(args):
               "target_dataset": target_dataset,
               "precision": test_pre,
               "recall": test_rec,
-              "test_loss":test_loss,
+              "test_loss": test_loss,
               "train_dataset_name": train_dataset_name,
               "f1": test_f1,
               "train_result": train_result}
@@ -237,6 +238,7 @@ def train_model(model, dataset_loaders, save_folder, args):
 
     train_losses = []
     dev_losses = []
+    dev_f1s = []
     train_loader = dataset_loaders["train"]
     eval_loader = dataset_loaders["devel"]
     best_f1 = -1
@@ -254,16 +256,17 @@ def train_model(model, dataset_loaders, save_folder, args):
             output = output.reshape(b, c, n)
             label = label.to(device)
             loss = criterion(output, label)
-            total_loss += loss
+            total_loss += loss.detach().cpu().item()
             total_num += label.shape[0]
-            # loss.backward()
+            loss.backward()
             optimizer.step()
             # print("Loss", loss.item())
             if (i + 1) % 100 == 0:
                 print("Loss at {}: {}".format(str(i + 1), round(total_loss / (i + 1), 3)))
-        train_loss = total_loss/total_num
+        train_loss = total_loss / total_num
         train_losses.append(train_loss)
         pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
+        dev_f1s.append(f1)
         dev_losses.append(dev_loss)
         if f1 > best_f1:
             best_f1 = f1
@@ -273,6 +276,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     model.load_state_dict(torch.load(model_save_path))
     return model, {"train_losses": train_losses,
                    "dev_losses": dev_losses,
+                   "dev_f1s": dev_f1s,
                    "best_f1": best_f1}
 
 
