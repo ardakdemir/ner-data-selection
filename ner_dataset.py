@@ -99,12 +99,13 @@ class NerDatasetLoader:
         self.batch_size = batch_size
         self.tokenizer = tokenizer
     def __len__(self):
-        return len(self.dataset)
+        return int(len(self.dataset)/self.batch_size)
 
     def __getitem__(self, index):
         inps = []
         labs = []
         final_labels = []
+        index = index*self.batch_size
         for b in range(self.batch_size):
             index = (index + b) % len(self.dataset)
             tokens, labels = self.dataset[index]

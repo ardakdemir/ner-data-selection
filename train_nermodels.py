@@ -21,10 +21,7 @@ SEP_TOKEN = "[SEP]"
 UNK_TOKEN = "[UNK]"
 PAD_TOKEN = "[PAD]"
 
-special_tokens = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
-
-
-
+SPECIAL_TOKENS = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
 
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
@@ -60,6 +57,10 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
+        "--target_dataset_path", default="../dataselect_nerresult_0505", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
         "--input_dims", default=768, type=int, required=False,
     )
     parser.add_argument(
@@ -89,14 +90,19 @@ def train(args):
     if not os.path.isdir(save_folder): os.makedirs(save_folder)
     size = args.size
     batch_size = args.batch_size
+    target_dataset_path = args.target_dataset_path
+    target_dataset = os.path.split(target_dataset_path)[-1]
     train_file_path = args.train_file_path
-    dev_file_path = args.dev_file_path
-    test_file_path = args.test_file_path
+    dev_file_path = os.path.join(target_dataset_path, "ent_devel.tsv")
+    test_file_path = os.path.join(target_dataset_path, "ent_testl.tsv")
 
+    print("Target dataset: {}\nTrain {} dev {} test {}...\n".format(target_dataset, train_file_path, dev_file_path,
+                                                                    test_file_path))
     model_name = model_tuple[2]
     tokenizer = BertTokenizer.from_pretrained(model_name)
 
     ner_dataset = NerDataset(train_file_path, size=size)
+
     dataset_loader = NerDatasetLoader(ner_dataset, tokenizer, batch_size=batch_size)
     dataset_loaders["train"] = dataset_loader
     num_classes = len(dataset_loader.dataset.label_vocab)
@@ -121,15 +127,33 @@ def train(args):
     save_path = os.path.join(save_folder, "conll_testout.txt")
     test_pre, test_rec, test_f1 = evaluate(trained_model, dataset_loaders["test"], save_path)
 
+    # Save result
+    result_save_path = os.path.join(save_folder, "results.json")
+    result = {"model_name": model_name,
+              "train_size": len(ner_dataset),
+              "target_dataset": target_dataset,
+              "precision": test_pre,
+              "recall": test_rec,
+              "f1": test_f1}
+    with open(result_save_path, "w") as j:
+        json.dump(result, j)
+
 
 def write_to_conll_format(conll_data, label_vocab, save_path):
     s = ""
-    map_to_conll_label = lambda x : label_vocab.ind2w[x] if x not in SPECIAL_TOKENS else "O"
+    map_to_conll_label = lambda x: label_vocab.ind2w[x] if label_vocab.ind2w[x] not in SPECIAL_TOKENS else "O"
     for sent in conll_data:
+        n = 0
         for t, l, p in sent:
+            n += 1
             if t[:2] == "##": continue
             if t in ["[CLS]", "[SEP]"]: continue
             if t == "[PAD]": break
+            # print(sent,i,t)
+            i = n
+            while sent[i][0][:2] == "##":
+                t += sent[i][0][2:]
+                i += 1
 
             s += "{}\t{}\t{}\n".format(t, map_to_conll_label(l), map_to_conll_label(p))
         s += "\n"
@@ -154,13 +178,11 @@ def evaluate(model, dataset_loader, save_path):
             for t, p, l in zip(tokens, pred.detach().cpu().tolist(), label.detach().cpu().tolist()):
                 conll_data.append(list(zip(t, l, p)))
         if i > 5: break
-    print("Conll data", conll_data[:10])
     write_to_conll_format(conll_data, dataset_loader.dataset.label_vocab, save_path)
     pre, rec, f1 = evaluate_conll_file(open(save_path).readlines())
     print("Pre: {} Rec: {} F1: {}".format(pre, rec, f1))
 
     print("{} preds {} labels...".format(len(preds), len(labels)))
-    print("Preds: {}  labels: {}".format(preds[:5], labels[:5]))
     return pre, rec, f1
 
 
@@ -186,6 +208,7 @@ def train_model(model, dataset_loaders, save_folder):
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, label, tokens = train_loader[i]
+            inputs = label.to(inputs)
             output = model(inputs)
             b, n, c = output.shape
             output = output.reshape(b, c, n)
@@ -196,7 +219,6 @@ def train_model(model, dataset_loaders, save_folder):
             print("Loss", loss.item())
 
         pre, rec, f1 = evaluate(model, eval_loader, eval_save_path)
-        print("Result for epoch {} {} ".format(j, res))
         if f1 > best_f1:
             best_f1 = f1
             best_model_weights = model.state_dict()
