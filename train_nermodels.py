@@ -67,6 +67,10 @@ def parse_args():
     return args
 
 
+def load_datasets():
+    to_do = True
+
+
 def train(args):
     #     biobert_model_tuple = MODELS[-1]
     model_tuple = (BertModel, BertTokenizer, "bert-base-uncased", "Bert-base")
@@ -77,6 +81,7 @@ def train(args):
     batch_size = args.batch_size
     train_file_path = args.train_file_path
     dev_file_path = args.dev_file_path
+    test_file_path = args.test_file_path
 
     model_name = model_tuple[2]
     tokenizer = BertTokenizer.from_pretrained(model_name)
@@ -93,9 +98,19 @@ def train(args):
     eval_dataset_loader = NerDatasetLoader(eval_ner_dataset, tokenizer, batch_size=batch_size)
     dataset_loaders["devel"] = eval_dataset_loader
 
-    model = NerModel(args, model_tuple)
-    train_model(model, dataset_loaders, save_folder)
+    test_ner_dataset = NerDataset(test_file_path, size=size)
+    test_ner_dataset.label_vocab = ner_dataset.label_vocab
+    test_ner_dataset.token_vocab = ner_dataset.token_vocab
+    test_dataset_loader = NerDatasetLoader(test_ner_dataset, tokenizer, batch_size=batch_size)
+    dataset_loaders["test"] = test_dataset_loader
 
+    model = NerModel(args, model_tuple)
+    trained_model = train_model(model, dataset_loaders, save_folder)
+
+    # Evaluate on test_set
+    save_path = os.path.join(save_folder, "conll_testout.txt")
+    test_pre, test_rec, test_f1 = evaluate(trained_model, dataset_loaders["test"], save_path)
+    print("Test ")
 
 def write_to_conll_format(conll_data, save_path):
     s = ""
@@ -139,6 +154,7 @@ def evaluate(model, dataset_loader, save_path):
 
 
 def train_model(model, dataset_loaders, save_folder):
+    model_save_path = os.path.join(save_folder, "best_model_weights.pkh")
     epoch_num = 2
     # eval_interval = len(dataset_loader)
     eval_interval = 5
@@ -150,6 +166,8 @@ def train_model(model, dataset_loaders, save_folder):
 
     train_loader = dataset_loaders["train"]
     eval_loader = dataset_loaders["devel"]
+    best_f1 = -1
+    best_model = 0
     for j in tqdm(range(epoch_num), desc="Epochs"):
         model = model.train()
         for i in tqdm(range(eval_interval), desc="training"):
@@ -165,8 +183,15 @@ def train_model(model, dataset_loaders, save_folder):
             loss.backward()
             optimizer.step()
             print(loss.item())
-        res = evaluate(model, eval_loader, save_path)
+        pre, rec, f1 = evaluate(model, eval_loader, save_path)
         print("Result for epoch {} {} ".format(j, res))
+        if f1 > best_f1:
+            best_f1 = f1
+            best_model_weights = model.state_dict()
+            torch.save(best_model_weights, model_save_path)
+
+    model.load_state_dict(torch.load(model_save_path))
+    return model
 
 
 def main():
