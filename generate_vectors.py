@@ -236,7 +236,7 @@ def main():
     size = 10
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, size, models_to_use, SAVE_FOLDER)
-    domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, DEV_SAVE_FOLDER)
+    domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, size, models_to_use, DEV_SAVE_FOLDER)
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
 
 
