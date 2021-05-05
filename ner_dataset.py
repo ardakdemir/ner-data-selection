@@ -1,6 +1,4 @@
 import numpy as np
-import time
-from tqdm import tqdm
 import argparse
 from transformers import BertTokenizer, BertForTokenClassification
 import torch
@@ -10,25 +8,20 @@ import os
 from torch.utils.data import Dataset, DataLoader
 from transformers import *
 from collections import defaultdict
-from itertools import product
 import logging
-from gensim.models import FastText, KeyedVectors
-
-
 
 CLS_TOKEN = "[CLS]"
 SEP_TOKEN = "[SEP]"
 UNK_TOKEN = "[UNK]"
 PAD_TOKEN = "[PAD]"
 
-special_tokens = [CLS_TOKEN, SEP_TOKEN,UNK_TOKEN,PAD_TOKEN]
-
+special_tokens = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
 
 
 def read_ner_dataset(file_path, size=None):
     dataset = open(file_path).read().split("\n\n")
     sentences = [[x.split()[0] for x in sent.split("\n") if len(x.split()) > 0] for sent in dataset]
-    labels = [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n")) > 0] for sent in dataset]
+    labels = [[x.split()[-1] for x in sent.split("\n") if len(x.split()) > 0] for sent in dataset]
     data = list(zip(sentences, labels))
     if not size:
         return list(zip(*data))
@@ -105,9 +98,9 @@ class NerDatasetLoader:
         self.dataset = dataset
         self.batch_size = batch_size
 
-
     def __len__(self):
         return len(self.dataset)
+
     def __getitem__(self, index):
         inps = []
         labs = []
@@ -119,11 +112,13 @@ class NerDatasetLoader:
             labs.append(labels)
 
         inputs = tokenizer(inps, return_tensors="pt", padding=True)
+        all_tokens = []
         for j, lab in enumerate(labs):
             input_tokens = inputs["input_ids"][j]
             tokens = tokenizer.convert_ids_to_tokens(input_tokens)
+            all_tokens.append(tokens)
             l = get_bert_labels(tokens, lab)
             l = self.dataset.label_vocab.map(l)
             #             l = torch.tensor(l).unsqueeze(0)
             final_labels.append(l)
-        return inputs, torch.tensor(final_labels)
+        return inputs, torch.tensor(final_labels), all_tokens
