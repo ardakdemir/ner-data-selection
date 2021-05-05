@@ -6,17 +6,25 @@ import argparse
 import json
 import h5py
 import os
-from torch.utils.data import Dataset, DataLoader
-from sklearn.metrics import precision_recall_fscore_support
 from transformers import *
 from collections import defaultdict
 from itertools import product
 import logging
-from gensim.models import FastText, KeyedVectors
+from torch.nn import CrossEntropyLoss, MSELoss
 from conll_eval import evaluate_conll_file
 from ner_dataset import NerDataset, NerDatasetLoader
 from nermodel import NerModel
 from gensim.utils import tokenize
+
+CLS_TOKEN = "[CLS]"
+SEP_TOKEN = "[SEP]"
+UNK_TOKEN = "[UNK]"
+PAD_TOKEN = "[PAD]"
+
+special_tokens = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
+
+
+
 
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
@@ -61,7 +69,7 @@ def parse_args():
         "--output_dim", default=6, type=int, required=False,
     )
     parser.add_argument(
-        "--batch_size", default=12, type=int, required=False,
+        "--batch_size", default=2, type=int, required=False,
     )
     args = parser.parse_args()
     args.device = device
@@ -78,6 +86,7 @@ def train(args):
     dataset_loaders = {}
 
     save_folder = args.save_folder
+    if not os.path.isdir(save_folder): os.makedirs(save_folder)
     size = args.size
     batch_size = args.batch_size
     train_file_path = args.train_file_path
@@ -112,15 +121,17 @@ def train(args):
     save_path = os.path.join(save_folder, "conll_testout.txt")
     test_pre, test_rec, test_f1 = evaluate(trained_model, dataset_loaders["test"], save_path)
 
-def write_to_conll_format(conll_data, save_path):
+
+def write_to_conll_format(conll_data, label_vocab, save_path):
     s = ""
+    map_to_conll_label = lambda x : label_vocab.ind2w[x] if x not in SPECIAL_TOKENS else "O"
     for sent in conll_data:
         for t, l, p in sent:
             if t[:2] == "##": continue
             if t in ["[CLS]", "[SEP]"]: continue
             if t == "[PAD]": break
 
-            s += "{}\t{}\t{}\n".format(t, l, p)
+            s += "{}\t{}\t{}\n".format(t, map_to_conll_label(l), map_to_conll_label(p))
         s += "\n"
     with open(save_path, "w") as o:
         o.write(s)
@@ -144,7 +155,7 @@ def evaluate(model, dataset_loader, save_path):
                 conll_data.append(list(zip(t, l, p)))
         if i > 5: break
     print("Conll data", conll_data[:10])
-    write_to_conll_format(conll_data, save_path)
+    write_to_conll_format(conll_data, dataset_loader.dataset.label_vocab, save_path)
     pre, rec, f1 = evaluate_conll_file(open(save_path).readlines())
     print("Pre: {} Rec: {} F1: {}".format(pre, rec, f1))
 
@@ -155,13 +166,15 @@ def evaluate(model, dataset_loader, save_path):
 
 def train_model(model, dataset_loaders, save_folder):
     model_save_path = os.path.join(save_folder, "best_model_weights.pkh")
+    eval_save_path = os.path.join(save_folder, "conll_dev_out.txt")
+
     epoch_num = 2
     # eval_interval = len(dataset_loader)
     eval_interval = 5
     model.to(device)
     model = model.train()
     optimizer = AdamW(model.parameters())
-    pad_index = dataset_loaders.dataset.label_vocab.w2ind["[PAD]"]
+    pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 
     train_loader = dataset_loaders["train"]
@@ -176,14 +189,13 @@ def train_model(model, dataset_loaders, save_folder):
             output = model(inputs)
             b, n, c = output.shape
             output = output.reshape(b, c, n)
-            print("Model output shape {}".format(output.shape))
             label = label.to(device)
-            print("Label shape", label.shape)
             loss = criterion(output, label)
-            loss.backward()
+            # loss.backward()
             optimizer.step()
-            print(loss.item())
-        pre, rec, f1 = evaluate(model, eval_loader, save_path)
+            print("Loss", loss.item())
+
+        pre, rec, f1 = evaluate(model, eval_loader, eval_save_path)
         print("Result for epoch {} {} ".format(j, res))
         if f1 > best_f1:
             best_f1 = f1

@@ -97,7 +97,7 @@ class NerDatasetLoader:
     def __init__(self, dataset, tokenizer, batch_size=5):
         self.dataset = dataset
         self.batch_size = batch_size
-
+        self.tokenizer = tokenizer
     def __len__(self):
         return len(self.dataset)
 
@@ -111,11 +111,11 @@ class NerDatasetLoader:
             inps.append(" ".join(tokens))
             labs.append(labels)
 
-        inputs = tokenizer(inps, return_tensors="pt", padding=True)
+        inputs = self.tokenizer(inps, return_tensors="pt", padding=True)
         all_tokens = []
         for j, lab in enumerate(labs):
             input_tokens = inputs["input_ids"][j]
-            tokens = tokenizer.convert_ids_to_tokens(input_tokens)
+            tokens = self.tokenizer.convert_ids_to_tokens(input_tokens)
             all_tokens.append(tokens)
             l = get_bert_labels(tokens, lab)
             l = self.dataset.label_vocab.map(l)

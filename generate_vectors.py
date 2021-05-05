@@ -188,13 +188,16 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         selected_sentences[model] = {}
         domaintrain_vectors = model_to_domain_to_encodings[model]
         data_select_data = get_dataselect_data(domaintrain_vectors)
-
+        all_sentences[model] = data_select_data
+        selected_sentences[model] = {}
         for d, encodings in domaindev_vectors.items():
-            selected_data = select_data(data_select_data, domain_encodings)
-            selected_sentences[model] = selected_data
-            all_sentences[model] = data_select_data
-    return selected_sentences
+            selected_data = select_data(data_select_data, encodings)
+            selected_sentences[model][d] = {"selected_data":selected_data,
+                                            "all_target_data":encodings}
 
+    return selected_sentences,all_sentences
+
+def plot_selected_sentences():
 
 def main():
     folder = ROOT_FOLDER
@@ -204,7 +207,7 @@ def main():
     models_to_use = [x[2] for x in MODELS[-1]]
     model_to_domain_to_encodings = get_domaintrain_vectors(folder, size, models_to_use, save_folder)
     domaindev_vectors = get_domaindev_vectors(dev_folder, size, models_to_use, dev_save_folder)
-    selected_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
+    selected_sentences,all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
 
 
 if __name__ == "__main__":
