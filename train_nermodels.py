@@ -145,7 +145,7 @@ def train(args):
 
     # Evaluate on test_set
     save_path = os.path.join(save_folder, "conll_testout.txt")
-    test_pre, test_rec, test_f1 = evaluate(trained_model, dataset_loaders["test"], save_path)
+    test_pre, test_rec, test_f1, test_loss = evaluate(trained_model, dataset_loaders["test"], save_path)
 
     # Save result
     result_save_path = os.path.join(save_folder, "results.json")
@@ -154,6 +154,7 @@ def train(args):
               "target_dataset": target_dataset,
               "precision": test_pre,
               "recall": test_rec,
+              "test_loss":test_loss,
               "train_dataset_name": train_dataset_name,
               "f1": test_f1,
               "train_result": train_result}
@@ -260,6 +261,8 @@ def train_model(model, dataset_loaders, save_folder, args):
             # print("Loss", loss.item())
             if (i + 1) % 100 == 0:
                 print("Loss at {}: {}".format(str(i + 1), round(total_loss / (i + 1), 3)))
+        train_loss = total_loss/total_num
+        train_losses.append(train_loss)
         pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
         dev_losses.append(dev_loss)
         if f1 > best_f1:
