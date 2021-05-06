@@ -57,7 +57,7 @@ def get_w2v_sent_reps(dataset, model, max_pool=False):
     for sent in dataset:
         vec, sent_toks = encode_sent_with_w2v(sent, model, max_pool)
         vecs.append(vec)
-        toks.append(sent_toks)
+        toks.append(sent)
     return np.stack(vecs), toks
 
 
@@ -87,8 +87,8 @@ def encode_with_bioword2vec(datasets, save_folder):
     model = KeyedVectors.load_word2vec_format(BIOWORDVEC_FOLDER, binary=True)
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         begin = time.time()
-        vecs, toks = get_w2v_sent_reps(dataset, model, max_pool=False)
-        dataset_to_states[dataset_name] = vecs
+        vecs, sents = get_w2v_sent_reps(dataset, model, max_pool=False)
+        dataset_to_states[dataset_name] = {"states": vecs, "sents": sents}
         end = time.time()
         t = round(end - begin, 3)
         save_fold = os.path.join(save_folder, "BioWordVec")
@@ -199,7 +199,7 @@ def get_dataselect_data(domaintrain_vectors):
     data = []
     print("Get dataselect data is called")
     for d, vecs in domaintrain_vectors.items():
-        print(d,vecs.keys())
+        print(d, vecs.keys())
         data.extend([(d, s, sent) for s, sent in zip(vecs["states"], vecs["sents"])])
     print("{} sentences. First sentence: {}".format(len(data), data[0]))
     return data
