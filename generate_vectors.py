@@ -197,15 +197,19 @@ def select_data(data_select_data, domain_encodings):
 
 def get_dataselect_data(domaintrain_vectors):
     data = []
+    print("Get dataselect data is called")
     for d, vecs in domaintrain_vectors.items():
+        print(d,vecs.keys())
         data.extend([(d, s, sent) for s, sent in zip(vecs["states"], vecs["sents"])])
     print("{} sentences. First sentence: {}".format(len(data), data[0]))
     return data
+
 
 def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
     selected_sentences = {}
     all_sentences = {}
     for model, domain_to_encodings in domaindev_vectors.items():
+        print("Running for {}".format(model))
         selected_sentences[model] = {}
         domaintrain_vectors = model_to_domain_to_encodings[model]
         data_select_data = get_dataselect_data(domaintrain_vectors)
@@ -215,7 +219,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
             selected_data = select_data(data_select_data, encodings)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
-
+            print("Selected sentence0: {}".format(selected_data[0]))
     return selected_sentences, all_sentences
 
 
@@ -233,10 +237,11 @@ def main():
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
-    size = 10
+    size = 2
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, size, models_to_use, DEV_SAVE_FOLDER)
+    print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
 
 
