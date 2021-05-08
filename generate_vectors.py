@@ -25,6 +25,7 @@ MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
+SELECTED_SAVE_ROOT = "../dummy_selected_save_root"
 
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,22 +54,25 @@ def get_w2v_sent_reps(dataset, model, max_pool=False):
     Encodes the lines in a text file using word2vec
     """
     vecs = []
+    sents = []
     toks = []
-    for sent in dataset:
-        vec, sent_toks = encode_sent_with_w2v(sent, model, max_pool)
+    labs = []
+    for tokens, labels in dataset:
+        vec, sent_toks = encode_sent_with_w2v(tokens, model, max_pool)
         vecs.append(vec)
-        toks.append(sent)
-    return np.stack(vecs), toks
+        toks.append(tokens)
+        sents.append(" ".join(tokens))
+        labs.append(labels)
+    return np.stack(vecs), sents, toks, labs
 
 
-def encode_sent_with_w2v(sent, model, max_pool=False):
+def encode_sent_with_w2v(tokens, model, max_pool=False):
     """
     Encodes a sentence as a sum of its corresponding word2vec embeddings.
     """
     MODEL_SIZE = 300
-    toks = list(tokenize(sent))
     vecs = []
-    for tok in toks:
+    for tok in tokens:
         if tok in model:
             vecs.append(model[tok])
     if len(vecs):
@@ -78,7 +82,7 @@ def encode_sent_with_w2v(sent, model, max_pool=False):
             pooled = np.mean(np.stack(vecs), axis=0)
     else:
         pooled = model['unk']
-    return pooled, toks
+    return pooled, tokens
 
 
 def encode_with_bioword2vec(datasets, save_folder):
@@ -87,8 +91,11 @@ def encode_with_bioword2vec(datasets, save_folder):
     model = KeyedVectors.load_word2vec_format(BIOWORDVEC_FOLDER, binary=True)
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         begin = time.time()
-        vecs, sents = get_w2v_sent_reps(dataset, model, max_pool=False)
-        dataset_to_states[dataset_name] = {"states": vecs, "sents": sents}
+        vecs, sents, tokens, labels = get_w2v_sent_reps(dataset, model, max_pool=False)
+        dataset_to_states[dataset_name] = {"sents": sents,
+                                           "tokens": tokens,
+                                           "states": vecs,
+                                           "labels": labels}
         end = time.time()
         t = round(end - begin, 3)
         save_fold = os.path.join(save_folder, "BioWordVec")
@@ -120,14 +127,17 @@ def encode_with_models(datasets, models_to_use, save_folder):
             tokenizer = tokenizer_class.from_pretrained(model_name)
             model = model_class.from_pretrained(model_name)
             model.to(DEVICE)
-            model_to_states[save_name] = {"sents": [], "states": []}
+            model_to_states[save_name] = {"sents": [], "tokens": [], "states": [], "labels": []}
             # Encode text
             start = time.time()
             i = 0
-            for sentence in tqdm(dataset, desc="sentences.."):
+            for tokens, labels in tqdm(dataset, desc="sentences.."):
+                sentence = " ".join(tokens)
                 model_to_states[save_name]['sents'].append(sentence)
+                model_to_states[save_name]['labels'].append(labels)
+                model_to_states[save_name]['tokens'].append(tokens)
                 if i == 0:
-                    print(sentence)
+                    print(tokens, labels)
                     i += 1
                 input_ids = torch.tensor([tokenizer.encode(sentence, add_special_tokens=True,
                                                            truncation=True,
@@ -166,15 +176,15 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
     :param size:
     :return:
     """
-    datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_devel.tsv")
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv")
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
-    dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
-    model_to_domain_to_encodings.update(dataset_to_states)
+    # dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
+    # model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
 
 def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
-    datasets = utils.get_sentence_datasets_from_folder(folder, size=size, file_name="ent_train.tsv")
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_train.tsv")
 
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
@@ -182,11 +192,11 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, save_folder)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
 
-    dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
-    print("BioWordVec keys: {}".format(dataset_to_states.keys()))
-
-    model_to_domain_to_encodings.update(dataset_to_states)
-    print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
+    # dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
+    # print("BioWordVec keys: {}".format(dataset_to_states.keys()))
+    #
+    # model_to_domain_to_encodings.update(dataset_to_states)
+    # print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
     return model_to_domain_to_encodings
 
 
@@ -200,7 +210,7 @@ def get_dataselect_data(domaintrain_vectors):
     print("Get dataselect data is called")
     for d, vecs in domaintrain_vectors.items():
         print(d, vecs.keys())
-        data.extend([(d, s, sent) for s, sent in zip(vecs["states"], vecs["sents"])])
+        data.extend([(d, s, tokens, labels) for s, sent in zip(vecs["states"], vecs["tokens"], vecs["labels"])])
     print("{} sentences. First sentence: {}".format(len(data), data[0]))
     return data
 
@@ -227,6 +237,13 @@ def plot_selected_sentences():
     x = 1
 
 
+def write_selected_sentences(selected_sentences, save_root):
+    file_name = "ent_train.tsv"
+    for model, domains_to_sents in selected_sentences.items():
+        for d, sents in domains_to_sents.items():
+            save_folder = os.path.join(save_root, model, d)
+
+
 def main():
     args = parse_args()
     global ROOT_FOLDER
@@ -243,7 +260,7 @@ def main():
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
-
+    write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
 
 if __name__ == "__main__":
     main()

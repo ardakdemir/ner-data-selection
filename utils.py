@@ -76,6 +76,17 @@ def get_sentences_from_dataset(file_path, size=None):
         np.random.shuffle(sentences)
         return sentences[:size]
 
+
+def get_tokens_from_dataset_with_labels(file_path, size=None):
+    sentences = open(file_path).read().split("\n\n")
+    sentences = [[(x.split()[0],x.split()[-1]) for x in sent.split("\n") if len(x.split())>0] for sent in sentences]
+    if not size:
+        return sentences
+    else:
+        np.random.shuffle(sentences)
+        return sentences[:size]
+
+
 def read_ner_dataset(file_path, size=None):
     dataset = open(file_path).read().split("\n\n")
     sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in dataset]
@@ -89,6 +100,9 @@ def read_ner_dataset(file_path, size=None):
 
 def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.tsv"):
     return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
+
+def get_datasets_from_folder_with_labels(folder, size=None, file_name="ent_train.tsv"):
+    return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
 
 
 def addbiotags(file_name, pref="ENT"):
