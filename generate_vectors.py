@@ -57,7 +57,9 @@ def get_w2v_sent_reps(dataset, model, max_pool=False):
     sents = []
     toks = []
     labs = []
-    for tokens, labels in dataset:
+    for data in dataset:
+        labels = [d[-1] for d in data]
+        tokens = [d[0] for d in data]
         vec, sent_toks = encode_sent_with_w2v(tokens, model, max_pool)
         vecs.append(vec)
         toks.append(tokens)
@@ -131,7 +133,9 @@ def encode_with_models(datasets, models_to_use, save_folder):
             # Encode text
             start = time.time()
             i = 0
-            for tokens, labels in tqdm(dataset, desc="sentences.."):
+            for data in tqdm(dataset, desc="sentences.."):
+                labels = [d[-1] for d in data]
+                tokens = [d[0] for d in data]
                 sentence = " ".join(tokens)
                 model_to_states[save_name]['sents'].append(sentence)
                 model_to_states[save_name]['labels'].append(labels)
@@ -261,6 +265,7 @@ def main():
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
+
 
 if __name__ == "__main__":
     main()
