@@ -214,7 +214,8 @@ def get_dataselect_data(domaintrain_vectors):
     print("Get dataselect data is called")
     for d, vecs in domaintrain_vectors.items():
         print(d, vecs.keys())
-        data.extend([(d, s, tokens, labels) for s, sent in zip(vecs["states"], vecs["tokens"], vecs["labels"])])
+        data.extend(
+            [(d, s, tokens, labels) for s, tokens, labels in zip(vecs["states"], vecs["tokens"], vecs["labels"])])
     print("{} sentences. First sentence: {}".format(len(data), data[0]))
     return data
 
