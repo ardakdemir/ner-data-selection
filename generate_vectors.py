@@ -9,7 +9,7 @@ import os
 from torch.utils.data import Dataset, DataLoader
 # from transformers import *
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
-
+from write_selected_sentences import write_selected_sentences
 from collections import defaultdict
 from itertools import product
 import logging
@@ -242,11 +242,6 @@ def plot_selected_sentences():
     x = 1
 
 
-def write_selected_sentences(selected_sentences, save_root):
-    file_name = "ent_train.tsv"
-    for model, domains_to_sents in selected_sentences.items():
-        for d, sents in domains_to_sents.items():
-            save_folder = os.path.join(save_root, model, d)
 
 
 def main():
