@@ -205,6 +205,7 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
 
 
 def select_data(data_select_data, domain_encodings):
+    print("Doomain encoding keys", domain_encodings.keys())
     size = 10
     return data_select_data[:size]
 
@@ -230,18 +231,16 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         data_select_data = get_dataselect_data(domaintrain_vectors)
         all_sentences[model] = data_select_data
         selected_sentences[model] = {}
-        for d, encodings in domaindev_vectors.items():
+        for d, encodings in domaindev_vectors[model].items():
             selected_data = select_data(data_select_data, encodings)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
-            print("Selected sentence0: {}".format(selected_data[0]))
+            print("Selected sentence0: {}".format(selected_data[0][-1]))
     return selected_sentences, all_sentences
 
 
 def plot_selected_sentences():
     x = 1
-
-
 
 
 def main():

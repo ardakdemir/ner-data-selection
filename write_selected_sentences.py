@@ -27,6 +27,7 @@ def write_selected_sentences(selected_sentences, save_root, file_name="ent_train
             sents = data["selected_data"]
             print("Selected sentences0: {}".format(sents[0]))
             save_folder = os.path.join(save_root, model, d)
+            print(save_folder)
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
             s = "\n\n".join(["\n".join(["{}\t{}".format(t, l) for t, l in zip(sent[-2], sent[-1])]) for sent in sents])
