@@ -75,7 +75,6 @@ def get_bert_labels(tokens, labels, raw_tokens):
                 curr_tok = ""
         elif t in special_tokens:
             bert_labels.append(t)
-            k += 1
             curr_tok = ""
         else:
             label = labels[i]
