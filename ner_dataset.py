@@ -71,6 +71,8 @@ def get_bert_labels(tokens, labels, raw_tokens):
         if t[:2] == "##" or curr_tok != raw_tokens[k]:
             bert_labels.append(prev_label)
             curr_tok += t[2:] if t[:2] == "##" else t
+            if curr_tok == raw_tokens[k]:
+                curr_tok = ""
         elif t in special_tokens:
             bert_labels.append(t)
             k += 1
