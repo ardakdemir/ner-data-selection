@@ -36,6 +36,7 @@ SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 CONLL_SAVE_PATH = "conll_output_0505.txt"
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
 # train_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv"
@@ -47,9 +48,18 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "--dataset_root", default="../biobert_data/datasets/BioNER_2804", type=str,
+        required=False
+    )
+    parser.add_argument(
+        "--evaluate_root", default="../biobert_data/datasets/BioNER_2804", type=str,
+        required=False
+    )
+    parser.add_argument(
         "--train_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv", type=str,
         required=False
     )
+
     parser.add_argument(
         "--dev_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_devel.tsv", type=str, required=False
     )
@@ -83,6 +93,9 @@ def parse_args():
     parser.add_argument(
         "--multiple", default=False, action="store_true", help="Run for all datasets"
     )
+    parser.add_argument(
+        "--dev_only", default=False, action="store_true", help="If True, only uses the dev split for training"
+    )
     args = parser.parse_args()
     args.device = device
     return args
@@ -111,12 +124,13 @@ def train(args):
     batch_size = args.batch_size
 
     target_dataset_path = args.target_dataset_path
-    train_file_path = args.train_file_path
-    target_dataset = os.path.split(target_dataset_path)[-1]
-    train_dataset_name = os.path.split(train_file_path)[-1]
 
     dev_file_path = os.path.join(target_dataset_path, "ent_devel.tsv")
     test_file_path = os.path.join(target_dataset_path, "ent_test.tsv")
+    train_file_path = args.train_file_path if not args.dev_only else dev_file_path
+
+    target_dataset = os.path.split(target_dataset_path)[-1]
+    train_dataset_name = os.path.split(train_file_path)[-1]
 
     print("Target dataset: {}\nTrain {} dev {} test {}...\n".format(target_dataset, train_file_path, dev_file_path,
                                                                     test_file_path))
@@ -124,7 +138,6 @@ def train(args):
     tokenizer = BertTokenizer.from_pretrained(model_name)
 
     ner_dataset = NerDataset(train_file_path, size=size)
-
     dataset_loader = NerDatasetLoader(ner_dataset, tokenizer, batch_size=batch_size)
     dataset_loaders["train"] = dataset_loader
     num_classes = len(dataset_loader.dataset.label_vocab)
@@ -296,7 +309,18 @@ def train_model(model, dataset_loaders, save_folder, args):
 
 def main():
     args = parse_args()
-    train(args)
+    save_folder_root = args.save_folder
+    if args.multiple:
+        for d in dataset_list:
+            print("Training for {}".format(d))
+            my_save_folder = os.path.join(save_folder_root, d)
+            args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
+            args.dev_file_path = os.path.join(evaluate_root, d, "ent_devel.tsv")
+            args.test_file_path = os.path.join(evaluate_root, d, "ent_test.tsv")
+            args.save_folder = my_save_folder
+            print("Saving {} results to {} ".format(d, my_save_folder))
+            print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+            train(args)
 
 
 if __name__ == "__main__":
