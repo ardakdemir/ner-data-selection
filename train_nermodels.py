@@ -232,7 +232,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     model.to(device)
     model = model.train()
 
-    optimizer = AdamW(model.parameters(),lr=2e-5)
+    optimizer = AdamW(model.parameters(),lr=2e-4)
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 

@@ -242,7 +242,6 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
 def plot_selected_sentences():
     x = 1
 
-
 def main():
     args = parse_args()
     global ROOT_FOLDER
@@ -253,10 +252,11 @@ def main():
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
-    size = 10000
+    train_size = 10000
+    dev_size = 2000
     models_to_use = [x[2] for x in [MODELS[-1]]]
-    model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, size, models_to_use, SAVE_FOLDER)
-    domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, size, models_to_use, DEV_SAVE_FOLDER)
+    model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
+    domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
