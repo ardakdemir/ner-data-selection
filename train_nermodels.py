@@ -6,7 +6,9 @@ import argparse
 import json
 import h5py
 import os
-from transformers import AdamW, RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
+from transformers import AdamW, RobertaModel, BertForTokenClassification,\
+    RobertaForTokenClassification,DistilBertForTokenClassification\
+    RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
     BertTokenizer
 from collections import defaultdict
 from itertools import product
