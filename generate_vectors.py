@@ -14,6 +14,7 @@ from collections import defaultdict
 from itertools import product
 import logging
 import utils
+import pickle
 from gensim.models import FastText, KeyedVectors
 
 from gensim.utils import tokenize
@@ -206,7 +207,7 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
 
 def select_data(data_select_data, domain_encodings):
     print("Doomain encoding keys: ", domain_encodings.keys())
-    size = 2000
+    size = 6
     return data_select_data[:size]
 
 
@@ -240,7 +241,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
 
 
 def plot_selected_sentences(selected_sentences, all_sentences):
-    pca = x
+
 
 def main():
     args = parse_args()
@@ -252,16 +253,24 @@ def main():
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
-    train_size = 10000
-    dev_size = 2000
+    train_size = 100
+    dev_size = 20
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
-    for m,domain_to_sents in selected_sentences.items():
+    for m, domain_to_sents in selected_sentences.items():
         for d, sents in domain_to_sents.items():
-            pr
+            print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
+                                                                               len(all_sentences[m]),
+                                                                               len(sents["all_target_data"])))
+    selected_pickle_save_path = os.path.join(SAVE_FOLDER, "selected_pickle.p")
+    pickle.dump(selected_sentences, open(selected_pickle_save_path, "wb"))
+
+    allsentences_pickle_save_path = os.path.join(SAVE_FOLDER, "allsentences_pickle.p")
+    pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
+
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
 
 
