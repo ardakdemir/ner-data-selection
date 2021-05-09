@@ -248,6 +248,7 @@ def train_model(model, dataset_loaders, save_folder, args):
         model = model.train()
         total_loss = 0
         total_num = 0
+        train_loader.for_eval = False
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, label, tokens = train_loader[i]
@@ -266,6 +267,7 @@ def train_model(model, dataset_loaders, save_folder, args):
                 print("Loss at {}: {}".format(str(i + 1), total_loss / (i + 1)))
         train_loss = total_loss / total_num
         train_losses.append(train_loss)
+        train_loader.for_eval = True
         pre, rec, f1, dev_loss = evaluate(model, train_loader, eval_save_path)
         pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
         dev_f1s.append(f1)
