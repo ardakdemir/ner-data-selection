@@ -48,6 +48,8 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
     parser.add_argument(
+        "--selected_save_folder", default="/home/aakdemir/selected_root_0905", type=str, required=False)
+    parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
         "--word2Vec_folder", default="/home/aakdemir/biobert_data/word2Ve", type=str, required=False)
