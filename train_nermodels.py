@@ -96,7 +96,8 @@ def plot_arrays(arrays, names, xlabel, ylabel, save_path):
 
 def train(args):
     #     biobert_model_tuple = MODELS[-1]
-    model_tuple = (BertModel, BertTokenizer, "bert-base-uncased", "Bert-base")
+    # model_tuple = (BertModel, BertTokenizer, "bert-base-uncased", "Bert-base")
+    model_tuple = (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
     dataset_loaders = {}
 
     save_folder = args.save_folder
@@ -232,7 +233,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     model.to(device)
     model = model.train()
 
-    optimizer = AdamW(model.parameters(),lr=2e-5)
+    optimizer = AdamW(model.parameters(), lr=2e-5)
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 
