@@ -60,7 +60,7 @@ def get_vocab(tokens):
 
 def get_bert_labels(tokens, labels, raw_tokens):
     prev_label = "O"
-    i,k = 0,0
+    i, k = 0, 0
     bert_labels = []
     # print(tokens, len(tokens))
     # print(labels, len(labels))
@@ -68,12 +68,12 @@ def get_bert_labels(tokens, labels, raw_tokens):
     print(tokens)
     print(raw_tokens)
     for t in tokens:
-        if t[:2] == "##" or curr_tok!=raw_tokens[k]:
+        if t[:2] == "##" or curr_tok != raw_tokens[k]:
             bert_labels.append(prev_label)
             curr_tok += t[2:] if t[:2] == "##" else t
         elif t in special_tokens:
             bert_labels.append(t)
-            k+=1
+            k += 1
             curr_tok = ""
         else:
             label = labels[i]
@@ -81,7 +81,8 @@ def get_bert_labels(tokens, labels, raw_tokens):
             i += 1
             prev_label = label
             curr_tok = ""
-            k+=1
+            k += 1
+    print(labels, bert_labels)
     return bert_labels
 
 
@@ -135,7 +136,7 @@ class NerDatasetLoader:
             input_tokens = inputs["input_ids"][j]
             tokens = self.tokenizer.convert_ids_to_tokens(input_tokens)
             all_tokens.append(tokens)
-            l = get_bert_labels(tokens, lab,raw_tokens[j])
+            l = get_bert_labels(tokens, lab, raw_tokens[j])
             l = self.dataset.label_vocab.map(l)
             #             l = torch.tensor(l).unsqueeze(0)
             final_labels.append(l)
