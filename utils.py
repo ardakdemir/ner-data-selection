@@ -20,6 +20,7 @@ def plot_arrays(arrays, save_path, x_title=None, y_title=None, names=None, title
     plt.ylabel(y_title)
     plt.savefig(save_path)
 
+
 def combine_dictionaries(dics):
     combined = dics[0]
     for dic in dics[1:]:
@@ -69,7 +70,7 @@ def unsort_dataset(dataset, orig_idx):
 
 def get_sentences_from_dataset(file_path, size=None):
     sentences = open(file_path).read().split("\n\n")
-    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in sentences]
+    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split()) > 0]) for sent in sentences]
     if not size:
         return sentences
     else:
@@ -79,7 +80,9 @@ def get_sentences_from_dataset(file_path, size=None):
 
 def get_tokens_from_dataset_with_labels(file_path, size=None):
     sentences = open(file_path).read().split("\n\n")
-    sentences = [[(x.split()[0],x.split()[-1]) for x in sent.split("\n") if len(x.split())>0] for sent in sentences]
+    prune_short_sentences_limit = 6
+    sentences = [[(x.split()[0], x.split()[-1]) for x in sent.split("\n") if len(x.split()) > 0] for sent in sentences
+                 if len(sent.split("\n") > prune_short_sentences_limit)]
     if not size:
         return sentences
     else:
@@ -89,20 +92,23 @@ def get_tokens_from_dataset_with_labels(file_path, size=None):
 
 def read_ner_dataset(file_path, size=None):
     dataset = open(file_path).read().split("\n\n")
-    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split())>0]) for sent in dataset]
-    labels =  [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n"))>0] for sent in dataset]
-    data = list(zip(sentences,labels))
+    sentences = [" ".join([x.split()[0] for x in sent.split("\n") if len(x.split()) > 0]) for sent in dataset]
+    labels = [[x.split()[-1] for x in sent.split("\n") if len(sent.split("\n")) > 0] for sent in dataset]
+    data = list(zip(sentences, labels))
     if not size:
         return list(zip(*data))
     else:
         np.random.shuffle(data)
         return list(zip(*data[:size]))
 
+
 def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.tsv"):
     return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
 
+
 def get_datasets_from_folder_with_labels(folder, size=None, file_name="ent_train.tsv"):
-    return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
+    return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size)) for f in
+            os.listdir(folder)]
 
 
 def addbiotags(file_name, pref="ENT"):
