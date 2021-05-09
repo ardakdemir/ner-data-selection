@@ -249,7 +249,7 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     for instance in all_sentences:
         all_vectors_combined.append(instance[1])
     all_pca_vecs = pca.fit_transform(all_vectors_combined)
-    for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
+    # for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
 
 
 def main():
