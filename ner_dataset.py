@@ -124,7 +124,8 @@ class NerDatasetLoader:
             labs.append(labels)
             raw_tokens.append(tokens)
 
-        inputs = self.tokenizer(inps, return_tensors="pt", padding=True)
+        inputs = self.tokenizer(inps, return_tensors="pt", padding=True, truncation=True,
+                                max_length=512)
         all_tokens = []
         for j, lab in enumerate(labs):
             input_tokens = inputs["input_ids"][j]
