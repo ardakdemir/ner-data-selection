@@ -31,7 +31,7 @@ ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
 SELECTED_SAVE_ROOT = "../dummy_selected_save_root"
-
+COS_SIM_SAMPLE_SIZE = 10000
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -53,6 +53,8 @@ def parse_args():
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
         "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
+    parser.add_argument(
+        "--cos_sim_sample_size", default=1000, type=int, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -221,9 +223,10 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
-    for d in data_select_data:
+    for d in tqdm(data_select_data,desc="sentence"):
         np.random.shuffle(domain_vectors)
-        sample_vecs = domain_vectors
+        sample_vecs = domain_vectors[:COS_SIM_SAMPLE_SIZE]
+        print
         my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
         data_sims.append(my_sim)
     data_with_sims = list(zip(data_sims, data_select_data))
@@ -255,10 +258,16 @@ def select_data(model_to_domain_to_encodings, domaindev_vectors, size):
         data_select_data = get_dataselect_data(domaintrain_vectors)
         all_sentences[model] = data_select_data
         selected_sentences[model] = {}
+
         for d, encodings in domaindev_vectors[model].items():
+            beg = time.time()
+            print("Selecting data for {} {}".format(model,d))
             selected_data = select_data_with_cosine(data_select_data, encodings, size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
+            end = time.time()
+            t = round(end-beg,3)
+            print("Selected {} data in {} seconds".format(len(selected_data),t))
             # print("Selected sentence0: {}".format(selected_data[0][-1]))
     return selected_sentences, all_sentences
 
@@ -278,14 +287,16 @@ def main():
     global DEV_SAVE_FOLDER
     global SAVE_FOLDER
     global BIOWORDVEC_FOLDER
+    global COS_SIM_SAMPLE_SIZE
     ROOT_FOLDER = args.root_folder
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
-    train_size = 30000
-    dev_size = 1000
-    select_size = 30000
+    COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
+    train_size = 20
+    dev_size = 10
+    select_size = 5
     models_to_use = [x[2] for x in MODELS]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
