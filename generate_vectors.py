@@ -48,7 +48,7 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/selected_root_0905", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/selected_root_0905_big", type=str, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
@@ -283,10 +283,10 @@ def main():
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
-    train_size = 100
-    dev_size = 50
-    select_size = 20
-    models_to_use = [x[2] for x in [MODELS[-1]]]
+    train_size = 30000
+    dev_size = 1000
+    select_size = 30000
+    models_to_use = [x[2] for x in MODELS]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
