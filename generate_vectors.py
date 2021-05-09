@@ -207,9 +207,8 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def select_data(data_select_data, domain_encodings):
+def select_data(data_select_data, domain_encodings, size=5):
     print("Doomain encoding keys: ", domain_encodings.keys())
-    size = 6
     return data_select_data[:size]
 
 
@@ -235,7 +234,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         all_sentences[model] = data_select_data
         selected_sentences[model] = {}
         for d, encodings in domaindev_vectors[model].items():
-            selected_data = select_data(data_select_data, encodings)
+            selected_data = select_data(data_select_data, encodings, size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             # print("Selected sentence0: {}".format(selected_data[0][-1]))
@@ -248,7 +247,6 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     for instance in all_sentences:
         all_vectors_combined.append(instance[1])
     pca_vecs = pca.fit_transform(all_vectors_combined)
-    
 
 
 def main():
@@ -263,6 +261,7 @@ def main():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     train_size = 100
     dev_size = 20
+    select_size = 5
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)

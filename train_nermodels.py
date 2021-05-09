@@ -6,8 +6,8 @@ import argparse
 import json
 import h5py
 import os
-from transformers import AdamW, RobertaModel, BertForTokenClassification,\
-    RobertaForTokenClassification,DistilBertForTokenClassification,\
+from transformers import AdamW, RobertaModel, BertForTokenClassification, \
+    RobertaForTokenClassification, DistilBertForTokenClassification, \
     RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
     BertTokenizer
 from collections import defaultdict
@@ -79,6 +79,9 @@ def parse_args():
     )
     parser.add_argument(
         "--batch_size", default=12, type=int, required=False,
+    )
+    parser.add_argument(
+        "--multiple", default=False, action="store_true", help="Run for all datasets"
     )
     args = parser.parse_args()
     args.device = device
@@ -200,7 +203,7 @@ def evaluate(model, dataset_loader, save_path):
             inputs, label, tokens = dataset_loader[i]
             inputs = inputs.to(device)
             label = label.to(device)
-            output = model(inputs,labels=label)
+            output = model(inputs, labels=label)
             loss = output.loss
             output = output.logits
             # b, n, c = output.shape
@@ -245,7 +248,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     dev_losses = []
     dev_f1s = []
     train_loader = dataset_loaders["train"]
-    eval_loader = dataset_loaders["devel"]
+    eval_loader = dataset_loaders["test"]
     best_f1 = -1
     best_model = 0
     for j in tqdm(range(epoch_num), desc="Epochs"):
