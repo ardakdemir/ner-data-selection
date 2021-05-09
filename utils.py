@@ -82,7 +82,7 @@ def get_tokens_from_dataset_with_labels(file_path, size=None):
     sentences = open(file_path).read().split("\n\n")
     prune_short_sentences_limit = 6
     sentences = [[(x.split()[0], x.split()[-1]) for x in sent.split("\n") if len(x.split()) > 0] for sent in sentences
-                 if len(sent.split("\n") > prune_short_sentences_limit)]
+                 if len(sent.split("\n")) > prune_short_sentences_limit]
     if not size:
         return sentences
     else:
