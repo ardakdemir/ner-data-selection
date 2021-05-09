@@ -293,10 +293,10 @@ def main():
             print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
                                                                                len(all_sentences[m]),
                                                                                len(sents["all_target_data"]["sents"])))
-    selected_pickle_save_path = os.path.join(SAVE_FOLDER, "selected_pickle.p")
+    selected_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "selected_pickle.p")
     pickle.dump(selected_sentences, open(selected_pickle_save_path, "wb"))
 
-    allsentences_pickle_save_path = os.path.join(SAVE_FOLDER, "allsentences_pickle.p")
+    allsentences_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "allsentences_pickle.p")
     pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
 
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
