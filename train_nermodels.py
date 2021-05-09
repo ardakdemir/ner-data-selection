@@ -130,7 +130,7 @@ def train(args):
     train_file_path = args.train_file_path if not args.dev_only else dev_file_path
 
     target_dataset = os.path.split(target_dataset_path)[-1]
-    train_dataset_name = os.path.split(train_file_path)[-1]
+    train_dataset_name = os.path.split(os.path.split(train_file_path)[0])[-1]
 
     print("Target dataset: {}\nTrain {} dev {} test {}...\n".format(target_dataset, train_file_path, dev_file_path,
                                                                     test_file_path))
@@ -314,6 +314,7 @@ def main():
         for d in dataset_list:
             print("Training for {}".format(d))
             my_save_folder = os.path.join(save_folder_root, d)
+            args.target_dataset_path = os.path.join(args.dataset_root, d)
             args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
             args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
             args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
