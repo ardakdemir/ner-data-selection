@@ -62,9 +62,10 @@ def get_bert_labels(tokens, labels):
     prev_label = "O"
     i = 0
     bert_labels = []
-    print(tokens)
-    print(labels)
+    print(tokens,len(tokens))
+    print(labels,len(labels))
     for t in tokens:
+        print(t,i)
         if t[:2] == "##":
             bert_labels.append(prev_label)
         elif t in special_tokens:
