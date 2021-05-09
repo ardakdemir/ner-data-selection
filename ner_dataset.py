@@ -94,18 +94,23 @@ class NerDataset(Dataset):
 
 
 class NerDatasetLoader:
-    def __init__(self, dataset, tokenizer, batch_size=5):
+    def __init__(self, dataset, tokenizer, batch_size=5, for_eval=False):
         self.dataset = dataset
         self.batch_size = batch_size
         self.tokenizer = tokenizer
+        self.for_eval = for_eval
+
     def __len__(self):
-        return int(len(self.dataset)/self.batch_size)
+        return int(len(self.dataset) / self.batch_size)
 
     def __getitem__(self, index):
         inps = []
         labs = []
         final_labels = []
-        index = index*self.batch_size
+        if self.for_eval:
+            index = index * self.batch_size
+        else:
+            index = np.random.randint(0,len(self.dataset) / self.batch_size)
         for b in range(self.batch_size):
             index = (index + b) % len(self.dataset)
             tokens, labels = self.dataset[index]
