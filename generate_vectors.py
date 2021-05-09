@@ -185,8 +185,8 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
     """
     datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv")
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
-    # dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
-    # model_to_domain_to_encodings.update(dataset_to_states)
+    dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
+    model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
 
@@ -199,11 +199,11 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, save_folder)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
 
-    # dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
-    # print("BioWordVec keys: {}".format(dataset_to_states.keys()))
-    #
-    # model_to_domain_to_encodings.update(dataset_to_states)
-    # print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
+    dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
+    print("BioWordVec keys: {}".format(dataset_to_states.keys()))
+
+    model_to_domain_to_encodings.update(dataset_to_states)
+    print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
     return model_to_domain_to_encodings
 
 
