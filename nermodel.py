@@ -24,7 +24,7 @@ class NerModel(nn.Module):
         # self.classifier = nn.Linear(self.input_dims, self.output_dim)
 
     def forward(self, bert_input, labels=None):
-        if labels:
+        if labels is not None:
             output = self.model(**bert_input)
         else:
             output = self.model(**bert_input)
