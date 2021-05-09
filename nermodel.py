@@ -25,7 +25,7 @@ class NerModel(nn.Module):
 
     def forward(self, bert_input, labels=None):
         if labels is not None:
-            output = self.model(**bert_input)
+            output = self.model(**bert_input,labels=labels)
         else:
             output = self.model(**bert_input)
         return output
