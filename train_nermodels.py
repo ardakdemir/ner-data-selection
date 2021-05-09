@@ -232,7 +232,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     model.to(device)
     model = model.train()
 
-    optimizer = AdamW(model.parameters(),lr=2e-4)
+    optimizer = AdamW(model.parameters(),lr=2e-5)
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 
@@ -265,6 +265,7 @@ def train_model(model, dataset_loaders, save_folder, args):
                 print("Loss at {}: {}".format(str(i + 1), total_loss / (i + 1)))
         train_loss = total_loss / total_num
         train_losses.append(train_loss)
+        pre, rec, f1, dev_loss = evaluate(model, train_loader, eval_save_path)
         pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
         dev_f1s.append(f1)
         dev_losses.append(dev_loss)
