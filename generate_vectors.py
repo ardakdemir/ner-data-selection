@@ -226,11 +226,11 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
         sample_vecs = domain_vectors
         my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
         data_sims.append(my_sim)
-    data_with_dists = list(zip(data_dists, data_select_data))
-    data_with_dists.sort(key=  lambda d: d[0], reverse=True)
+    data_with_sims = list(zip(data_sims, data_select_data))
+    data_with_sims.sort(key=  lambda d: d[0], reverse=True)
     N = 1
-    print("Top {} selected data: {}".format(data_with_dists[:N]))
-    return data_with_dists[:size]
+    print("Top {} selected data: {}".format(data_with_sims[:N]))
+    return data_with_sims[:size]
 
 
 def get_dataselect_data(domaintrain_vectors):
