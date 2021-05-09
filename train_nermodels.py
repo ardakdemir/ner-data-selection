@@ -76,7 +76,7 @@ def parse_args():
         "--output_dim", default=6, type=int, required=False,
     )
     parser.add_argument(
-        "--batch_size", default=2, type=int, required=False,
+        "--batch_size", default=12, type=int, required=False,
     )
     args = parser.parse_args()
     args.device = device
@@ -232,7 +232,7 @@ def train_model(model, dataset_loaders, save_folder, args):
     model.to(device)
     model = model.train()
 
-    optimizer = AdamW(model.parameters())
+    optimizer = AdamW(model.parameters(),lr=2e-5)
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
     criterion = CrossEntropyLoss(ignore_index=pad_index)
 
