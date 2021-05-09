@@ -213,7 +213,7 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def cos_similarity(a, v):
+def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
 
 
