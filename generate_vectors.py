@@ -296,6 +296,10 @@ def main():
             print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
                                                                                len(all_sentences[m]),
                                                                                len(sents["all_target_data"]["sents"])))
+
+    if not os.path.exists(SELECTED_SAVE_ROOT):
+        os.makedirs(SELECTED_SAVE_ROOT)
+        
     selected_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "selected_pickle.p")
     pickle.dump(selected_sentences, open(selected_pickle_save_path, "wb"))
 
