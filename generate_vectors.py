@@ -47,6 +47,8 @@ def parse_args():
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
+    parser.add_argument(
+        "--word2Vec_folder", default="/home/aakdemir/biobert_data/word2Ve", type=str, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -246,7 +248,8 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     all_vectors_combined = []
     for instance in all_sentences:
         all_vectors_combined.append(instance[1])
-    pca_vecs = pca.fit_transform(all_vectors_combined)
+    all_pca_vecs = pca.fit_transform(all_vectors_combined)
+    for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
 
 
 def main():
@@ -266,7 +269,8 @@ def main():
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
-    selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
+    selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors,
+                                                                  select_size)
     for m, domain_to_sents in selected_sentences.items():
         for d, sents in domain_to_sents.items():
             print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
