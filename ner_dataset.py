@@ -58,23 +58,28 @@ def get_vocab(tokens):
     return w2ind
 
 
-def get_bert_labels(tokens, labels):
+def get_bert_labels(tokens, labels, raw_tokens):
     prev_label = "O"
     i = 0
     bert_labels = []
-    print(tokens,len(tokens))
-    print(labels,len(labels))
+    # print(tokens, len(tokens))
+    # print(labels, len(labels))
+    curr_tok = ""
     for t in tokens:
-        print(t,i)
-        if t[:2] == "##":
+        if t[:2] == "##" or curr_tok!=raw_tokens[k]:
             bert_labels.append(prev_label)
+            curr_tok += t[2:] if t[:2] == "##" else t
         elif t in special_tokens:
             bert_labels.append(t)
+            k+=1
+            curr_tok = ""
         else:
             label = labels[i]
             bert_labels.append(label)
             i += 1
             prev_label = label
+            curr_tok = ""
+            k+=1
     return bert_labels
 
 
@@ -109,6 +114,7 @@ class NerDatasetLoader:
     def __getitem__(self, index):
         inps = []
         labs = []
+        raw_tokens = []
         final_labels = []
         if self.for_eval:
             index = index * self.batch_size
@@ -119,6 +125,7 @@ class NerDatasetLoader:
             tokens, labels = self.dataset[index]
             inps.append(" ".join(tokens))
             labs.append(labels)
+            raw_tokens.append(tokens)
 
         inputs = self.tokenizer(inps, return_tensors="pt", padding=True)
         all_tokens = []
@@ -126,7 +133,7 @@ class NerDatasetLoader:
             input_tokens = inputs["input_ids"][j]
             tokens = self.tokenizer.convert_ids_to_tokens(input_tokens)
             all_tokens.append(tokens)
-            l = get_bert_labels(tokens, lab)
+            l = get_bert_labels(tokens, lab,raw_tokens[j])
             l = self.dataset.label_vocab.map(l)
             #             l = torch.tensor(l).unsqueeze(0)
             final_labels.append(l)
