@@ -7,7 +7,7 @@ import json
 import h5py
 import os
 from transformers import AdamW, RobertaModel, BertForTokenClassification,\
-    RobertaForTokenClassification,DistilBertForTokenClassification\
+    RobertaForTokenClassification,DistilBertForTokenClassification,\
     RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
     BertTokenizer
 from collections import defaultdict
