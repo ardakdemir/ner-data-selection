@@ -97,7 +97,7 @@ def plot_arrays(arrays, names, xlabel, ylabel, save_path):
 def train(args):
     #     biobert_model_tuple = MODELS[-1]
     # model_tuple = (BertModel, BertTokenizer, "bert-base-uncased", "Bert-base")
-    model_tuple = (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
+    model_tuple = (BertForTokenClassification, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
     dataset_loaders = {}
 
     save_folder = args.save_folder
@@ -198,11 +198,13 @@ def evaluate(model, dataset_loader, save_path):
             inputs, label, tokens = dataset_loader[i]
             inputs = inputs.to(device)
             label = label.to(device)
-            output = model(inputs)
-            b, n, c = output.shape
-            output = output.reshape(b, c, n)
-            loss = criterion(output, label)
-            output = output.reshape(b, n, c)
+            output = model(inputs,labels=label)
+            loss = output.loss
+            output = output.logits
+            # b, n, c = output.shape
+            # output = output.reshape(b, c, n)
+            # loss = criterion(output, label)
+            # output = output.reshape(b, n, c)
             total_loss += loss.detach().cpu().item()
             b, n, c = output.shape
             for l in label:
@@ -253,11 +255,14 @@ def train_model(model, dataset_loaders, save_folder, args):
             optimizer.zero_grad()
             inputs, label, tokens = train_loader[i]
             inputs = inputs.to(device)
-            output = model(inputs)
-            b, n, c = output.shape
-            output = output.view(-1, n)
             label = label.to(device)
-            loss = criterion(output, label.view(-1))
+            output = model(inputs, labels=label)
+            loss = output.loss
+            logits = output.logits
+            # b, n, c = output.shape
+            # output = output.view(-1, n)
+            # label = label.to(device)
+            # loss = criterion(output, label.view(-1))
             total_loss += loss.detach().cpu().item()
             total_num += label.shape[0]
             loss.backward()

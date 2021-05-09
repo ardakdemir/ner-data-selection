@@ -240,7 +240,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
 
 
 def plot_selected_sentences(selected_sentences, all_sentences):
-    pca =
+    pca = x
 
 def main():
     args = parse_args()
@@ -259,6 +259,9 @@ def main():
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size)
+    for m,domain_to_sents in selected_sentences.items():
+        for d, sents in domain_to_sents.items():
+            pr
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
 
 

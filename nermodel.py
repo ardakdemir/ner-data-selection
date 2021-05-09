@@ -20,12 +20,12 @@ class NerModel(nn.Module):
         tokenizer = tokenizer_class.from_pretrained(model_name)
 
         self.input_dims, self.output_dim = args.input_dims, args.output_dim
-        self.model = model_class.from_pretrained(model_name,output_hidden_states=True)
-        self.classifier = nn.Linear(self.input_dims, self.output_dim)
+        self.model = model_class.from_pretrained(model_name, num_labels=self.output_dim)
+        # self.classifier = nn.Linear(self.input_dims, self.output_dim)
 
-
-    def forward(self, bert_input):
-        output = self.model(**bert_input)
-        last_hidden_states = output[0]
-        class_logits = self.classifier(last_hidden_states)
-        return class_logits
+    def forward(self, bert_input, labels=None):
+        if labels:
+            output = self.model(**bert_input)
+        else:
+            output = self.model(**bert_input)
+        return output
