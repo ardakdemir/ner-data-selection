@@ -52,7 +52,7 @@ def parse_args():
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
-        "--word2Vec_folder", default="/home/aakdemir/biobert_data/word2Ve", type=str, required=False)
+        "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -230,7 +230,7 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     data_with_sims.sort(key=lambda d: d[0], reverse=True)
     N = 1
     print("Top {} selected data: {}".format(N, data_with_sims[:N]))
-    sims,data = list(zip(*data_with_sims))
+    sims, data = list(zip(*data_with_sims))
     return data[:size]
 
 
