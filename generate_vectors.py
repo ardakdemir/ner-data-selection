@@ -219,7 +219,7 @@ def cos_similarity(a, v):
 
 def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     print("Doomain encoding keys: ", domain_encodings.keys())
-    domain_vectors = domain_encodins["states"]
+    domain_vectors = domain_encodings["states"]
     data_sims = []
     for d in data_select_data:
         np.random.shuffle(domain_vectors)
