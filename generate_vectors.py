@@ -235,12 +235,12 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
             selected_data = select_data(data_select_data, encodings)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
-            print("Selected sentence0: {}".format(selected_data[0][-1]))
+            # print("Selected sentence0: {}".format(selected_data[0][-1]))
     return selected_sentences, all_sentences
 
 
-def plot_selected_sentences():
-    x = 1
+def plot_selected_sentences(selected_sentences, all_sentences):
+    pca =
 
 def main():
     args = parse_args()

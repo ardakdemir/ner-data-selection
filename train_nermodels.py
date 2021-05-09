@@ -255,9 +255,9 @@ def train_model(model, dataset_loaders, save_folder, args):
             inputs = inputs.to(device)
             output = model(inputs)
             b, n, c = output.shape
-            output = output.reshape(b, c, n)
+            output = output.view(-1, n)
             label = label.to(device)
-            loss = criterion(output, label)
+            loss = criterion(output, label.view(-1))
             total_loss += loss.detach().cpu().item()
             total_num += label.shape[0]
             loss.backward()
