@@ -218,7 +218,7 @@ def cos_similarity(a, b):
 
 
 def select_data_with_cosine(data_select_data, domain_encodings, size=5):
-    print("Doomain encoding keys: ", domain_encodings.keys())
+    print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
     for d in data_select_data:
@@ -230,7 +230,8 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     data_with_sims.sort(key=lambda d: d[0], reverse=True)
     N = 1
     print("Top {} selected data: {}".format(N, data_with_sims[:N]))
-    return data_with_sims[:size]
+    sims,data = list(zip(*data_with_sims))
+    return data[:size]
 
 
 def get_dataselect_data(domaintrain_vectors):

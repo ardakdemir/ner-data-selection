@@ -65,7 +65,8 @@ def get_bert_labels(tokens, labels, raw_tokens):
     # print(tokens, len(tokens))
     # print(labels, len(labels))
     curr_tok = ""
-
+    print(tokens)
+    print(raw_tokens)
     for t in tokens:
         if t[:2] == "##" or curr_tok!=raw_tokens[k]:
             bert_labels.append(prev_label)
