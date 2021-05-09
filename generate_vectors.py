@@ -262,9 +262,9 @@ def main():
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
-    train_size = 100
-    dev_size = 20
-    select_size = 5
+    train_size = 90000
+    dev_size = 1000
+    select_size = 30000
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
