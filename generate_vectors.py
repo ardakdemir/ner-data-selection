@@ -6,6 +6,8 @@ import argparse
 import json
 import h5py
 import os
+from numpy import dot, inner
+from numpy.linalg import norm
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
@@ -209,9 +211,24 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def select_data(data_select_data, domain_encodings, size=5):
+def cos_similarity(a, v):
+    return inner(a, b) / (norm(a) * norm(b))
+
+
+def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     print("Doomain encoding keys: ", domain_encodings.keys())
-    return data_select_data[:size]
+    domain_vectors = domain_encodins["states"]
+    data_sims = []
+    for d in data_select_data:
+        np.random.shuffle(domain_vectors)
+        sample_vecs = domain_vectors
+        my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
+        data_sims.append(my_sim)
+    data_with_dists = list(zip(data_dists, data_select_data))
+    data_with_dists.sort(key=  lambda d: d[0], reverse=True)
+    N = 1
+    print("Top {} selected data: {}".format(data_with_dists[:N]))
+    return data_with_dists[:size]
 
 
 def get_dataselect_data(domaintrain_vectors):
@@ -225,7 +242,7 @@ def get_dataselect_data(domaintrain_vectors):
     return data
 
 
-def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, size):
+def select_data(model_to_domain_to_encodings, domaindev_vectors, size):
     selected_sentences = {}
     all_sentences = {}
     for model, domain_to_encodings in domaindev_vectors.items():
@@ -236,7 +253,7 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
         all_sentences[model] = data_select_data
         selected_sentences[model] = {}
         for d, encodings in domaindev_vectors[model].items():
-            selected_data = select_data(data_select_data, encodings, size)
+            selected_data = select_data_with_cosine(data_select_data, encodings, size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             # print("Selected sentence0: {}".format(selected_data[0][-1]))
@@ -262,15 +279,15 @@ def main():
     DEV_SAVE_FOLDER = args.dev_save_folder
     SAVE_FOLDER = args.save_folder
     BIOWORDVEC_FOLDER = args.biowordvec_folder
-    train_size = 90000
-    dev_size = 1000
-    select_size = 30000
+    train_size = 100
+    dev_size = 50
+    select_size = 20
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
-    selected_sentences, all_sentences = select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors,
-                                                                  select_size)
+    selected_sentences, all_sentences = select_data(model_to_domain_to_encodings, domaindev_vectors,
+                                                    select_size)
     for m, domain_to_sents in selected_sentences.items():
         for d, sents in domain_to_sents.items():
             print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
