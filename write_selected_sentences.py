@@ -29,7 +29,7 @@ def write_selected_sentences(selected_sentences, save_root, file_name="ent_train
             print("Save folder", save_folder)
             if not os.path.exists(save_folder):
                 os.makedirs(save_folder)
-            print("First sentence", sents[0])
+            # print("First sentence", sents[0])
             s = "\n\n".join(["\n".join(["{}\t{}".format(t, l) for t, l in zip(sent[-2], sent[-1])]) for sent in sents])
             with open(os.path.join(save_folder, file_name), "w") as o:
                 o.write(s)

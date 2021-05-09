@@ -54,7 +54,7 @@ def parse_args():
     parser.add_argument(
         "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
     parser.add_argument(
-        "--cos_sim_sample_size", default=1000, type=int, required=False)
+        "--cos_sim_sample_size", default=100, type=int, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -226,7 +226,6 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     for d in tqdm(data_select_data,desc="sentence"):
         np.random.shuffle(domain_vectors)
         sample_vecs = domain_vectors[:COS_SIM_SAMPLE_SIZE]
-        print
         my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
         data_sims.append(my_sim)
     data_with_sims = list(zip(data_sims, data_select_data))
@@ -294,9 +293,9 @@ def main():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 20
-    dev_size = 10
-    select_size = 5
+    train_size = 30000
+    dev_size = 1000
+    select_size = 30000
     models_to_use = [x[2] for x in MODELS]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
