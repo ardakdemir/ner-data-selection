@@ -315,8 +315,8 @@ def main():
             print("Training for {}".format(d))
             my_save_folder = os.path.join(save_folder_root, d)
             args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
-            args.dev_file_path = os.path.join(evaluate_root, d, "ent_devel.tsv")
-            args.test_file_path = os.path.join(evaluate_root, d, "ent_test.tsv")
+            args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
+            args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
             args.save_folder = my_save_folder
             print("Saving {} results to {} ".format(d, my_save_folder))
             print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
