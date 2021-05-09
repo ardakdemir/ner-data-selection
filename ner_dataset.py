@@ -62,28 +62,21 @@ def get_bert_labels(tokens, labels, raw_tokens):
     prev_label = "O"
     i, k = 0, 0
     bert_labels = []
-    # print(tokens, len(tokens))
-    # print(labels, len(labels))
     curr_tok = ""
-    print(tokens)
-    print(raw_tokens)
-    for t in tokens:
-        if t[:2] == "##" or curr_tok != raw_tokens[k]:
-            bert_labels.append(prev_label)
-            curr_tok += t[2:] if t[:2] == "##" else t
-            if curr_tok == raw_tokens[k]:
-                curr_tok = ""
-        elif t in special_tokens:
-            bert_labels.append(t)
+    while True:
+        if i == len(tokens):
+            break
+        curr_tok += tokens[i] if tokens[i][:2] != "##" else tokens[i][2:]
+        if curr_tok in special_tokens:
+            bert_labels.append(curr_tok)
+            curr_tok = ""
+        elif curr_tok == raw_tokens[k]:
+            bert_labels.append(labels[k])
+            k += 1
             curr_tok = ""
         else:
-            label = labels[i]
-            bert_labels.append(label)
-            i += 1
-            prev_label = label
-            curr_tok = ""
-            k += 1
-    print(labels, bert_labels)
+            bert_labels.append(labels[k])
+        i += 1
     return bert_labels
 
 
