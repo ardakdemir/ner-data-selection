@@ -6,6 +6,8 @@ import argparse
 import json
 import h5py
 import os
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 # from transformers import *
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
@@ -241,6 +243,13 @@ def select_data_cosine_method(model_to_domain_to_encodings, domaindev_vectors, s
 
 
 def plot_selected_sentences(selected_sentences, all_sentences):
+    pca = PCA(n_components=2)
+    all_vectors_combined = []
+    for d, sentences in all_sentences.items():
+        
+    pca_vecs = pca.fit_transform()
+    plt.scatter(pca_vecs[:, 0], pca_vecs[:, 1])
+    plt.title(k + " " + str(len(pca_vecs)), fontsize=20)
 
 
 def main():
