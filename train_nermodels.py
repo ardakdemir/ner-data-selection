@@ -103,6 +103,9 @@ def parse_args():
         "--multiple", default=False, action="store_true", help="Run for all datasets"
     )
     parser.add_argument(
+        "--inference", default=False, action="store_true", help="Run inference only."
+    )
+    parser.add_argument(
         "--dev_only", default=False, action="store_true", help="If True, only uses the dev split for training"
     )
     args = parser.parse_args()
@@ -151,7 +154,8 @@ def train(args):
     dataset_loaders["train"] = dataset_loader
     num_classes = len(dataset_loader.dataset.label_vocab)
     args.output_dim = num_classes
-
+    print("Label vocab: {}".format(ner_dataset.label_vocab))
+    return
     eval_ner_dataset = NerDataset(dev_file_path, size=size)
     eval_ner_dataset.label_vocab = ner_dataset.label_vocab
     eval_ner_dataset.token_vocab = ner_dataset.token_vocab
@@ -327,6 +331,7 @@ def inference_wrapper():
     class_dict_path = args.class_dict_path
     assert os.path.exists(class_dict_path) and os.path.exists(
         model_path), "model_path and class_dict_path must exist in inference"
+    inference(model_path, class_dict_path, args)
 
 
 def inference(model_path, class_dict_path, args):
@@ -361,7 +366,9 @@ def inference(model_path, class_dict_path, args):
 def main():
     args = parse_args()
     save_folder_root = args.save_folder
-    if args.multiple:
+    if args.inference:
+        inference_wrapper()
+    elif args.multiple:
         for d in dataset_list:
             print("Training for {}".format(d))
             my_save_folder = os.path.join(save_folder_root, d)
