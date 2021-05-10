@@ -37,7 +37,7 @@ CONLL_SAVE_PATH = "conll_output_0505.txt"
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+# dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
 # train_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv"
@@ -154,7 +154,7 @@ def train(args):
     dataset_loaders["train"] = dataset_loader
     num_classes = len(dataset_loader.dataset.label_vocab)
     args.output_dim = num_classes
-    print("Label vocab: {}".format(ner_dataset.label_vocab))
+    print("Label vocab: {}".format(ner_dataset.label_vocab.w2ind))
     return
     eval_ner_dataset = NerDataset(dev_file_path, size=size)
     eval_ner_dataset.label_vocab = ner_dataset.label_vocab
