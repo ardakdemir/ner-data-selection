@@ -1,10 +1,10 @@
 import os
 import subprocess
 file_names = ["ent_devel.tsv","ent_test.tsv"]
+import sys
 
-
-src_folder_root = "biobert_data/datasets/BioNER_2804"
-save_folder_root = "dataselection_0905"
+src_folder_root = sys.args[1]
+save_folder_root = sys.args[2]
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 model_list = ['robertaLarge', 'distilbertBaseUncased', 'BioBERT', 'BioWordVec']
 for model in model_list:
