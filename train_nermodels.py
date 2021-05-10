@@ -39,6 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
+
 # train_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv"
 # dev_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_devel.tsv"
 
@@ -68,6 +69,14 @@ def parse_args():
     )
     parser.add_argument(
         "--save_folder", default="../dataselect_nerresult_0505", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
+        "--model_path", default="../dataselect_nerresult_0505/best_model_weights.pkh", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
+        "--class_dict_path", default="../dataselect_nerresult_0505/class_to_idx.json", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
@@ -156,7 +165,7 @@ def train(args):
     dataset_loaders["test"] = test_dataset_loader
 
     model = NerModel(args, model_tuple)
-    trained_model, train_result = train_model(model, dataset_loaders, save_folder, args)
+    trained_model, train_result, class_to_idx = train_model(model, dataset_loaders, save_folder, args)
 
     # Plot train/dev losses
     plot_save_path = os.path.join(save_folder, "loss_plot.png")
@@ -180,6 +189,10 @@ def train(args):
               "train_result": train_result}
     with open(result_save_path, "w") as j:
         json.dump(result, j)
+
+    class_to_idx_path = os.path.join(save_folder, "class_to_idx.json")
+    with open(class_to_idx_path, "w") as j:
+        json.dump(class_to_idx, j)
 
 
 def write_to_conll_format(conll_data, label_vocab, save_path):
@@ -304,7 +317,45 @@ def train_model(model, dataset_loaders, save_folder, args):
     return model, {"train_losses": train_losses,
                    "dev_losses": dev_losses,
                    "dev_f1s": dev_f1s,
-                   "best_f1": best_f1}
+                   "class_to_idx": dataset_loaders["train"].dataset.label_vocab.w2ind,
+                   "best_f1": best_f1}, dataset_loaders["train"].dataset.label_vocab.w2ind
+
+
+def inference_wrapper():
+    args = parse_args()
+    model_path = args.model_path
+    class_dict_path = args.class_dict_path
+    assert os.path.exists(class_dict_path) and os.path.exists(
+        model_path), "model_path and class_dict_path must exist in inference"
+
+
+def inference(model_path, class_dict_path, args):
+    with open(class_dict_path, "rb") as js:
+        class_dict = json.load(js)
+
+    save_folder = args.save_folder
+    eval_save_path = os.path.join(save_folder, "conll_dev_out.txt")
+    test_file_path = args.test_file_path
+    eval_ner_dataset = NerDataset(test_file_path)
+    eval_ner_dataset.label_vocab = class_dict
+    test_dataset_loader = NerDatasetLoader(test_ner_dataset, tokenizer, batch_size=batch_size)
+
+    num_classes = len(class_dict)
+    args.output_dim = num_classes
+    model_tuple = (BertForTokenClassification, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
+    model = NerModel(args, model_tuple)
+    model.load_state_dict(torch.load(model_path))
+    pre, rec, f1, total_loss = evaluate(model, test_dataset_loader, save_path)
+
+    # Save result
+    result_save_path = os.path.join(save_folder, "results.json")
+    result = {"model_path": model_path,
+              "precision": pre,
+              "recall": rec,
+              "test_loss": total_loss,
+              "f1": f1}
+    with open(result_save_path, "w") as j:
+        json.dump(result, j)
 
 
 def main():

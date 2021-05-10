@@ -223,7 +223,7 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
-    for d in tqdm(data_select_data,desc="sentence"):
+    for d in tqdm(data_select_data, desc="sentence"):
         np.random.shuffle(domain_vectors)
         sample_vecs = domain_vectors[:COS_SIM_SAMPLE_SIZE]
         my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
@@ -258,15 +258,15 @@ def select_data(model_to_domain_to_encodings, domaindev_vectors, size):
         all_sentences[model] = data_select_data
         selected_sentences[model] = {}
 
-        for d, encodings in domaindev_vectors[model].items():
+        for d, encodings in tqdm(domaindev_vectors[model].items(), desc="Target dataset"):
             beg = time.time()
-            print("Selecting data for {} {}".format(model,d))
+            print("Selecting data for {} {}".format(model, d))
             selected_data = select_data_with_cosine(data_select_data, encodings, size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             end = time.time()
-            t = round(end-beg,3)
-            print("Selected {} data in {} seconds".format(len(selected_data),t))
+            t = round(end - beg, 3)
+            print("Selected {} data in {} seconds ".format(len(selected_data), t))
             # print("Selected sentence0: {}".format(selected_data[0][-1]))
     return selected_sentences, all_sentences
 
