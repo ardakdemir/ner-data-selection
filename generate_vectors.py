@@ -9,13 +9,15 @@ import os
 from numpy import dot, inner
 from numpy.linalg import norm
 from sklearn.decomposition import PCA
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as pltN
 from torch.utils.data import Dataset, DataLoader
 # from transformers import *
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
 from collections import defaultdict
 from itertools import product
+from copy_devtest import copy_devtest
+from annootate_all_entities import annotate_all_entities
 import logging
 import utils
 import pickle
@@ -26,6 +28,9 @@ from gensim.utils import tokenize
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
           (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
+
+train_file_name = "ent_train.tsv"
+test_file_name = "ent_test.tsv"
 
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
@@ -280,7 +285,20 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     # for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
 
 
-def main():
+def get_random_data(root_folder, selected_save_folder, size, file_name="ent_train.tsv"):
+    name = "random"
+    selected_sentences = {name: {}}
+    for d in os.listdir(root_folder):
+        file_path = os.path.join(root_folder, d, file_name)
+        dataset = utils.get_tokens_from_dataset_with_labels(file_path, size=size)
+        selected_sentences[name][d] = {"selected_data": dataset}
+    write_selected_sentences(selected_sentences, selected_save_folder, file_name="ent_train.tsv")
+    copy_devtest(root_folder, selected_save_folder, model_list=[name])
+    selected_save_folder = os.path.join(selected_save_folder,name)
+    annotate_all_entities(selected_save_folder, train_file_name, test_file_name)
+
+
+def data_selection_for_all_models():
     args = parse_args()
     global ROOT_FOLDER
     global DEV_SAVE_FOLDER
@@ -318,6 +336,11 @@ def main():
     pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
 
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
+
+
+def main():
+    args = parse_args()
+    get_random_data(root_folder, selected_save_folder, size, file_name="ent_train.tsv")
 
 
 if __name__ == "__main__":
