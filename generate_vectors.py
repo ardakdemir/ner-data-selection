@@ -363,7 +363,7 @@ def main():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
-    select_size = = args.select_size
+    select_size = args.select_size
     get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, select_size, file_name="ent_train.tsv")
 
 
