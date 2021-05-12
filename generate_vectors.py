@@ -49,6 +49,8 @@ def parse_args():
     parser.add_argument(
         "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804", type=str, required=False)
     parser.add_argument(
+        "--dataset_name", default="random", type=str, required=False)
+    parser.add_argument(
         "--save_folder", default="/home/aakdemir/all_encoded_vectors_0405", type=str, required=False)
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
@@ -285,8 +287,7 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     # for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
 
 
-def get_random_data(root_folder, selected_save_folder, size=None, file_name="ent_train.tsv"):
-    name = "random"
+def get_random_data(root_folder, selected_save_folder, name="random", size=None, file_name="ent_train.tsv"):
     selected_sentences = {name: {}}
     all_datasets = []
     for d in os.listdir(root_folder):
@@ -359,6 +360,7 @@ def main():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
+    dataset_name = args.dataset_name
     size = 30000
     get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, size, file_name="ent_train.tsv")
 
