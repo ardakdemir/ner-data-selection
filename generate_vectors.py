@@ -364,7 +364,7 @@ def main():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
     select_size = args.select_size
-    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name select_size, file_name="ent_train.tsv")
+    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
 
 
 if __name__ == "__main__":
