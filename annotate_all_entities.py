@@ -149,7 +149,7 @@ def get_entities_from_tsv_dataset(file_path, tag_type="BIO"):
 
 
 def annotate_all_entities(data_folder, train_file_name, test_file_name):
-    all_train_entities, all_test_entities, oov_rates = get_entities_from_folder(my_data_folder,
+    all_train_entities, all_test_entities, oov_rates = get_entities_from_folder(data_folder,
                                                                                 train_file_name,
                                                                                 test_file_name)
     print(len(all_train_entities["conll-eng"]["Entity"]), len(all_test_entities["conll-eng"]["Entity"]))
@@ -158,14 +158,15 @@ def annotate_all_entities(data_folder, train_file_name, test_file_name):
     print(len(all_train_entities["conll-eng"]["Entity"]), len(all_test_entities["conll-eng"]["Entity"]))
 
     for d in dataset_list:
-        print("Annotating {} {}".format(model, d))
+        print("Annotating  {}".format(d))
         for file in file_names:
-            file_path = os.path.join(data_folder, model, d, file)
+            file_path = os.path.join(data_folder, d, file)
             save_path = os.path.join(os.path.split(file_path)[0], "labeled_" + file)
-            print("saving to {}".format(save_path))
+            print("Saving to {}".format(save_path))
             print("Number of entities ", len(all_train_entities[d]["Entity"]))
             annotate_dataset(all_train_entities[d]["Entity"], file_path, save_path)
-
+            cmd = "mv {} {}".format(save_path, file_path)
+            subprocess.call(cmd,shell=True)
 
 def main():
     data_folder = sys.argv[1]

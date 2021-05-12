@@ -17,7 +17,7 @@ from write_selected_sentences import write_selected_sentences
 from collections import defaultdict
 from itertools import product
 from copy_devtest import copy_devtest
-from annootate_all_entities import annotate_all_entities
+from annotate_all_entities import annotate_all_entities
 import logging
 import utils
 import pickle
@@ -285,16 +285,24 @@ def plot_selected_sentences(selected_sentences, all_sentences):
     # for data in [selected_sentences["selected_data"], selected_sentences["all_target_data"]]:
 
 
-def get_random_data(root_folder, selected_save_folder, size, file_name="ent_train.tsv"):
+def get_random_data(root_folder, selected_save_folder, size=None, file_name="ent_train.tsv"):
     name = "random"
     selected_sentences = {name: {}}
+    all_datasets = []
     for d in os.listdir(root_folder):
         file_path = os.path.join(root_folder, d, file_name)
         dataset = utils.get_tokens_from_dataset_with_labels(file_path, size=size)
-        selected_sentences[name][d] = {"selected_data": dataset}
+        all_datasets.extend(dataset)
+    print("{} sentences in total...".format(len(all_datasets)))
+    for d in os.listdir(root_folder):
+        np.random.shuffle(all_datasets)
+        dataset = all_datasets[:size] if size is not None else all_datasets
+        selected_data = [list(zip(*sent)) for sent in dataset]
+        print("First selected sentence: {}".format(selected_data[0]))
+        selected_sentences[name][d] = {"selected_data": selected_data}
     write_selected_sentences(selected_sentences, selected_save_folder, file_name="ent_train.tsv")
     copy_devtest(root_folder, selected_save_folder, model_list=[name])
-    selected_save_folder = os.path.join(selected_save_folder,name)
+    selected_save_folder = os.path.join(selected_save_folder, name)
     annotate_all_entities(selected_save_folder, train_file_name, test_file_name)
 
 
@@ -340,7 +348,19 @@ def data_selection_for_all_models():
 
 def main():
     args = parse_args()
-    get_random_data(root_folder, selected_save_folder, size, file_name="ent_train.tsv")
+    global ROOT_FOLDER
+    global DEV_SAVE_FOLDER
+    global SAVE_FOLDER
+    global BIOWORDVEC_FOLDER
+    global COS_SIM_SAMPLE_SIZE
+    ROOT_FOLDER = args.root_folder
+    DEV_SAVE_FOLDER = args.dev_save_folder
+    SAVE_FOLDER = args.save_folder
+    BIOWORDVEC_FOLDER = args.biowordvec_folder
+    SELECTED_SAVE_ROOT = args.selected_save_root
+    COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
+    size = 30000
+    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, size, file_name="ent_train.tsv")
 
 
 if __name__ == "__main__":
