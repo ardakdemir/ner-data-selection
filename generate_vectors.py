@@ -57,6 +57,8 @@ def parse_args():
     parser.add_argument(
         "--selected_save_root", default="/home/aakdemir/selected_root_0905_big", type=str, required=False)
     parser.add_argument(
+        "--select_size", default=None, type=int, required=False)
+    parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
         "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
@@ -361,8 +363,8 @@ def main():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
-    size = 30000
-    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, size, file_name="ent_train.tsv")
+    select_size = = args.select_size
+    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, select_size, file_name="ent_train.tsv")
 
 
 if __name__ == "__main__":
