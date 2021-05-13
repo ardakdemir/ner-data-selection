@@ -369,6 +369,7 @@ def inference(model_path, class_dict_path, args):
 
     model = NerModel(args, model_tuple)
     model.load_state_dict(torch.load(model_path))
+    model.to(device)
     pre, rec, f1, total_loss = evaluate(model, test_dataset_loader, eval_save_path)
 
     # Save result
