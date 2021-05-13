@@ -358,7 +358,7 @@ def inference(model_path, class_dict_path, args):
     model_tuple = (BertForTokenClassification, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
     model_name = model_tuple[2]
     tokenizer = BertTokenizer.from_pretrained(model_name)
-
+    batch_size = args.batch_size
 
     eval_ner_dataset = NerDataset(test_file_path)
     eval_ner_dataset.label_vocab = class_dict
@@ -369,7 +369,7 @@ def inference(model_path, class_dict_path, args):
 
     model = NerModel(args, model_tuple)
     model.load_state_dict(torch.load(model_path))
-    pre, rec, f1, total_loss = evaluate(model, test_dataset_loader, save_path)
+    pre, rec, f1, total_loss = evaluate(model, test_dataset_loader, eval_save_path)
 
     # Save result
     result_save_path = os.path.join(save_folder, "results.json")
