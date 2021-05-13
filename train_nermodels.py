@@ -330,9 +330,21 @@ def inference_wrapper():
     args = parse_args()
     model_path = args.model_path
     class_dict_path = args.class_dict_path
+    save_folder_root = args.save_folder
+
     assert os.path.exists(class_dict_path) and os.path.exists(
         model_path), "model_path and class_dict_path must exist in inference"
-    inference(model_path, class_dict_path, args)
+    if args.multiple:
+        for d in dataset_list:
+            print("Inference for {}".format(d))
+            my_save_folder = os.path.join(save_folder_root, d)
+            args.target_dataset_path = os.path.join(args.dataset_root, d)
+            args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
+            args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
+            args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
+            args.save_folder = my_save_folder
+            print("Saving {} results to {} ".format(d, my_save_folder))
+            inference(model_path, class_dict_path, args)
 
 
 def inference(model_path, class_dict_path, args):
@@ -344,7 +356,7 @@ def inference(model_path, class_dict_path, args):
     test_file_path = args.test_file_path
     eval_ner_dataset = NerDataset(test_file_path)
     eval_ner_dataset.label_vocab = class_dict
-    test_dataset_loader = NerDatasetLoader(test_ner_dataset, tokenizer, batch_size=batch_size)
+    test_dataset_loader = NerDatasetLoader(eval_ner_dataset, tokenizer, batch_size=batch_size)
 
     num_classes = len(class_dict)
     args.output_dim = num_classes
