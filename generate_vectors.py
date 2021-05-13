@@ -57,7 +57,7 @@ def parse_args():
     parser.add_argument(
         "--selected_save_root", default="/home/aakdemir/dataselection_1005_labeled", type=str, required=False)
     parser.add_argument(
-        "--random", default=False, action="store_true" , type=str, required=False)
+        "--random", default=False, action="store_true" , required=False)
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
