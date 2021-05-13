@@ -37,6 +37,8 @@ CONLL_SAVE_PATH = "conll_output_0505.txt"
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+
+
 # dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
@@ -379,6 +381,17 @@ def main():
             print("Saving {} results to {} ".format(d, my_save_folder))
             print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
             train(args)
+    else:
+        d = args.dataset_root
+        print("Training for {}".format(d))
+        my_save_folder = os.path.join(save_folder_root, os.path.split(d)[-1])
+        args.train_file_path = os.path.join(d, "ent_train.tsv")
+        args.dev_file_path = os.path.join(args.evaluate_root, "ent_devel.tsv")
+        args.test_file_path = os.path.join(args.evaluate_root, "ent_test.tsv")
+        args.save_folder = my_save_folder
+        print("Saving {} results to {} ".format(d, my_save_folder))
+        print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+        train(args)
 
 
 if __name__ == "__main__":
