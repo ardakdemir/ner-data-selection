@@ -412,7 +412,7 @@ def main():
     if args.inference:
         inference_wrapper()
     elif args.multiple:
-        if multi_model:
+        if args.multi_model:
             for model in model_names:
                 save_folder_allmodels = args.save_folder_root
                 save_folder_root = os.path.join(save_folder_allmodels,model)
