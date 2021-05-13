@@ -354,8 +354,8 @@ def load_model(model, model_load_path):
         print(param_tensor, "\t", model.state_dict()[param_tensor].size())
     load_weights = torch.load(model_load_path)
     print("Load's state_dict:")
-    for param_tensor in load_weights.state_dict():
-        print(param_tensor, "\t", load_weights[param_tensor].size())
+    for k,v in load_weights.items():
+        print(k, "\t", v.size())
     model.load_state_dict(load_weights)
     return model
 
