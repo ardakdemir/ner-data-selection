@@ -75,6 +75,10 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
+        "--save_folder_root", default="../dataselect_nerresult_0505", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
         "--model_path", default="../dataselect_nerresult_0505/best_model_weights.pkh", type=str, required=False,
         help="The path to save everything..."
     )
