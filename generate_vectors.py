@@ -57,6 +57,10 @@ def parse_args():
     parser.add_argument(
         "--selected_save_root", default="/home/aakdemir/selected_root_0905_big", type=str, required=False)
     parser.add_argument(
+        "--random", default=False, action="store_true" , type=str, required=False)
+    parser.add_argument(
+        "--repeat", default=4, type=int, required=False)
+    parser.add_argument(
         "--select_size", default=None, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
@@ -324,7 +328,7 @@ def data_selection_for_all_models():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     train_size = 30000
     dev_size = 1000
-    select_size = 30000
+    select_size = args.select_size
     models_to_use = [x[2] for x in MODELS]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
@@ -364,7 +368,13 @@ def main():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
     select_size = args.select_size
-    get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    if args.random:
+        for r in args.repeat:
+            print("Generating random dataset {}".format(r + 1))
+            dataset_name = "random_{}".format(r)
+            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    else:
+        data_selection_for_all_models()
 
 
 if __name__ == "__main__":
