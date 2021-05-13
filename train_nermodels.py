@@ -338,7 +338,7 @@ def inference_wrapper():
         for d in dataset_list:
             print("Inference for {}".format(d))
             my_save_folder = os.path.join(save_folder_root, d)
-            if not os.path.exists(my_save_folder) : os.makedirs(my_save_folder)
+            if not os.path.exists(my_save_folder): os.makedirs(my_save_folder)
             args.target_dataset_path = os.path.join(args.dataset_root, d)
             args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
             args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
@@ -346,6 +346,18 @@ def inference_wrapper():
             args.save_folder = my_save_folder
             print("Saving {} results to {} ".format(d, my_save_folder))
             inference(model_path, class_dict_path, args)
+
+
+def load_model(model, model_load_path):
+    print("Model's state_dict:")
+    for param_tensor in model.state_dict():
+        print(param_tensor, "\t", model.state_dict()[param_tensor].size())
+    load_weights = torch.load(model_load_path)
+    print("Load's state_dict:")
+    for param_tensor in load_weights.state_dict():
+        print(param_tensor, "\t", load_weights[param_tensor].size())
+    model.load_state_dict(load_weights)
+    return model
 
 
 def inference(model_path, class_dict_path, args):
@@ -369,7 +381,8 @@ def inference(model_path, class_dict_path, args):
     args.output_dim = num_classes
 
     model = NerModel(args, model_tuple)
-    model.load_state_dict(torch.load(model_path))
+    print("Loading weights from {}".format(model_path))
+    load_model(model, model_path)
     model.to(device)
     pre, rec, f1, total_loss = evaluate(model, test_dataset_loader, eval_save_path)
 
