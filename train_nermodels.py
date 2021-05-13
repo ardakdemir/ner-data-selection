@@ -39,6 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
+model_names = ["random_0","random_1","random_2","random_3"]
 # dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
@@ -103,6 +104,9 @@ def parse_args():
     )
     parser.add_argument(
         "--multiple", default=False, action="store_true", help="Run for all datasets"
+    )
+    parser.add_argument(
+        "--multi_model", default=False, action="store_true", help="Run for all model"
     )
     parser.add_argument(
         "--inference", default=False, action="store_true", help="Run inference only."
@@ -404,17 +408,33 @@ def main():
     if args.inference:
         inference_wrapper()
     elif args.multiple:
-        for d in dataset_list:
-            print("Training for {}".format(d))
-            my_save_folder = os.path.join(save_folder_root, d)
-            args.target_dataset_path = os.path.join(args.dataset_root, d)
-            args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
-            args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
-            args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
-            args.save_folder = my_save_folder
-            print("Saving {} results to {} ".format(d, my_save_folder))
-            print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
-            train(args)
+        if multi_model:
+            for model in model_names:
+                save_folder_allmodels = args.save_folder_root
+                save_folder_root = os.path.join(save_folder_allmodels,model)
+                for d in dataset_list:
+                    print("Training for {} {}".format(d,model))
+                    my_save_folder = os.path.join(save_folder_root, d)
+                    args.target_dataset_path = os.path.join(args.dataset_root,model, d)
+                    args.train_file_path = os.path.join(args.dataset_root,model, d, "ent_train.tsv")
+                    args.dev_file_path = os.path.join(args.evaluate_root,model, d, "ent_devel.tsv")
+                    args.test_file_path = os.path.join(args.evaluate_root,model, d, "ent_test.tsv")
+                    args.save_folder = my_save_folder
+                    print("Saving {} results to {} ".format(d, my_save_folder))
+                    print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+                    train(args)
+        else:
+            for d in dataset_list:
+                print("Training for {}".format(d))
+                my_save_folder = os.path.join(save_folder_root, d)
+                args.target_dataset_path = os.path.join(args.dataset_root, d)
+                args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
+                args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
+                args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
+                args.save_folder = my_save_folder
+                print("Saving {} results to {} ".format(d, my_save_folder))
+                print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+                train(args)
     else:
         d = args.dataset_root
         print("Training for {}".format(d))
