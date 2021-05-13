@@ -55,7 +55,7 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/selected_root_0905_big", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/dataselection_1005_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true" , type=str, required=False)
     parser.add_argument(
