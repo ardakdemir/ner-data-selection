@@ -45,6 +45,9 @@ class Vocab:
 
     def unmap(self, idx):
         return [self.ind2w[i] for i in idx]
+    def set_w2ind(self,w2ind):
+        self.w2ind = w2ind
+        self.ind2w = [v:k for k,v in self.w2ind.items()]
 
 
 def get_vocab(tokens):
