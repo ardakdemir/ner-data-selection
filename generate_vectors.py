@@ -369,7 +369,7 @@ def main():
     dataset_name = args.dataset_name
     select_size = args.select_size
     if args.random:
-        for r in args.repeat:
+        for r in range(args.repeat):
             print("Generating random dataset {}".format(r + 1))
             dataset_name = "random_{}".format(r)
             get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
