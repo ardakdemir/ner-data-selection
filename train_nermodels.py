@@ -361,7 +361,7 @@ def inference(model_path, class_dict_path, args):
     batch_size = args.batch_size
 
     eval_ner_dataset = NerDataset(test_file_path)
-    eval_ner_dataset.label_vocab = class_dict
+    eval_ner_dataset.label_vocab.w2ind = class_dict
     test_dataset_loader = NerDatasetLoader(eval_ner_dataset, tokenizer, batch_size=batch_size)
 
     num_classes = len(class_dict)
