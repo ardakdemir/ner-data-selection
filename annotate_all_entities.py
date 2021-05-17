@@ -176,7 +176,7 @@ def annotate_all_entities(data_folder, train_file_name, test_file_name,global_la
             save_path = os.path.join(os.path.split(file_path)[0], "labeled_" + file)
             print("Saving to {}".format(save_path))
             my_entities = all_train_entities[d]["Entity"] if not global_label else all_entities
-            print("Number of entities: {}", len(my_entities))
+            print("Number of entities: ",len(my_entities))
             annotate_dataset(my_entities, file_path, save_path)
             cmd = "mv {} {}".format(save_path, file_path)
             subprocess.call(cmd, shell=True)
