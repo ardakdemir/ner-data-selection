@@ -370,8 +370,8 @@ def data_selection_for_all_models():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 300
-    dev_size = 100
+    train_size = 30000
+    dev_size = 2000
     select_size = args.select_size
     models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
