@@ -147,7 +147,7 @@ def get_entities_from_tsv_dataset(file_path, tag_type="BIO"):
                     curr_entity = ""
             if len(curr_entity) > 0 and prev_tag != "O":
                 entities[prev_tag][curr_entity] += 1
-    pruned_entities = defaulldict(Counter)
+    pruned_entities = defaultdict(Counter)
     for tag in entities:
         for ent in entities[tag]:
             if entities[tag][ent] >= occur_limit:
