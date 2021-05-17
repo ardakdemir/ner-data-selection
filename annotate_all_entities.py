@@ -4,7 +4,8 @@ import sys
 from collections import defaultdict, Counter
 
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-model_list = ['robertaLarge', 'distilbertBaseUncased', 'BioBERT', 'BioWordVec']
+# model_list = ['robertaLarge', 'distilbertBaseUncased', 'BioBERT', 'BioWordVec']
+model_list = ['BioBERT', 'BioWordVec']
 file_names = ["ent_train.tsv", "ent_devel.tsv", "ent_test.tsv"]
 
 
