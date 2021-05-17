@@ -100,6 +100,7 @@ def get_entities_from_folder(data_folder, train_file_name, test_file_name):
     all_train_entities = {}
     all_test_entities = {}
     for d in datasets:
+        print(d)
         folder = os.path.join(data_folder, d)
         if not os.path.isdir(folder) or train_file_name not in os.listdir(folder):
             continue
@@ -119,7 +120,7 @@ def get_entities_from_folder(data_folder, train_file_name, test_file_name):
 def get_entities_from_tsv_dataset(file_path, tag_type="BIO"):
     sentences = open(file_path).read().split("\n\n")[:-1]
     entities = defaultdict(Counter)
-    occur_limit = 3
+    occur_limit = 2
     if tag_type == "BIO":
         for sent in sentences:
             prev_tag = "O"
