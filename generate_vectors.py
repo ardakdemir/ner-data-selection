@@ -262,7 +262,7 @@ def get_topN_subsets(data_with_sims, subset_size, N):
         my_sim = np.mean([x[0] for x in my_subset])
         subsets.append([my_sim,my_subset])
 
-    print("Got {} subsets in total...")
+    print("Got {} subsets in total...".format(len(subsets)))
     subsets.sort(key=lambda d: d[0], reverse=True)
     subset_sims, subsets = list(zip(*subsets))
     subsets = subsets[:N]
