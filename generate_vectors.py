@@ -51,15 +51,17 @@ def parse_args():
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
-        "--save_folder", default="/home/aakdemir/all_encoded_vectors_0405", type=str, required=False)
+        "--save_folder", default="/home/aakdemir/all_encoded_vectors_1705", type=str, required=False)
     parser.add_argument(
-        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0405", type=str, required=False)
+        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_1705", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/dataselection_1005_labeled", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/dataselection_1705_labeled", type=str, required=False)
     parser.add_argument(
-        "--random", default=False, action="store_true" , required=False)
+        "--random", default=False, action="store_true", required=False)
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
+    parser.add_argument(
+        "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
         "--select_size", default=None, type=int, required=False)
     parser.add_argument(
@@ -249,6 +251,44 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5):
     return data[:size]
 
 
+def get_topN_subsets(data_with_sims, subset_size, N):
+    indices = [i for i in range(len(data_with_sims))]
+    np.random.shuffle(indices)
+    subsets = []
+    for x in range(0, len(indices), subset_size):
+        my_inds = indices[x:min(x + subset_size, len(indices))]
+        print("My inds {}".format(my_inds))
+        my_subset = [data_with_sims[i] for i in my_inds]
+        my_sim = np.mean([x[0] for x in my_subset])
+        subsets.append([my_sim,my_subset])
+
+    print("Got {} subsets in total...")
+    subsets.sort(key=lambda d: d[0], reverse=True)
+    subset_sims, subsets = list(zip(*subsets))
+    subsets = subsets[:N]
+
+    print("Returning top {} subsets.".format(N))
+    instances = []
+    for s in subsets:
+        instances.extend(s)
+    return instances
+
+def select_data_with_cosine_subset(data_select_data, domain_encodings, size=5):
+    print("Domain encoding keys: ", domain_encodings.keys())
+    domain_vectors = domain_encodings["states"]
+    data_sims = []
+    subset_size = 10
+    for d in tqdm(data_select_data, desc="sentence"):
+        np.random.shuffle(domain_vectors)
+        sample_vecs = domain_vectors[:COS_SIM_SAMPLE_SIZE]
+        my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
+        data_sims.append(my_sim)
+    data_with_sims = list(zip(data_sims, data_select_data))
+    data_with_sims = get_topN_subsets(data_with_sims, subset_size, size)
+    sims, data = list(zip(*data_with_sims))
+    return data[:size]
+
+
 def get_dataselect_data(domaintrain_vectors):
     data = []
     print("Get dataselect data is called")
@@ -260,7 +300,11 @@ def get_dataselect_data(domaintrain_vectors):
     return data
 
 
-def select_data(model_to_domain_to_encodings, domaindev_vectors, size):
+def select_data(model_to_domain_to_encodings, domaindev_vectors, size, args):
+    selection_method = args.selection_method
+    selection_method_map = {"cosine_instance": select_data_with_cosine,
+                            "cosine_subset": select_data_with_cosine_subset
+                            }
     selected_sentences = {}
     all_sentences = {}
     for model, domain_to_encodings in domaindev_vectors.items():
@@ -273,8 +317,8 @@ def select_data(model_to_domain_to_encodings, domaindev_vectors, size):
 
         for d, encodings in tqdm(domaindev_vectors[model].items(), desc="Target dataset"):
             beg = time.time()
-            print("Selecting data for {} {}".format(model, d))
-            selected_data = select_data_with_cosine(data_select_data, encodings, size)
+            print("Selecting data for {} {} method: {}".format(model, d, selection_method))
+            selected_data = selection_method_map[selection_method](data_select_data, encodings, size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             end = time.time()
@@ -326,15 +370,15 @@ def data_selection_for_all_models():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 30000
-    dev_size = 1000
+    train_size = 300
+    dev_size = 100
     select_size = args.select_size
-    models_to_use = [x[2] for x in MODELS]
+    models_to_use = [x[2] for x in [MODELS[-1]]]
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
     selected_sentences, all_sentences = select_data(model_to_domain_to_encodings, domaindev_vectors,
-                                                    select_size)
+                                                    select_size, args)
     for m, domain_to_sents in selected_sentences.items():
         for d, sents in domain_to_sents.items():
             print("Selected {}/{} sentences using {} target vectors...".format(len(sents["selected_data"]),
