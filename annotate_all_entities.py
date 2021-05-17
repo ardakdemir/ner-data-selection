@@ -166,7 +166,7 @@ def annotate_all_entities(data_folder, train_file_name, test_file_name,global_la
     print(len(all_train_entities["conll-eng"]["Entity"]), len(all_test_entities["conll-eng"]["Entity"]))
     all_entities = {}
     for d,ents in all_train_entities.items():
-        all_train_entities.update(ents["Entity"])
+        all_entities.update(ents["Entity"])
     print("Found {} entities in total for annotation".format(all_entities))
     for d in dataset_list:
         print("Annotating  {}".format(d))
