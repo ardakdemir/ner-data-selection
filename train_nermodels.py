@@ -38,8 +38,10 @@ BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
+# model_names = ["random_0","random_1","random_2","random_3"]
+model_names = ["BioBERT", "BioWordVec"]
 
-model_names = ["random_0","random_1","random_2","random_3"]
+
 # dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 
@@ -360,12 +362,12 @@ def load_model(model, model_load_path):
     print("Model's state_dict:")
     for param_tensor in model.state_dict():
         if param_tensor == "model.classifier.weight":
-            print("Before load ",model.state_dict()[param_tensor])
+            print("Before load ", model.state_dict()[param_tensor])
     load_weights = torch.load(model_load_path)
     model.load_state_dict(load_weights)
     for param_tensor in model.state_dict():
         if param_tensor == "model.classifier.weight":
-            print("After load ",model.state_dict()[param_tensor])
+            print("After load ", model.state_dict()[param_tensor])
     return model
 
 
@@ -415,17 +417,18 @@ def main():
         if args.multi_model:
             for model in model_names:
                 save_folder_allmodels = args.save_folder_root
-                save_folder_root = os.path.join(save_folder_allmodels,model)
+                save_folder_root = os.path.join(save_folder_allmodels, model)
                 for d in dataset_list:
-                    print("Training for {} {}".format(d,model))
+                    print("Training for {} {}".format(d, model))
                     my_save_folder = os.path.join(save_folder_root, d)
-                    args.target_dataset_path = os.path.join(args.dataset_root,model, d)
-                    args.train_file_path = os.path.join(args.dataset_root,model, d, "ent_train.tsv")
-                    args.dev_file_path = os.path.join(args.evaluate_root,model, d, "ent_devel.tsv")
-                    args.test_file_path = os.path.join(args.evaluate_root,model, d, "ent_test.tsv")
+                    args.target_dataset_path = os.path.join(args.dataset_root, model, d)
+                    args.train_file_path = os.path.join(args.dataset_root, model, d, "ent_train.tsv")
+                    args.dev_file_path = os.path.join(args.evaluate_root, model, d, "ent_devel.tsv")
+                    args.test_file_path = os.path.join(args.evaluate_root, model, d, "ent_test.tsv")
                     args.save_folder = my_save_folder
                     print("Saving {} results to {} ".format(d, my_save_folder))
-                    print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+                    print(
+                        "Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
                     train(args)
         else:
             for d in dataset_list:
