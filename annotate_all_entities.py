@@ -189,7 +189,7 @@ def annotate_per_model(data_folder):
 
 def annotate_root_folder(data_folder):
     train_file_name, test_file_name = "ent_train.tsv", "ent_test.tsv"
-    annotate_all_entities(my_data_folder, train_file_name, test_file_name)
+    annotate_all_entities(data_folder, train_file_name, test_file_name)
 
 def main():
     data_folder = sys.argv[1]
