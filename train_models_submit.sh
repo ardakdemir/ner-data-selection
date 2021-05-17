@@ -1,7 +1,6 @@
 /usr/local/bin/nosh
 #$ -cwd
 #$ -l os7,v100=1,s_vmem=100G,mem_req=100G
-#$ -N generate_vectors
 cd ~/ner-data-selection
 
 save_folder="../selection_labeled_1005_randoms"
