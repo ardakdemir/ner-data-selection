@@ -5,4 +5,8 @@ cd ~/ner-data-selection
 
 save_folder="../subsetselection_labeled_1705"
 dataset_root="../dataselection_1705_labeled"
+#Annotate the entities
+singularity exec  --nv  --writable ~/singularity/pt-cuda-tf-tr-ft python3 ~/ner-data-selection/annotate_all_entities.py ${dataset_root}
+
+#Train models
 singularity exec  --nv  --writable ~/singularity/pt-cuda-tf-tr-ft python ~/ner-data-selection/train_nermodels.py --multiple --multi_model --save_folder_root ${save_folder} --dataset_root ${dataset_root}  --evaluate_root ${dataset_root}
