@@ -63,13 +63,17 @@ def parse_args():
     parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=None, type=int, required=False)
+        "--select_size", default=200, type=int, required=False)
+    parser.add_argument(
+        "--train_size", default=1000, type=int, required=False)
+    parser.add_argument(
+        "--dev_size", default=500, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
         "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
     parser.add_argument(
-        "--cos_sim_sample_size", default=100, type=int, required=False)
+        "--cos_sim_sample_size", default=1000, type=int, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -208,8 +212,9 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
     """
     datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv")
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
-    dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
-    model_to_domain_to_encodings.update(dataset_to_states)
+    if "BioWordVec" in models_to_use:
+        dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
+        model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
 
@@ -222,10 +227,10 @@ def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, save_folder)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
 
-    dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
-    print("BioWordVec keys: {}".format(dataset_to_states.keys()))
-
-    model_to_domain_to_encodings.update(dataset_to_states)
+    if "BioWordVec" in models_to_use:
+        dataset_to_states = encode_with_bioword2vec(datasets, save_folder)
+        print("BioWordVec keys: {}".format(dataset_to_states.keys()))
+        model_to_domain_to_encodings.update(dataset_to_states)
     print("Model keys: {}".format(model_to_domain_to_encodings.keys()))
     return model_to_domain_to_encodings
 
@@ -260,7 +265,7 @@ def get_topN_subsets(data_with_sims, subset_size, N):
         print("My inds {}".format(my_inds))
         my_subset = [data_with_sims[i] for i in my_inds]
         my_sim = np.mean([x[0] for x in my_subset])
-        subsets.append([my_sim,my_subset])
+        subsets.append([my_sim, my_subset])
 
     print("Got {} subsets in total...".format(len(subsets)))
     subsets.sort(key=lambda d: d[0], reverse=True)
@@ -272,6 +277,7 @@ def get_topN_subsets(data_with_sims, subset_size, N):
     for s in subsets:
         instances.extend(s)
     return instances
+
 
 def select_data_with_cosine_subset(data_select_data, domain_encodings, size=5):
     print("Domain encoding keys: ", domain_encodings.keys())
@@ -303,8 +309,7 @@ def get_dataselect_data(domaintrain_vectors):
 def select_data(model_to_domain_to_encodings, domaindev_vectors, size, args):
     selection_method = args.selection_method
     selection_method_map = {"cosine_instance": select_data_with_cosine,
-                            "cosine_subset": select_data_with_cosine_subset
-                            }
+                            "cosine_subset": select_data_with_cosine_subset}
     selected_sentences = {}
     all_sentences = {}
     for model, domain_to_encodings in domaindev_vectors.items():
@@ -357,8 +362,7 @@ def get_random_data(root_folder, selected_save_folder, name="random", size=None,
     annotate_all_entities(selected_save_folder, train_file_name, test_file_name)
 
 
-def data_selection_for_all_models():
-    args = parse_args()
+def select_store_data(models_to_use, args):
     global ROOT_FOLDER
     global DEV_SAVE_FOLDER
     global SAVE_FOLDER
@@ -370,10 +374,9 @@ def data_selection_for_all_models():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 30000
-    dev_size = 2000
     select_size = args.select_size
-    models_to_use = [x[2] for x in [MODELS[-1]]]
+    train_size = args.train_size
+    dev_size = args.dev_size
     model_to_domain_to_encodings = get_domaintrain_vectors(ROOT_FOLDER, train_size, models_to_use, SAVE_FOLDER)
     domaindev_vectors = get_domaindev_vectors(ROOT_FOLDER, dev_size, models_to_use, DEV_SAVE_FOLDER)
     print("Domain vector keys : {}".format(domaindev_vectors.keys()))
@@ -395,6 +398,26 @@ def data_selection_for_all_models():
     pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
 
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
+
+
+def data_selection_for_all_models():
+    args = parse_args()
+    global ROOT_FOLDER
+    global DEV_SAVE_FOLDER
+    global SAVE_FOLDER
+    global BIOWORDVEC_FOLDER
+    global COS_SIM_SAMPLE_SIZE
+    ROOT_FOLDER = args.root_folder
+    DEV_SAVE_FOLDER = args.dev_save_folder
+    SAVE_FOLDER = args.save_folder
+    BIOWORDVEC_FOLDER = args.biowordvec_folder
+    SELECTED_SAVE_ROOT = args.selected_save_root
+    COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
+    train_size = 30000
+    dev_size = 2000
+    select_size = args.select_size
+    models_to_use = [x[2] for x in [MODELS[-1]]]
+    select_store_data(models_to_use, args)
 
 
 def main():
