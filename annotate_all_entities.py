@@ -119,6 +119,7 @@ def get_entities_from_folder(data_folder, train_file_name, test_file_name):
 def get_entities_from_tsv_dataset(file_path, tag_type="BIO"):
     sentences = open(file_path).read().split("\n\n")[:-1]
     entities = defaultdict(Counter)
+    occur_limit = 3
     if tag_type == "BIO":
         for sent in sentences:
             prev_tag = "O"
@@ -146,10 +147,16 @@ def get_entities_from_tsv_dataset(file_path, tag_type="BIO"):
                     curr_entity = ""
             if len(curr_entity) > 0 and prev_tag != "O":
                 entities[prev_tag][curr_entity] += 1
-    return entities
+    pruned_entities = defaulldict(Counter)
+    for tag in entities:
+        for ent in entities[tag]:
+            if entities[tag][ent] >= occur_limit:
+                pruned_entities[tag][ent] = entities[tag][ent]
+    for tag in pruned_entities:
+        print("{} entities occurring >= {} times".format(len(pruned_entities[tag]), occur_limit))
+    return pruned_entities
 
-
-def annotate_all_entities(data_folder, train_file_name, test_file_name):
+def annotate_all_entities(data_folder, train_file_name, test_file_name,global_label=False):
     all_train_entities, all_test_entities, oov_rates = get_entities_from_folder(data_folder,
                                                                                 train_file_name,
                                                                                 test_file_name)
@@ -157,25 +164,38 @@ def annotate_all_entities(data_folder, train_file_name, test_file_name):
     for d in all_train_entities.keys():
         all_train_entities[d]["Entity"].update(all_test_entities[d]["Entity"])
     print(len(all_train_entities["conll-eng"]["Entity"]), len(all_test_entities["conll-eng"]["Entity"]))
-
+    all_entities = {}
+    for d,ents in all_train_entities.items():
+        all_train_entities.update(ents["Entity"])
+    print("Found {} entities in total for annotation".format(all_entities))
     for d in dataset_list:
         print("Annotating  {}".format(d))
         for file in file_names:
             file_path = os.path.join(data_folder, d, file)
             save_path = os.path.join(os.path.split(file_path)[0], "labeled_" + file)
             print("Saving to {}".format(save_path))
-            print("Number of entities ", len(all_train_entities[d]["Entity"]))
-            annotate_dataset(all_train_entities[d]["Entity"], file_path, save_path)
+            my_entities = all_train_entities[d]["Entity"] if not global_label else all_entities
+            print("Number of entities: {}", len(my_entities))
+            annotate_dataset(my_entities, file_path, save_path)
             cmd = "mv {} {}".format(save_path, file_path)
-            subprocess.call(cmd,shell=True)
+            subprocess.call(cmd, shell=True)
+
+
+def annotate_per_model(data_folder):
+    train_file_name, test_file_name = "ent_train.tsv", "ent_test.tsv"
+    for model in model_list:
+        my_data_folder = os.path.join(data_folder, model)
+        annotate_all_entities(my_data_folder, train_file_name, test_file_name)
+
+def annotate_root_folder(data_folder):
+    train_file_name, test_file_name = "ent_train.tsv", "ent_test.tsv"
+    annotate_all_entities(my_data_folder, train_file_name, test_file_name)
 
 def main():
     data_folder = sys.argv[1]
     train_file_name, test_file_name = "ent_train.tsv", "ent_test.tsv"
+    annotate_root_folder(data_folder)
 
-    for model in model_list:
-        my_data_folder = os.path.join(data_folder, model)
-        annotate_all_entities(my_data_folder, train_file_name, test_file_name)
 
 
 if __name__ == "__main__":
