@@ -161,6 +161,7 @@ def hyperparameter_search():
         if f1 > best_f1:
             best_config = config
             print("Best f1 {} is found with {}".format(f1, best_config))
+            best_f1 = f1
         results.append((config, result))
 
         # Remove selected data
