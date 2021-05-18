@@ -157,7 +157,7 @@ def hyperparameter_search():
         args.subset_sizee = subset_size
         select_store_data(models_to_use, dataset_list, args)
         result = train_all_datasets(save_folder, dataset_list, args)
-        f1 = result["f1"]
+        f1 = result[dataset_list[0]]["f1"]
         if f1 > best_f1:
             best_config = config
             print("Best f1 {} is found with {}".format(f1, best_config))

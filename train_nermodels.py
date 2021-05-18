@@ -409,6 +409,7 @@ def inference(model_path, class_dict_path, args):
 
 
 def train_all_datasets(save_folder_root, my_dataset_list, args):
+    results = {}
     for d in my_dataset_list:
         my_save_folder = os.path.join(save_folder_root, d)
         args.target_dataset_path = os.path.join(args.dataset_root, d)
@@ -419,7 +420,9 @@ def train_all_datasets(save_folder_root, my_dataset_list, args):
         print("Saving {} results to {} ".format(d, my_save_folder))
         print(
             "Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
-        train(args)
+        res = train(args)
+        results[d] = res
+    return results
 
 
 def main():
