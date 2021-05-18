@@ -66,9 +66,9 @@ def parse_args():
     parser.add_argument(
         "--subset_size", default=10, type=int, required=False)
     parser.add_argument(
-        "--train_size", default=10000, type=int, required=False)
+        "--train_size", default=100, type=int, required=False)
     parser.add_argument(
-        "--dev_size", default=2000, type=int, required=False)
+        "--dev_size", default=50, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
@@ -128,7 +128,7 @@ def hyperparameter_search():
     args = parse_args()
     models_to_use = [model_tuple[-1]]
     dataset_list = ["BC2GM"]
-    select_sizes = [5000, 10000, 20000, 30000]
+    select_sizes = [100, 200]
     subset_sizes = [10, 20, 50]
     save_folder_root = args.save_folder_root
     args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
