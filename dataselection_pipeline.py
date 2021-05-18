@@ -123,13 +123,20 @@ def train_model(save_folder_root, dataset_list, args):
 
 
 def hyperparameter_search():
+    args = parse_args()
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM"]
-    select_sizes = [5000, 10000, 20000, 30000]
-    subset_sizes = [10, 20, 50, 100]
+    select_sizes = [100,200]
+    subset_sizes = [10, 20, 50]
+    save_folder_root = args.save_folder_root
+    args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
+    save_folder = os.path.join(save_folder_root, model_tuple[-1])
+    print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
 
     search_list = [select_sizes, subset_sizes]
-    for x in iterr
+    for config in product(*search_list):
+        select_size, subset_size = config[0],config[1]
+
 
 
 def main():
