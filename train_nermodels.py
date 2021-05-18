@@ -408,6 +408,21 @@ def inference(model_path, class_dict_path, args):
         json.dump(result, j)
 
 
+def train_all_datasets(save_folder_root, my_dataset_list, args):
+    for d in my_dataset_list:
+        print("Training for {} {}".format(d, model))
+        my_save_folder = os.path.join(save_folder_root, d)
+        args.target_dataset_path = os.path.join(args.dataset_root, model, d)
+        args.train_file_path = os.path.join(args.dataset_root, model, d, "ent_train.tsv")
+        args.dev_file_path = os.path.join(args.evaluate_root, model, d, "ent_devel.tsv")
+        args.test_file_path = os.path.join(args.evaluate_root, model, d, "ent_test.tsv")
+        args.save_folder = my_save_folder
+        print("Saving {} results to {} ".format(d, my_save_folder))
+        print(
+            "Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+        train(args)
+
+
 def main():
     args = parse_args()
     save_folder_root = args.save_folder
@@ -418,18 +433,7 @@ def main():
             for model in model_names:
                 save_folder_allmodels = args.save_folder_root
                 save_folder_root = os.path.join(save_folder_allmodels, model)
-                for d in dataset_list:
-                    print("Training for {} {}".format(d, model))
-                    my_save_folder = os.path.join(save_folder_root, d)
-                    args.target_dataset_path = os.path.join(args.dataset_root, model, d)
-                    args.train_file_path = os.path.join(args.dataset_root, model, d, "ent_train.tsv")
-                    args.dev_file_path = os.path.join(args.evaluate_root, model, d, "ent_devel.tsv")
-                    args.test_file_path = os.path.join(args.evaluate_root, model, d, "ent_test.tsv")
-                    args.save_folder = my_save_folder
-                    print("Saving {} results to {} ".format(d, my_save_folder))
-                    print(
-                        "Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
-                    train(args)
+                train_all_datasets(save_folder_root, dataset_list, args)
         else:
             for d in dataset_list:
                 print("Training for {}".format(d))

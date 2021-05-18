@@ -106,9 +106,10 @@ def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.ts
     return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
 
 
-def get_datasets_from_folder_with_labels(folder, size=None, file_name="ent_train.tsv"):
+def get_datasets_from_folder_with_labels(folder, size=None, file_name="ent_train.tsv",dataset_list=None):
     return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size)) for f in
-            os.listdir(folder)]
+            os.listdir(folder) if (dataset_list is None or f in dataset_list)]
+
 
 
 def addbiotags(file_name, pref="ENT"):

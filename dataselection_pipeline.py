@@ -23,7 +23,7 @@ import utils
 import pickle
 from gensim.models import FastText, KeyedVectors
 from generate_vectors import select_store_data
-
+from train_nermodels import train_all_datasets
 model_tuple = (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
 
 
@@ -49,11 +49,11 @@ def parse_args():
     parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=1000, type=int, required=False)
+        "--select_size", default=200, type=int, required=False)
     parser.add_argument(
-        "--train_size", default=5000, type=int, required=False)
+        "--train_size", default=100, type=int, required=False)
     parser.add_argument(
-        "--dev_size", default=300, type=int, required=False)
+        "--dev_size", default=50, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
@@ -66,8 +66,9 @@ def parse_args():
 
 def select_data(args):
     models_to_use = [model_tuple[2]]
-    select_store_data(models_to_use, args)
-
+    dataset_list = ["BC2GM","s800"]
+    select_store_data(models_to_use, dataset_list,args)
+    train_all_datasets(save_folder_root, dataset_list, args)
 def train_model(args):
     y = 2
 

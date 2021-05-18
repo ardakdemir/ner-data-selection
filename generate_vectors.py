@@ -203,14 +203,14 @@ def encode_with_models(datasets, models_to_use, save_folder):
     return model_to_domain_to_encodings
 
 
-def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
+def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER,dataset_list=None):
     """
         Get the vectors for the development sets of each dataset
     :param model_to_domain_to_encodings:
     :param size:
     :return:
     """
-    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv")
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv",dataset_list= dataset_list)
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
     if "BioWordVec" in models_to_use:
         dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
@@ -218,8 +218,8 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER):
     return model_to_domain_to_encodings
 
 
-def get_domaintrain_vectors(folder, size, models_to_use, save_folder):
-    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_train.tsv")
+def get_domaintrain_vectors(folder, size, models_to_use, save_folder,dataset_list=None):
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_train.tsv",dataset_list= dataset_list)
 
     for n, d in datasets:
         print("{} size {}".format(n, len(d)))
