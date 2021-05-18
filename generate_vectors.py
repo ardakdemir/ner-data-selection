@@ -154,8 +154,8 @@ def encode_with_models(datasets, models_to_use, save_folder):
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
         for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
-            if model_name not in save_name:
-                print("Skipping {}".format(model_name))
+            if save_name not in models_to_use:
+                print("Skipping {}".format(save_name))
                 continue
             # Load pretrained model/tokenizer
             tokenizer = tokenizer_class.from_pretrained(model_name)
