@@ -60,9 +60,11 @@ def parse_args():
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
-        "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
+        "--selection_method", default="cosine_subset", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
         "--select_size", default=200, type=int, required=False)
+    parser.add_argument(
+        "--subset_size", default=10, type=int, required=False)
     parser.add_argument(
         "--train_size", default=100, type=int, required=False)
     parser.add_argument(
@@ -126,7 +128,7 @@ def hyperparameter_search():
     args = parse_args()
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM"]
-    select_sizes = [100,200]
+    select_sizes = [100, 200]
     subset_sizes = [10, 20, 50]
     save_folder_root = args.save_folder_root
     args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
@@ -135,8 +137,10 @@ def hyperparameter_search():
 
     search_list = [select_sizes, subset_sizes]
     for config in product(*search_list):
-        select_size, subset_size = config[0],config[1]
-
+        select_size, subset_size = config[0], config[1]
+        args.select_size = select_size
+        args.subset_sizee = subset_size
+        select_store_data(models_to_use, dataset_list, args)
 
 
 def main():
@@ -148,7 +152,8 @@ def main():
     save_folder = os.path.join(save_folder_root, model_tuple[-1])
     print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
     # select_store_data(models_to_use, dataset_list, args)
-    train_all_datasets(save_folder, dataset_list, args)
+    # train_all_datasets(save_folder, dataset_list, args)
+    hyperparameter_search()
 
 
 if __name__ == "__main__":

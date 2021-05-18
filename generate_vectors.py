@@ -65,6 +65,8 @@ def parse_args():
     parser.add_argument(
         "--select_size", default=200, type=int, required=False)
     parser.add_argument(
+        "--subset_size", default=10, type=int, required=False)
+    parser.add_argument(
         "--train_size", default=1000, type=int, required=False)
     parser.add_argument(
         "--dev_size", default=500, type=int, required=False)
@@ -241,7 +243,7 @@ def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
 
 
-def select_data_with_cosine(data_select_data, domain_encodings, size=5):
+def select_data_with_cosine(data_select_data, domain_encodings, size=5, subset_size=None):
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
@@ -281,11 +283,10 @@ def get_topN_subsets(data_with_sims, subset_size, N):
     return instances
 
 
-def select_data_with_cosine_subset(data_select_data, domain_encodings, size=5):
+def select_data_with_cosine_subset(data_select_data, domain_encodings, size=50, subset_size=10):
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
-    subset_size = 10
     for d in tqdm(data_select_data, desc="sentence"):
         np.random.shuffle(domain_vectors)
         sample_vecs = domain_vectors[:COS_SIM_SAMPLE_SIZE]
@@ -299,7 +300,7 @@ def select_data_with_cosine_subset(data_select_data, domain_encodings, size=5):
 
 def get_dataselect_data(domaintrain_vectors):
     data = []
-    print("Get dataselect data is called")
+    print("Get dataselect data select_data_with_cosine_subsetis called")
     for d, vecs in domaintrain_vectors.items():
         print(d, vecs.keys())
         data.extend(
@@ -325,7 +326,7 @@ def select_data(model_to_domain_to_encodings, domaindev_vectors, size, args):
         for d, encodings in tqdm(domaindev_vectors[model].items(), desc="Target dataset"):
             beg = time.time()
             print("Selecting data for {} {} method: {}".format(model, d, selection_method))
-            selected_data = selection_method_map[selection_method](data_select_data, encodings, size)
+            selected_data = selection_method_map[selection_method](data_select_data, encodings, size, args.subset_size)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             end = time.time()
