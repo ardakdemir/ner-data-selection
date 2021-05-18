@@ -166,7 +166,7 @@ def hyperparameter_search():
 
         # Remove selected data
         cmd = "rm -r {}".format(args.selected_save_root)
-
+        print("Result for {} : {}".format(config,result))
     print("Best config ", best_config, " best f1 ", best_f1)
     results = {i: {"config": res[0], "result": res[1]} for i, res in enumerate(results)}
     hypersearch_save_path = os.path.join(args.save_folder_root, "hyper_result.json")
