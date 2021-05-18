@@ -7,6 +7,9 @@ from numpy import dot, inner
 from numpy.linalg import norm
 import numpy as np
 from tqdm import tqdm
+import torch.nn.CosineSimilarity as torch_cos_sim
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
@@ -14,14 +17,24 @@ def cos_similarity(a, b):
 
 def get_similarity(source_examples, ref_vecs):
     sims = []
-    sample_size = 500
+    sample_size = 1000
     for s in tqdm(source_examples,desc="Source examples"):
         np.random.shuffle(ref_vecs)
         sample_vecs = ref_vecs[:sample_size]
-        my_sim = max([cos_similarity(s[1], v) for v in sample_vecs])
+        my_sim = torch_cos_similarity(vec,sample_vecs)
         sims.append(my_sim)
     return sims
 
+def torch_cos_similarity(vec,sample_vecs):
+    torch_cosine_similarity  = torch_cos_sim(dim=1)
+    sample_vecs = torch.tensor(sample_vecs)
+    sample_vecs = sample_vecs.to(DEVICE)
+    vec = torch.tensor(vec)
+    vec = vec.to(DEVICE)
+    vec.expand(len(sample_vecs),-1)
+    print("Vec shape: {} sample shape {}".format(sample_vecs.shape,vec.shape))
+    cos_sims = torch_cosine_similarity(vec,sample_vecs)
+    return torch.max(cos_sims).item()
 
 def distance_analysis(selected, all_sents, save_folder):
     domain_to_sents = selected["BioBERT"]
