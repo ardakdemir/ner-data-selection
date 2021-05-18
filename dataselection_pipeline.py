@@ -126,7 +126,10 @@ def hyperparameter_search():
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM"]
     select_sizes = [5000, 10000, 20000, 30000]
+    subset_sizes = [10, 20, 50, 100]
 
+    search_list = [select_sizes, subset_sizes]
+    for x in iterr
 
 
 def main():
@@ -134,11 +137,11 @@ def main():
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM", "s800"]
     save_folder_root = args.save_folder_root
-    args.dataset_root = args.selected_save_root
-    args.evaluate_root = args.selected_save_root
+    args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
+    save_folder = os.path.join(save_folder_root, model_tuple[-1])
     print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
     # select_store_data(models_to_use, dataset_list, args)
-    train_all_datasets(save_folder_root, dataset_list, args)
+    train_all_datasets(save_folder, dataset_list, args)
 
 
 if __name__ == "__main__":
