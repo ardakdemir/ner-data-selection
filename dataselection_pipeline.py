@@ -132,7 +132,7 @@ def hyperparameter_search():
     args = parse_args()
     models_to_use = [model_tuple[-1]]
     dataset_list = ["BC2GM"]
-    select_sizes = [5000, 10000, 20000, 30000]
+    select_sizes = [10000]
     if args.toy:
         select_sizes = [100, 200]
         args.train_size = 100
@@ -154,13 +154,13 @@ def hyperparameter_search():
         print("Experiment for Config: {}".format(config))
         select_size, subset_size = config[0], config[1]
         args.select_size = select_size
-        args.subset_sizee = subset_size
+        args.subset_size = subset_size
         select_store_data(models_to_use, dataset_list, args)
         result = train_all_datasets(save_folder, dataset_list, args)
         f1 = result[dataset_list[0]]["f1"]
         if f1 > best_f1:
             best_config = config
-            print("Best f1 {} is found with {}".format(f1, best_config))
+            print("Best f1: {} is found with {}...".format(f1, best_config))
             best_f1 = f1
         results.append((config, result))
 
