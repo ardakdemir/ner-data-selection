@@ -47,7 +47,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804", type=str, required=False)
+        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled", type=str, required=False)
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
@@ -398,6 +398,7 @@ def select_store_data(models_to_use, args):
     pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
 
     write_selected_sentences(selected_sentences, SELECTED_SAVE_ROOT, file_name="ent_train.tsv")
+    copy_devtest(ROOT_FOLDER, SELECTED_SAVE_ROOT, model_list=models_to_use)
 
 
 def data_selection_for_all_models():
