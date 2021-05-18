@@ -140,7 +140,7 @@ def hyperparameter_search():
         args.save_folder_root = "hypersearch_toy_nerres"
         args.selected_save_root = "hypersearch_toy_select"
 
-    subset_sizes = [10, 20, 50]
+    subset_sizes = [30,40,60]
     save_folder_root = args.save_folder_root
     args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
     save_folder = os.path.join(save_folder_root, model_tuple[-1])
