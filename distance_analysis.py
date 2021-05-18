@@ -45,8 +45,8 @@ def distance_analysis(selected, all_sents, save_folder):
 
 def main():
     args = sys.argv
-    selected_file = args[1]
-    all_sentences_file = args[2]
+    all_sentences_file = args[1]
+    selected_file = args[2]
     save_folder = args[3]
     if not os.path.isdir(save_folder):os.makedirs(save_folder)
     all_sentences = pickle.load(open(all_sentences_file, "rb"))
