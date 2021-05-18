@@ -208,7 +208,7 @@ def train(args):
     class_to_idx_path = os.path.join(save_folder, "class_to_idx.json")
     with open(class_to_idx_path, "w") as j:
         json.dump(class_to_idx, j)
-
+    return result
 
 def write_to_conll_format(conll_data, label_vocab, save_path):
     s = ""

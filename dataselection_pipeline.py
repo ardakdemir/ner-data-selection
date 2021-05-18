@@ -136,11 +136,27 @@ def hyperparameter_search():
     print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
 
     search_list = [select_sizes, subset_sizes]
+    best_config = None
+    best_f1 = 0
+    results = []
     for config in product(*search_list):
+        print()
         select_size, subset_size = config[0], config[1]
         args.select_size = select_size
         args.subset_sizee = subset_size
         select_store_data(models_to_use, dataset_list, args)
+        result = train_all_datasets(save_folder, dataset_list, args)
+        f1 = result["f1"]
+        if f1 > best_f1:
+            best_config = config
+            print("Best f1 {} is found with {}".format(f1, best_config))
+        results.append((config,result))
+
+
+        # Remove selected data
+        cmd = "rm -r {}".format(args.selected_save_root)
+
+    print("Best config ", best_config," best f1 " ,best_f1)
 
 
 def main():

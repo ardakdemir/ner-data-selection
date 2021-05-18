@@ -266,7 +266,6 @@ def get_topN_subsets(data_with_sims, subset_size, N):
     subsets = []
     for x in range(0, len(indices), subset_size):
         my_inds = indices[x:min(x + subset_size, len(indices))]
-        print("My inds {}".format(my_inds))
         my_subset = [data_with_sims[i] for i in my_inds]
         my_sim = np.mean([x[0] for x in my_subset])
         subsets.append([my_sim, my_subset])
