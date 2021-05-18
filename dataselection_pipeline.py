@@ -73,6 +73,42 @@ def parse_args():
         "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
     parser.add_argument(
         "--cos_sim_sample_size", default=1000, type=int, required=False)
+    parser.add_argument(
+        "--class_dict_path", default="../dataselect_nerresult_0505/class_to_idx.json", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
+        "--target_dataset_path", default="../biobert_data/datasets/BioNER_2804/BC2GM", type=str, required=False)
+    parser.add_argument(
+        "--input_dims", default=768, type=int, required=False,
+    )
+    parser.add_argument(
+        "--size", default=-1, type=int, required=False,
+    )
+    parser.add_argument(
+        "--eval_interval", default=-1, type=int, required=False,
+    )
+    parser.add_argument(
+        "--epoch_num", default=10, type=int, required=False,
+    )
+    parser.add_argument(
+        "--output_dim", default=6, type=int, required=False,
+    )
+    parser.add_argument(
+        "--batch_size", default=12, type=int, required=False,
+    )
+    parser.add_argument(
+        "--multiple", default=False, action="store_true", help="Run for all datasets"
+    )
+    parser.add_argument(
+        "--multi_model", default=False, action="store_true", help="Run for all model"
+    )
+    parser.add_argument(
+        "--inference", default=False, action="store_true", help="Run inference only."
+    )
+    parser.add_argument(
+        "--dev_only", default=False, action="store_true", help="If True, only uses the dev split for training"
+    )
     args = parser.parse_args()
     args.device = device
     return args
@@ -89,6 +125,8 @@ def train_model(save_folder_root, dataset_list, args):
 def hyperparameter_search():
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM"]
+    select_sizes = [5000, 10000, 20000, 30000]
+
 
 
 def main():
