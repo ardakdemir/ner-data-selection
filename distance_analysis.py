@@ -25,7 +25,7 @@ def get_similarity(source_examples, ref_vecs):
 
 def distance_analysis(selected, all_sents, save_folder):
     domain_to_sents = selected["BioBERT"]
-    all_vectors = [instance[1] for instance in all_sents["BioBERT"]]
+    all_vectors = all_sents["BioBERT"]
     for k, data in tqdm(domain_to_sents.items()):
         beg = time.time()
         s = data["selected_data"][0]
