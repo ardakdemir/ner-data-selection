@@ -154,7 +154,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
         for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
-            if model_name not in models_to_use:
+            if model_name not in save_name:
                 print("Skipping {}".format(model_name))
                 continue
             # Load pretrained model/tokenizer
@@ -419,7 +419,7 @@ def data_selection_for_all_models():
     train_size = 30000
     dev_size = 2000
     select_size = args.select_size
-    models_to_use = [x[2] for x in [MODELS[-1]]]
+    models_to_use = [x[-1] for x in [MODELS[-1]]]
     select_store_data(models_to_use, args)
 
 

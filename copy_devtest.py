@@ -12,6 +12,7 @@ def copy_devtest(src_folder_root, save_folder_root, model_list=model_list):
     for model in model_list:
         my_folder = os.path.join(save_folder_root, model)
         for d in dataset_list:
+            print("Copying dev test for {} {}".format(model, d))
             src = os.path.join(src_folder_root, d)
             dest = os.path.join(my_folder, d)
             if not os.path.isdir(dest): os.makedirs(dest)
