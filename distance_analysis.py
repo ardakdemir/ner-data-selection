@@ -6,7 +6,7 @@ import pickle
 from numpy import dot, inner
 from numpy.linalg import norm
 import numpy as np
-
+from tqdm import tqdm
 
 def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
@@ -15,7 +15,7 @@ def cos_similarity(a, b):
 def get_similarity(source_examples, ref_vecs):
     sims = []
     sample_size = 500
-    for s in source_examples:
+    for s in tqdm(source_examples):
         np.random.shuffle(ref_vecs)
         sample_vecs = ref_vecs[:sample_size]
         my_sim = max([cos_similarity(s[1], v) for v in sample_vecs])
@@ -26,7 +26,7 @@ def get_similarity(source_examples, ref_vecs):
 def distance_analysis(selected, all_sents, save_folder):
     domain_to_sents = selected["BioBERT"]
     all_vectors = [instance[1] for instance in all_sents["BioBERT"]]
-    for k, data in domain_to_sents.items():
+    for k, data in tqdm(domain_to_sents.items()):
         beg = time.time()
         s = data["selected_data"][0]
         ref_vecs = data["all_target_data"]["states"]
