@@ -22,7 +22,7 @@ def get_similarity(source_examples, ref_vecs):
     for s in tqdm(source_examples,desc="Source examples"):
         np.random.shuffle(ref_vecs)
         sample_vecs = ref_vecs[:sample_size]
-        my_sim = torch_cos_similarity(vec,sample_vecs)
+        my_sim = torch_cos_similarity(s[1],sample_vecs)
         sims.append(my_sim)
     return sims
 
