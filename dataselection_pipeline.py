@@ -54,10 +54,6 @@ def parse_args():
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
-        "--save_folder", default="../dataselect_nerresult_1805", type=str, required=False,
-        help="The path to save everything..."
-    )
-    parser.add_argument(
         "--save_folder_root", default="../dataselect_nerresult_1805", type=str, required=False,
         help="The path to save everything..."
     )
@@ -90,13 +86,19 @@ def train_model(save_folder_root, dataset_list, args):
     train_all_datasets(save_folder_root, dataset_list, args)
 
 
+def hyperparameter_search():
+    models_to_use = [model_tuple[2]]
+    dataset_list = ["BC2GM"]
+
+
 def main():
     args = parse_args()
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM", "s800"]
     save_folder_root = args.save_folder_root
-    args.dataset_root = save_folder_root
-    args.evaluate_root = save_folder_root
+    args.dataset_root = args.selected_save_root
+    args.evaluate_root = args.selected_save_root
+    print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
     # select_store_data(models_to_use, dataset_list, args)
     train_all_datasets(save_folder_root, dataset_list, args)
 
