@@ -26,7 +26,7 @@ def get_similarity(source_examples, ref_vecs):
 def distance_analysis(selected, all_sents, save_folder):
     domain_to_sents = selected["BioBERT"]
     all_vectors = [instance[1] for instance in all_sents["BioBERT"]]
-    for k, d in domain_to_sents.items():
+    for k, data in domain_to_sents.items():
         beg = time.time()
         s = data["selected_data"][0]
         ref_vecs = data["all_target_data"]["states"]
