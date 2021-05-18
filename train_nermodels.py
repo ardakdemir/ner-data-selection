@@ -410,12 +410,11 @@ def inference(model_path, class_dict_path, args):
 
 def train_all_datasets(save_folder_root, my_dataset_list, args):
     for d in my_dataset_list:
-        print("Training for {} {}".format(d, model))
         my_save_folder = os.path.join(save_folder_root, d)
-        args.target_dataset_path = os.path.join(args.dataset_root, model, d)
-        args.train_file_path = os.path.join(args.dataset_root, model, d, "ent_train.tsv")
-        args.dev_file_path = os.path.join(args.evaluate_root, model, d, "ent_devel.tsv")
-        args.test_file_path = os.path.join(args.evaluate_root, model, d, "ent_test.tsv")
+        args.target_dataset_path = os.path.join(args.dataset_root, d)
+        args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
+        args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
+        args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
         args.save_folder = my_save_folder
         print("Saving {} results to {} ".format(d, my_save_folder))
         print(

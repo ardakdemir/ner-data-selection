@@ -24,6 +24,7 @@ import pickle
 from gensim.models import FastText, KeyedVectors
 from generate_vectors import select_store_data
 from train_nermodels import train_all_datasets
+
 model_tuple = (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
 
 
@@ -37,6 +38,14 @@ def parse_args():
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
+        "--dataset_root", default="/home/aakdemir/dataselection_1805_labeled", type=str,
+        required=False
+    )
+    parser.add_argument(
+        "--evaluate_root", default="/home/aakdemir/dataselection_1805_labeled", type=str,
+        required=False
+    )
+    parser.add_argument(
         "--save_folder", default="/home/aakdemir/all_encoded_vectors_1805", type=str, required=False)
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_1805", type=str, required=False)
@@ -44,6 +53,14 @@ def parse_args():
         "--selected_save_root", default="/home/aakdemir/dataselection_1805_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
+    parser.add_argument(
+        "--save_folder", default="../dataselect_nerresult_1805", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
+        "--save_folder_root", default="../dataselect_nerresult_1805", type=str, required=False,
+        help="The path to save everything..."
+    )
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
@@ -64,18 +81,25 @@ def parse_args():
     args.device = device
     return args
 
-def select_data(args):
-    models_to_use = [model_tuple[2]]
-    dataset_list = ["BC2GM","s800"]
+
+def select_data(models_to_use, dataset_list, args):
     select_store_data(models_to_use, dataset_list, args)
+
+
+def train_model(save_folder_root, dataset_list, args):
     train_all_datasets(save_folder_root, dataset_list, args)
-def train_model(args):
-    y = 2
+
 
 def main():
     args = parse_args()
-    select_data(args)
-    train_model(args)
+    models_to_use = [model_tuple[2]]
+    dataset_list = ["BC2GM", "s800"]
+    save_folder_root = args.save_folder_root
+    args.dataset_root = save_folder_root
+    args.evaluate_root = save_folder_root
+    # select_store_data(models_to_use, dataset_list, args)
+    train_all_datasets(save_folder_root, dataset_list, args)
+
 
 if __name__ == "__main__":
     main()
