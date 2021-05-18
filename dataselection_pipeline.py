@@ -67,7 +67,7 @@ def parse_args():
 def select_data(args):
     models_to_use = [model_tuple[2]]
     dataset_list = ["BC2GM","s800"]
-    select_store_data(models_to_use, dataset_list,args)
+    select_store_data(models_to_use, dataset_list, args)
     train_all_datasets(save_folder_root, dataset_list, args)
 def train_model(args):
     y = 2
