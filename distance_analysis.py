@@ -28,7 +28,7 @@ def get_similarity(source_examples, ref_vecs):
 
 def torch_cos_similarity(vec,sample_vecs):
     torch_cosine_similarity  = torch_cos_sim(dim=1)
-    sample_vecs = torch.tensor(sample_vecs)
+    sample_vecs = torch.stack(sample_vecs)
     sample_vecs = sample_vecs.to(DEVICE)
     vec = torch.tensor(vec)
     vec = vec.to(DEVICE)
