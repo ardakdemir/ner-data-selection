@@ -132,7 +132,7 @@ def hyperparameter_search():
     args = parse_args()
     models_to_use = [model_tuple[-1]]
     dataset_list = ["BC2GM"]
-
+    select_sizes = [5000, 10000, 20000, 30000]
     if args.toy:
         select_sizes = [100, 200]
         args.train_size = 100
