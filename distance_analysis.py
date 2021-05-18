@@ -7,6 +7,7 @@ from numpy import dot, inner
 from numpy.linalg import norm
 import numpy as np
 from tqdm import tqdm
+import torch
 from torch.nn import CosineSimilarity as torch_cos_sim
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
