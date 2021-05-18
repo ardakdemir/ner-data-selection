@@ -24,6 +24,7 @@ import pickle
 from gensim.models import FastText, KeyedVectors
 from generate_vectors import select_store_data
 
+model_tuple = (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
 
 
 def parse_args():
@@ -64,7 +65,7 @@ def parse_args():
     return args
 
 def select_data(args):
-    models_to_use = ["BioBERT"]
+    models_to_use = [model_tuple[2]]
     select_store_data(models_to_use, args)
 
 def train_model(args):
