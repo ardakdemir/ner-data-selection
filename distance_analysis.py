@@ -32,7 +32,7 @@ def torch_cos_similarity(vec,sample_vecs):
     sample_vecs = sample_vecs.to(DEVICE)
     vec = torch.tensor(vec)
     vec = vec.to(DEVICE)
-    vec.expand(len(sample_vecs),-1)
+    vec = vec.expand(len(sample_vecs),-1)
     print("Vec shape: {} sample shape {}".format(sample_vecs.shape,vec.shape))
     cos_sims = torch_cosine_similarity(vec,sample_vecs)
     return torch.max(cos_sims).item()
