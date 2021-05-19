@@ -38,11 +38,11 @@ def parse_args():
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
-        "--dataset_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str,
+        "--dataset_root", default="/home/aakdemir/instanceselection_2005_labeled", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str,
+        "--evaluate_root", default="/home/aakdemir/instanceselection_2005_labeled", type=str,
         required=False
     )
     parser.add_argument(
@@ -50,11 +50,11 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_1805", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/instanceselection_2005_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
-        "--save_folder_root", default="../subsetselection_nerresult_1905", type=str, required=False,
+        "--save_folder_root", default="../instanceselection_nerresult_2005", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
