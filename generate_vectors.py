@@ -36,7 +36,7 @@ ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
 SELECTED_SAVE_ROOT = "../dummy_selected_save_root"
-COS_SIM_SAMPLE_SIZE = 10000
+COS_SIM_SAMPLE_SIZE = 1000
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -222,7 +222,9 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER, dataset_
 
 
 def get_domaintrain_vectors(folder, size, models_to_use, save_folder, dataset_list=None):
-    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_train.tsv",
+    datasets = utils.get_datasets_from_folder_with_labels(folder,
+                                                          size=size,
+                                                          file_name="ent_train.tsv",
                                                           dataset_list=dataset_list)
 
     for n, d in datasets:
@@ -243,7 +245,9 @@ def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
 
 
-def select_data_with_cosine(data_select_data, domain_encodings, size=5, subset_size=None):
+def select_data_with_cosine(data_select_data, domain_encodings,args):
+    size = args.select_size
+    select_mode = args.select_mode
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
@@ -256,8 +260,22 @@ def select_data_with_cosine(data_select_data, domain_encodings, size=5, subset_s
     data_with_sims.sort(key=lambda d: d[0], reverse=True)
     N = 1
     print("Top {} selected data: {}".format(N, data_with_sims[:N]))
-    sims, data = list(zip(*data_with_sims))
-    return data[:size]
+    if select_mode == "size":
+        sims, data = list(zip(*data_with_sims))
+        data = data[:size]
+        print("Selected {} instance  with {} as size ".format(len(data),size))
+    else:
+        print("Selection mode: {}".format(select_mode))
+        thres = args.select_thres
+        selected = []
+        sims, data = list(zip(*data_with_sims))
+        for s, d in zip(sims,data):
+            if s<thres:
+                break
+            selected.append(d)
+        data = selected
+        print("Selected {} instance  with {} as threshold ".format(len(data),thres))
+    return data
 
 
 def get_topN_subsets(data_with_sims, subset_size, N):
@@ -282,7 +300,9 @@ def get_topN_subsets(data_with_sims, subset_size, N):
     return instances
 
 
-def select_data_with_cosine_subset(data_select_data, domain_encodings, size=50, subset_size=10):
+def select_data_with_cosine_subset(data_select_data, domain_encodings, args):
+    size = args.select_size
+    subset_size = args.subset_size
     print("Domain encoding keys: ", domain_encodings.keys())
     domain_vectors = domain_encodings["states"]
     data_sims = []
@@ -325,7 +345,7 @@ def select_data(model_to_domain_to_encodings, domaindev_vectors, size, args):
         for d, encodings in tqdm(domaindev_vectors[model].items(), desc="Target dataset"):
             beg = time.time()
             print("Selecting data for {} {} method: {}".format(model, d, selection_method))
-            selected_data = selection_method_map[selection_method](data_select_data, encodings, size, args.subset_size)
+            selected_data = selection_method_map[selection_method](data_select_data, encodings, args)
             selected_sentences[model][d] = {"selected_data": selected_data,
                                             "all_target_data": encodings}
             end = time.time()
