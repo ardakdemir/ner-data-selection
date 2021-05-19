@@ -38,11 +38,11 @@ def parse_args():
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
-        "--dataset_root", default="/home/aakdemir/dataselection_1805_labeled", type=str,
+        "--dataset_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="/home/aakdemir/dataselection_1805_labeled", type=str,
+        "--evaluate_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str,
         required=False
     )
     parser.add_argument(
@@ -50,11 +50,11 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_1805", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/dataselection_1805_labeled", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/subsetselection_1905_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
-        "--save_folder_root", default="../dataselect_nerresult_1805", type=str, required=False,
+        "--save_folder_root", default="../subsetselection_nerresult_1905", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
@@ -64,7 +64,7 @@ def parse_args():
     parser.add_argument(
         "--select_size", default=30000, type=int, required=False)
     parser.add_argument(
-        "--subset_size", default=10, type=int, required=False)
+        "--subset_size", default=20, type=int, required=False)
     parser.add_argument(
         "--train_size", default=30000, type=int, required=False)
     parser.add_argument(
@@ -129,9 +129,6 @@ def train_model(save_folder_root, dataset_list, args):
 
 
 def hyperparameter_search():
-    args = parse_args()
-    models_to_use = [model_tuple[-1]]
-    dataset_list = ["BC2GM"]
     select_sizes = [5000]
     if args.toy:
         select_sizes = [100, 200]
@@ -140,7 +137,7 @@ def hyperparameter_search():
         args.save_folder_root = "hypersearch_toy_nerres"
         args.selected_save_root = "hypersearch_toy_select"
 
-    subset_sizes = [30,40,60]
+    subset_sizes = [30, 40, 60]
     save_folder_root = args.save_folder_root
     args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
     save_folder = os.path.join(save_folder_root, model_tuple[-1])
@@ -166,12 +163,23 @@ def hyperparameter_search():
 
         # Remove selected data
         cmd = "rm -r {}".format(args.selected_save_root)
-        print("Result for {} : {}".format(config,result))
+        print("Result for {} : {}".format(config, result))
     print("Best config ", best_config, " best f1 ", best_f1)
     results = {i: {"config": res[0], "result": res[1]} for i, res in enumerate(results)}
     hypersearch_save_path = os.path.join(args.save_folder_root, "hyper_result.json")
     with open(hypersearch_save_path, "w") as j:
         json.dump(results, j)
+
+
+def select_and_train_pipeline():
+    args = parse_args()
+    models_to_use = [model_tuple[-1]]
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    save_folder_root = args.save_folder_root
+    save_folder = os.path.join(save_folder_root, model_tuple[-1])
+    args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
+    select_store_data(models_to_use, dataset_list, args)
+    result = train_all_datasets(save_folder, dataset_list, args)
 
 
 def main():
@@ -184,7 +192,8 @@ def main():
     print("Dataset root {} eval root {} Save to : {}".format(args.dataset_root, args.evaluate_root, save_folder_root))
     # select_store_data(models_to_use, dataset_list, args)
     # train_all_datasets(save_folder, dataset_list, args)
-    hyperparameter_search()
+    # hyperparameter_search()
+    select_and_train_pipeline()
 
 
 if __name__ == "__main__":
