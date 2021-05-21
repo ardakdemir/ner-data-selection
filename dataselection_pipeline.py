@@ -54,7 +54,7 @@ def parse_args():
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
-        "--save_folder_root", default="../instanceselection_nerresult_2005", type=str, required=False,
+        "--save_folder_root", default="../instanceselection_nerresult_2105", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
