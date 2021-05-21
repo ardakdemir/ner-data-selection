@@ -3,7 +3,7 @@
 #$ -l os7,v100=1,s_vmem=100G,mem_req=100G
 cd ~/ner-data-selection
 
-save_folder="../subsetselection_labeled_1705"
+save_folder="../alldata_2102_nerresults"
 dataset_root="~/biobert_data/datasets/BioNER_2804_labeled_combined"
 
 

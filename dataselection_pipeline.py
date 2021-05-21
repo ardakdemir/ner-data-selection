@@ -182,7 +182,7 @@ def select_and_train_pipeline():
     save_folder_root = args.save_folder_root
     save_folder = os.path.join(save_folder_root, model_tuple[-1])
     args.evaluate_root = args.dataset_root = os.path.join(args.selected_save_root, model_tuple[-1])
-    select_store_data(models_to_use, dataset_list, args)
+    # select_store_data(models_to_use, dataset_list, args)
     result = train_all_datasets(save_folder, dataset_list, args)
 
 
