@@ -210,6 +210,7 @@ def train(args):
         json.dump(class_to_idx, j)
     return result
 
+
 def write_to_conll_format(conll_data, label_vocab, save_path):
     s = ""
     map_to_conll_label = lambda x: label_vocab.ind2w[x] if label_vocab.ind2w[x] not in SPECIAL_TOKENS else "O"
