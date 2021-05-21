@@ -4,7 +4,7 @@
 cd ~/ner-data-selection
 
 save_folder="../subsetselection_labeled_1705"
-dataset_root="../BioNER_2804_labeled"
+dataset_root="~/biobert_data/datasets/BioNER_2804_labeled_combined"
 
 
 #Train models
