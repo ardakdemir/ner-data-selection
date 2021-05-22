@@ -7,6 +7,7 @@ from sklearn.svm import SVC
 import json as json
 from tqdm import tqdm
 import os
+import h5py
 
 SAVE_FOLDER = "../domain_classification_2205"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
@@ -15,7 +16,7 @@ def load_vectors(p):
     with h5py.File(p,"r") as h:
         return h["vectors"][:]
 
-    
+
 def load_vectors_from_folder(folder):
     vect_dict = {}
     for x in os.listdir(folder):
