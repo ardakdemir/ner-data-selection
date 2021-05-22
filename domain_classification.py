@@ -77,9 +77,9 @@ def domain_classify():
                 clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
                 vecs, labels = get_class_dataset(vect_dict, size=size)
                 if with_pca:
-                    pca = PCA(n_components=2)
+                    pca = PCA(n_components=pca_dim)
                     pca_vecs = pca.fit_transform(vecs)
-                    print("PCA dim {}".formmat(pca_vecs.shape))
+                    print("PCA dim {}".format(pca_vecs.shape))
                 else:
                     pca_dim = len(vecs[0])
                     pca_vecs = vecs
