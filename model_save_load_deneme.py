@@ -6,8 +6,13 @@ from transformers import AdamW, RobertaModel, BertForTokenClassification, \
 from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
-def load_weights_with_skip(model,weights,layer = ["classifier"]):
-    for
+def load_weights_with_skip(model,weights,skip_layers = ["classifier"]):
+    for x in weights.state_dict():
+        if x.split(".")[0] not in skip_layers:
+            model[x] = weights[x]
+    return model
+
+
 model_save_path = "model_save_deneme.pkh"
 
 tokenclass_model_tuple = (BertForTokenClassification, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")
