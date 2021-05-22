@@ -7,10 +7,12 @@ from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
 
-def load_weights_with_skip(model, weights, skip_layers=["pooler", "classifier"]):
+def load_weights_with_skip(model, weights, skip_layers=["bert.pooler", "classifier"]):
     for x in weights:
-        if x.split(".")[0] not in skip_layers:
-            model[x] = weights[x]
+        if any([x.startswith(layer) for layer in skip_layers]):
+            print("Skipping loading {}".format(x))
+            continue
+        model[x] = weights[x]
     return model
 
 
