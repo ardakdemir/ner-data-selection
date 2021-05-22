@@ -6,7 +6,8 @@ from transformers import AdamW, RobertaModel, BertForTokenClassification, \
 from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
-def load_weights_with_skip(model,weights,skip_layers = ["classifier"]):
+
+def load_weights_with_skip(model, weights, skip_layers=["pooler", "classifier"]):
     for x in weights:
         if x.split(".")[0] not in skip_layers:
             model[x] = weights[x]
@@ -21,7 +22,7 @@ seqclass_model_tuple = (BertForSequenceClassification, BertTokenizer, "dmis-lab/
 # Define classifier
 model_class, tokenizer_class, model_name, save_name = seqclass_model_tuple
 tokenizer = tokenizer_class.from_pretrained(model_name)
-input_dims, output_dim = 768,10
+input_dims, output_dim = 768, 10
 model = model_class.from_pretrained(model_name, return_dict=True, num_labels=output_dim)
 print("Sequece classifier params")
 for param_tensor in model.state_dict():
@@ -31,20 +32,18 @@ for param_tensor in model.state_dict():
 best_model_weights = model.state_dict()
 torch.save(best_model_weights, model_save_path)
 
-
 # Load classifier as token-classifier
 model_class, tokenizer_class, model_name, save_name = tokenclass_model_tuple
-input_dims, output_dim = 768,5
+input_dims, output_dim = 768, 5
 model = model_class.from_pretrained(model_name, return_dict=True, num_labels=output_dim)
 load_weights = torch.load(model_save_path)
 
 print("Weights")
 for x in load_weights:
-    print(x,load_weights[x].shape)
+    print(x, load_weights[x].shape)
 
 model.load_state_dict(load_weights)
 
 print("Token classifier params")
 for param_tensor in model.state_dict():
     print(param_tensor, model.state_dict()[param_tensor].shape)
-
