@@ -38,12 +38,15 @@ input_dims, output_dim = 768, 5
 model = model_class.from_pretrained(model_name, return_dict=True, num_labels=output_dim)
 load_weights = torch.load(model_save_path)
 
-print("Weights")
+
+print("Token classifier params")
+for param_tensor in model.state_dict():
+    print(param_tensor, model.state_dict()[param_tensor].shape)
+
+
+print("Loaded params ")
 for x in load_weights:
     print(x, load_weights[x].shape)
 
 model.load_state_dict(load_weights)
 
-print("Token classifier params")
-for param_tensor in model.state_dict():
-    print(param_tensor, model.state_dict()[param_tensor].shape)
