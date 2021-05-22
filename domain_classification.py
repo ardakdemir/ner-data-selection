@@ -16,12 +16,12 @@ import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 SAVE_FOLDER = "../domain_classification_2205"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
+
 def load_vectors(p):
-    with h5py.File(p,"r") as h:
+    with h5py.File(p, "r") as h:
         return h["vectors"][:]
 
 
@@ -29,11 +29,10 @@ def load_vectors_from_folder(folder):
     vect_dict = {}
     for x in os.listdir(folder):
         name = x.split(".")[0]
-        p = os.path.join(folder,x)
+        p = os.path.join(folder, x)
         vectors = load_vectors(p)
         vect_dict[name] = vectors
     return vect_dict
-
 
 
 def get_class_dataset(vector_dict, size=None):
@@ -98,6 +97,8 @@ def domain_classify():
             model_result = {"f1s": f1s, "recs": recs, "pres": pres}
             result_json[model_name][pca_dim] = model_result
 
+    if not os.path.isdir(SAVE_FOLDER):
+        os.makedirs(SAVE_FOLDER)
     result_config_json = os.path.join(SAVE_FOLDER, "classification_result.json")
     with open(result_config_json, "w") as o:
         json.dump(result_json, o)
