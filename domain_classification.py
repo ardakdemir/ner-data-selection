@@ -53,6 +53,21 @@ def split_dataset(vecs, labels, ratio=0.7):
     i = int(len(data) * ratio)
     return data[:i], data[i:]
 
+def plot_confusion_matrix(best_preds,save_folder):
+    for model, preds in best_preds.items():
+        ts_y, y_pred = preds
+        plt.figure(figsize=(14, 10))
+        labels = list(set([x for x in ts_y]).union(set([x for x in y_pred])))
+        labels = [x.split("_")[0] for x in labels]
+        conf_mat = confusion_matrix(ts_y, y_pred, labels=labels)
+        df_cm = pd.DataFrame(conf_mat, labels, labels)
+        # conf_mat = [[round(float(x)/sum(r),3)*100 for x in r] for r in conf_mat]
+
+        sn.heatmap(df_cm, annot=True, annot_kws={"size": 20}, cmap="YlGnBu", fmt='g')  # font size
+        plt.title("Confusion Matrix for {}".format(model_name))
+        plt.ylabel("True Label")
+        plt.xlabel("Prediction")
+        plt.savefig(save_folder,"confusion_matrix_{}.pdf".format(model))
 
 def domain_classify():
     experiment_list = [(False, -1), (True, 50), (True, 100), (True, 200)]
@@ -60,12 +75,15 @@ def domain_classify():
     num_experiments = 5
     size = 5000
     result_json = {}
+    predictions = {} # Use for confusion matrix
     for model_name in model_names:
         folder = os.path.join(ROOT_FOLDER, model_name)
         if not os.path.isdir(folder):
             continue
         vect_dict = load_vectors_from_folder(folder)
         result_json[model_name] = {}
+        best_f1 = 0
+        best_preds = None
         for exp in tqdm(experiment_list, desc="Experiment"):
             print("Starting {} {}".format(model_name, exp[-1]))
             pres = []
@@ -93,15 +111,21 @@ def domain_classify():
                 pres.append(np.round(pre, 3))
                 recs.append(np.round(rec, 3))
                 f1s.append(np.round(f1, 3) * 100)
+                if f1 > best_f1:
+                    best_f1 = f1
+                    best_preds = (ts_y, y_pred)
             print("Results for {} {}: {}".format(model_name, exp, f1s))
             model_result = {"f1s": f1s, "recs": recs, "pres": pres}
             result_json[model_name][pca_dim] = model_result
+            predictions[model_name] = best_preds
 
     if not os.path.isdir(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
     result_config_json = os.path.join(SAVE_FOLDER, "classification_result.json")
     with open(result_config_json, "w") as o:
         json.dump(result_json, o)
+
+    plot_confusion_matrix(predictions, SAVE_FOLDER)
 
 
 def main():
