@@ -34,7 +34,7 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled", type=str, required=False)
+        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str, required=False)
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(

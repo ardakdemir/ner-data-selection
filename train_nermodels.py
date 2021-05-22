@@ -73,11 +73,11 @@ def parse_args():
         "--test_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_test.tsv", type=str, required=False
     )
     parser.add_argument(
-        "--save_folder", default="../dataselect_nerresult_0505", type=str, required=False,
+        "--save_folder", default="../dataselect_nerresult_2205", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
-        "--save_folder_root", default="../dataselect_nerresult_0505", type=str, required=False,
+        "--save_folder_root", default="../dataselect_nerresult_2205", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
