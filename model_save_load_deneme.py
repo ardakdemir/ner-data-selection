@@ -8,11 +8,14 @@ import torch
 
 
 def load_weights_with_skip(model, weights, skip_layers=["bert.pooler", "classifier"]):
+    my_weights = {}
     for x in weights:
         if any([x.startswith(layer) for layer in skip_layers]):
             print("Skipping loading {}".format(x))
             continue
-        model[x] = weights[x]
+        # model[x] = weights[x]
+        my_weights[x] = weights
+    model.load_state_dict(weights, strict=False)
     return model
 
 
@@ -47,6 +50,5 @@ for param_tensor in model.state_dict():
 print("Loaded params ")
 for x in load_weights:
     print(x, load_weights[x].shape)
-
 
 load_weights_with_skip(model, load_weights)
