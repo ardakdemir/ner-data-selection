@@ -72,8 +72,8 @@ def plot_confusion_matrix(best_preds,save_folder):
 def domain_classify():
     experiment_list = [(False, -1), (True, 50), (True, 100), (True, 200)]
     model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
-    num_experiments = 5
-    size = 5000
+    num_experiments = 3
+    size = 50
     result_json = {}
     predictions = {} # Use for confusion matrix
     for model_name in model_names:
