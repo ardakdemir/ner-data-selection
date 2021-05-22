@@ -70,7 +70,7 @@ def plot_confusion_matrix(best_preds, save_folder):
         plt.yticks(rotation=0)
 
         plt.ylabel("True Label")
-        plt.xlabel("Prediction")
+        plt.xlabel("Predicted Label")
         plt.tight_layout()
         plt.savefig(os.path.join(save_folder, "confusion_matrix_{}.pdf".format(model)))
 
@@ -79,7 +79,7 @@ def domain_classify():
     experiment_list = [(False, -1), (True, 50)]
     model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
     num_experiments = 3
-    size = 50
+    size = 5000
     result_json = {}
     predictions = {}  # Use for confusion matrix
     for model_name in model_names:
