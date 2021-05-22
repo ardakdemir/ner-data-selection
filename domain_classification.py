@@ -9,7 +9,7 @@ from tqdm import tqdm
 import os
 
 SAVE_FOLDER = "../domain_classification_2205"
-ROOT_FOLDER = "/Users/aakdemir/all_encoded_vectors_0305"
+ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
 
 def get_class_dataset(vector_dict, size=None):
