@@ -62,9 +62,7 @@ def plot_confusion_matrix(best_preds,save_folder):
         conf_mat = confusion_matrix(ts_y, y_pred, labels=labels)
         df_cm = pd.DataFrame(conf_mat, labels, labels)
         # conf_mat = [[round(float(x)/sum(r),3)*100 for x in r] for r in conf_mat]
-
         sn.heatmap(df_cm, annot=True, annot_kws={"size": 20}, cmap="YlGnBu", fmt='g')  # font size
-        plt.title("Confusion Matrix for {}".format(model))
         plt.ylabel("True Label")
         plt.xlabel("Prediction")
         plt.tight_layout()
