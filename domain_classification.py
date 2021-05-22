@@ -67,7 +67,7 @@ def plot_confusion_matrix(best_preds,save_folder):
         plt.title("Confusion Matrix for {}".format(model))
         plt.ylabel("True Label")
         plt.xlabel("Prediction")
-        plt.savefig(save_folder,"confusion_matrix_{}.pdf".format(model))
+        plt.savefig(os.path.join(save_folder,"confusion_matrix_{}.pdf".format(model)))
 
 def domain_classify():
     experiment_list = [(False, -1), (True, 50)]
