@@ -6,6 +6,7 @@ from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 from sklearn.svm import SVC
 import json as json
 from tqdm import tqdm
+import os
 
 SAVE_FOLDER = "../domain_classification_2205"
 ROOT_FOLDER = "/Users/aakdemir/all_encoded_vectors_0305"
