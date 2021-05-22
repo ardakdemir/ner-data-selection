@@ -8,6 +8,14 @@ import json as json
 from tqdm import tqdm
 import os
 import h5py
+from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+import os
+# Plot confusion matrix
+import seaborn as sn
+import pandas as pd
+import matplotlib.pyplot as plt
+
 
 SAVE_FOLDER = "../domain_classification_2205"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
