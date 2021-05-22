@@ -18,7 +18,7 @@ input_dims, output_dim = 768,10
 model = model_class.from_pretrained(model_name, return_dict=True, num_labels=output_dim)
 print("Sequece classifier params")
 for param_tensor in model.state_dict():
-    print(param_tensor, model.state_dict()[param_tensor])
+    print(param_tensor, model.state_dict()[param_tensor].shape)
 
 # Save Sequence-classifier
 best_model_weights = model.state_dict()
@@ -34,5 +34,5 @@ model.load_state_dict(load_weights)
 
 print("Token classifier params")
 for param_tensor in model.state_dict():
-    print(param_tensor, model.state_dict()[param_tensor])
+    print(param_tensor, model.state_dict()[param_tensor].shape)
 
