@@ -64,13 +64,13 @@ def plot_confusion_matrix(best_preds,save_folder):
         # conf_mat = [[round(float(x)/sum(r),3)*100 for x in r] for r in conf_mat]
 
         sn.heatmap(df_cm, annot=True, annot_kws={"size": 20}, cmap="YlGnBu", fmt='g')  # font size
-        plt.title("Confusion Matrix for {}".format(model_name))
+        plt.title("Confusion Matrix for {}".format(model))
         plt.ylabel("True Label")
         plt.xlabel("Prediction")
         plt.savefig(save_folder,"confusion_matrix_{}.pdf".format(model))
 
 def domain_classify():
-    experiment_list = [(False, -1), (True, 50), (True, 100), (True, 200)]
+    experiment_list = [(False, -1), (True, 50)]
     model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
     num_experiments = 3
     size = 50
