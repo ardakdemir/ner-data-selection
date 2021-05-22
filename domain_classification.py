@@ -11,6 +11,21 @@ import os
 SAVE_FOLDER = "../domain_classification_2205"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
+def load_vectors(p):
+    with h5py.File(p,"r") as h:
+        return h["vectors"][:]
+
+    
+def load_vectors_from_folder(folder):
+    vect_dict = {}
+    for x in os.listdir(folder):
+        name = x.split(".")[0]
+        p = os.path.join(folder,x)
+        vectors = load_vectors(p)
+        vect_dict[name] = vectors
+    return vect_dict
+
+
 
 def get_class_dataset(vector_dict, size=None):
     vecs = []
