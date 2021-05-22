@@ -15,7 +15,7 @@ def load_weights_with_skip(model, weights, skip_layers=["bert.pooler", "classifi
             continue
         # model[x] = weights[x]
         my_weights[x] = weights[x]
-    model.load_state_dict(my_weights)
+    model.load_state_dict(my_weights,strict=False)
     return model
 
 
