@@ -53,7 +53,8 @@ def split_dataset(vecs, labels, ratio=0.7):
     i = int(len(data) * ratio)
     return data[:i], data[i:]
 
-def plot_confusion_matrix(best_preds,save_folder):
+
+def plot_confusion_matrix(best_preds, save_folder):
     for model, preds in best_preds.items():
         ts_y, y_pred = preds
         plt.figure(figsize=(14, 10))
@@ -62,11 +63,17 @@ def plot_confusion_matrix(best_preds,save_folder):
         conf_mat = confusion_matrix(ts_y, y_pred, labels=labels)
         df_cm = pd.DataFrame(conf_mat, labels, labels)
         # conf_mat = [[round(float(x)/sum(r),3)*100 for x in r] for r in conf_mat]
-        sn.heatmap(df_cm, annot=True, annot_kws={"size": 20}, cmap="YlGnBu", fmt='g')  # font size
+        ax = sn.heatmap(df_cm, annot=True, annot_kws={"size": 20}, cbar=False, cmap="YlGnBu", fmt='g')  # font size
+
+        ax.xaxis.set_label_position('top')
+        ax.xaxis.tick_top()
+        plt.yticks(rotation=0)
+
         plt.ylabel("True Label")
         plt.xlabel("Prediction")
         plt.tight_layout()
-        plt.savefig(os.path.join(save_folder,"confusion_matrix_{}.pdf".format(model)))
+        plt.savefig(os.path.join(save_folder, "confusion_matrix_{}.pdf".format(model)))
+
 
 def domain_classify():
     experiment_list = [(False, -1), (True, 50)]
@@ -74,7 +81,7 @@ def domain_classify():
     num_experiments = 3
     size = 50
     result_json = {}
-    predictions = {} # Use for confusion matrix
+    predictions = {}  # Use for confusion matrix
     for model_name in model_names:
         folder = os.path.join(ROOT_FOLDER, model_name)
         if not os.path.isdir(folder):
