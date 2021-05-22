@@ -7,7 +7,7 @@ from transformers import BertTokenizer, BertForSequenceClassification
 import torch
 
 def load_weights_with_skip(model,weights,skip_layers = ["classifier"]):
-    for x in weights.state_dict():
+    for x in weights:
         if x.split(".")[0] not in skip_layers:
             model[x] = weights[x]
     return model
@@ -39,7 +39,7 @@ model = model_class.from_pretrained(model_name, return_dict=True, num_labels=out
 load_weights = torch.load(model_save_path)
 
 print("Weights")
-for x in load_weights.state_dict():
+for x in load_weights:
     print(x,load_weights[x].shape)
 
 model.load_state_dict(load_weights)
