@@ -57,8 +57,8 @@ def split_dataset(vecs, labels, ratio=0.7):
 def domain_classify():
     experiment_list = [(False, -1), (True, 50), (True, 100), (True, 200)]
     model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
-    num_experiments = 2
-    size = 50
+    num_experiments = 5
+    size = 5000
     result_json = {}
     for model_name in model_names:
         folder = os.path.join(ROOT_FOLDER, model_name)
