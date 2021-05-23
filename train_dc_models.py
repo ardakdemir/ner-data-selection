@@ -69,12 +69,14 @@ def get_vocab(tokens):
                 w2ind[tok] = len(w2ind)
     return w2ind
 
+
 def get_label_vocab(labels):
     w2ind = {}
     for label in labels:
         if label not in w2ind:
             w2ind[label] = len(w2ind)
     return w2ind
+
 
 class DCDataset(Dataset):
     def __init__(self, file_path, size=None):
@@ -326,10 +328,10 @@ def train_model(model, dataset_loaders, save_folder, args):
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, labels, sentences = train_loader[i]
-            print("Inputs: {} Labels: {}".format(inputs,labels))
+            print("Inputs: {} Labels: {}".format(inputs, labels))
             inputs = inputs.to(device)
-            label = label.to(device)
-            output = model(inputs, labels=label)
+            labels = labels.to(device)
+            output = model(inputs, labels=labels)
             loss = output.loss
             logits = output.logits
             # b, n, c = output.shape
@@ -337,7 +339,7 @@ def train_model(model, dataset_loaders, save_folder, args):
             # label = label.to(device)
             # loss = criterion(output, label.view(-1))
             total_loss += loss.detach().cpu().item()
-            total_num += label.shape[0]
+            total_num += labels.shape[0]
             loss.backward()
             optimizer.step()
             # print("Loss", loss.item())
