@@ -69,11 +69,17 @@ def get_vocab(tokens):
                 w2ind[tok] = len(w2ind)
     return w2ind
 
+def get_label_vocab(labels):
+    w2ind = {}
+    for label in labels:
+        if label not in w2ind:
+            w2ind[label] = len(w2ind)
+    return w2ind
 
 class DCDataset(Dataset):
     def __init__(self, file_path, size=None):
         sentences, labels = read_dc_dataset(file_path)
-        token_vocab, label_vocab = get_vocab(sentences), get_vocab(labels)
+        token_vocab, label_vocab = get_vocab(sentences), get_label_vocab(labels)
         self.token_vocab = Vocab(token_vocab)
         self.label_vocab = Vocab(label_vocab)
         self.sentences = sentences
