@@ -12,7 +12,7 @@ import json
 from transformers import AdamW, RobertaModel, BertForTokenClassification, \
     RobertaForTokenClassification, DistilBertForTokenClassification, \
     RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
-    BertTokenizer
+    BertTokenizer,BertForSequenceClassification
 from collections import defaultdict
 from itertools import product
 import logging
