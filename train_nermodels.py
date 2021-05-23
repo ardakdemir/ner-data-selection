@@ -80,6 +80,9 @@ def parse_args():
         "--dc_model_weight_path", default="../dc_result/best_model_weights.pkh", type=str, required=False,
     )
     parser.add_argument(
+        "--dc_save_root", default="../dc_results_2205", type=str, required=False,
+    )
+    parser.add_argument(
         "--load_dc_model", default=False, action="store_true", help="Whether to load dc model weights..."
     )
     parser.add_argument(
@@ -460,6 +463,9 @@ def main():
                 args.train_file_path = os.path.join(args.dataset_root, d, "ent_train.tsv")
                 args.dev_file_path = os.path.join(args.evaluate_root, d, "ent_devel.tsv")
                 args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
+                if args.load_dc_model:
+                    args.dc_model_weight_path = os.path.join(args.dc_save_root, d, "best_model_weights.pkh")
+                    print("Will load dc model from : {}".format(args.dc_model_weight_path))
                 args.save_folder = my_save_folder
                 print("Saving {} results to {} ".format(d, my_save_folder))
                 print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
