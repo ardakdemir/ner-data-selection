@@ -285,7 +285,7 @@ def evaluate(model, dataset_loader):
             inputs, label, tokens = dataset_loader[i]
             inputs = inputs.to(device)
             label = label.to(device)
-            output = model(inputs, labels=label)
+            output = model(**inputs, labels=label)
             loss = output.loss
             output = output.logits
             total_loss += loss.detach().cpu().item()
