@@ -54,11 +54,11 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataset_root", default="../biobert_data/datasets/BioNER_2804", type=str,
+        "--dataset_root", default="../biobert_data/datasets/BioNER_2804_combined", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="../biobert_data/datasets/BioNER_2804", type=str,
+        "--evaluate_root", default="../biobert_data/datasets/BioNER_2804_combined", type=str,
         required=False
     )
     parser.add_argument(
@@ -479,6 +479,9 @@ def main():
         args.test_file_path = os.path.join(args.evaluate_root, "ent_test.tsv")
         args.save_folder = my_save_folder
         print("Saving {} results to {} ".format(d, my_save_folder))
+        if args.load_dc_model:
+            args.dc_model_weight_path = os.path.join(args.dc_save_root, d, "best_model_weights.pkh")
+            print("Will load dc model from : {}".format(args.dc_model_weight_path))
         print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
         train(args)
 
