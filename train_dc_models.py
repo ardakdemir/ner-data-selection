@@ -275,7 +275,7 @@ def write_to_conll_format(conll_data, label_vocab, save_path):
         o.write(s)
 
 
-def evaluate(model, dataset_loader, save_path):
+def evaluate(model, dataset_loader):
     model = model.eval()
     preds = labels = []
     conll_data = []
@@ -348,7 +348,7 @@ def train_model(model, dataset_loaders, save_folder, args):
         train_loss = total_loss / total_num
         train_losses.append(train_loss)
         train_loader.for_eval = True
-        pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
+        pre, rec, f1, dev_loss = evaluate(model, eval_loader)
         print("\n==== Result for epoch {} === F1: {} ====\n".format(j + 1, f1))
         dev_f1s.append(f1)
         dev_losses.append(dev_loss)
