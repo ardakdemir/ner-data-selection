@@ -262,7 +262,7 @@ def train(args):
     class_to_idx_path = os.path.join(save_folder, "class_to_idx.json")
     with open(class_to_idx_path, "w") as j:
         json.dump(class_to_idx, j)
-    return result
+    return train_result
 
 
 def write_to_conll_format(conll_data, label_vocab, save_path):
@@ -370,7 +370,7 @@ def train_model(model, dataset_loaders, save_folder, args):
             torch.save(best_model_weights, model_save_path)
 
     model.load_state_dict(torch.load(model_save_path))
-    test_pre, test_rec, test_f1, test_loss, labels, preds = evaluate(model, dataset_loaders["test"])
+    # test_pre, test_rec, test_f1, test_loss, labels, preds = evaluate(model, dataset_loaders["test"])
 
     return model, {"train_losses": train_losses,
                    "dev_losses": dev_losses,
