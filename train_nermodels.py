@@ -238,7 +238,6 @@ def evaluate(model, dataset_loader, save_path):
     preds = labels = []
     conll_data = []
     pad_index = dataset_loader.dataset.label_vocab.w2ind["[PAD]"]
-    criterion = CrossEntropyLoss(ignore_index=pad_index)
     total_loss = 0
     for i in tqdm(range(len(dataset_loader)), desc="evaluation"):
         with torch.no_grad():
@@ -248,10 +247,6 @@ def evaluate(model, dataset_loader, save_path):
             output = model(inputs, labels=label)
             loss = output.loss
             output = output.logits
-            # b, n, c = output.shape
-            # output = output.reshape(b, c, n)
-            # loss = criterion(output, label)
-            # output = output.reshape(b, n, c)
             total_loss += loss.detach().cpu().item()
             b, n, c = output.shape
             for l in label:
@@ -284,7 +279,6 @@ def train_model(model, dataset_loaders, save_folder, args):
 
     optimizer = AdamW(model.parameters(), lr=2e-5)
     pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
-    criterion = CrossEntropyLoss(ignore_index=pad_index)
 
     train_losses = []
     dev_losses = []
