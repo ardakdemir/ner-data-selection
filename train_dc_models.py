@@ -56,6 +56,15 @@ def read_dc_dataset(file_path):
     sentences, labels = dataset["sentences"], dataset["labels"]
     return sentences, labels
 
+def get_vocab(tokens):
+    w2ind = {}
+    for s in special_tokens:
+        w2ind[s] = len(w2ind)
+    for sent in tokens:
+        for tok in sent:
+            if tok not in w2ind:
+                w2ind[tok] = len(w2ind)
+    return w2ind
 
 class DCDataset(Dataset):
     def __init__(self, file_path, size=None):
