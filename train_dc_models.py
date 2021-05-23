@@ -328,7 +328,7 @@ def train_model(model, dataset_loaders, save_folder, args):
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
             inputs, labels, sentences = train_loader[i]
-            print("Inputs: {} Labels: {}".format(inputs["input_ids"].shape, labels.shape))
+            # print("Inputs: {} Labels: {}".format(inputs["input_ids"].shape, labels.shape))
             inputs = inputs.to(device)
             labels = labels.to(device)
             output = model(**inputs, labels=labels)
