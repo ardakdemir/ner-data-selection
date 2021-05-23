@@ -29,6 +29,7 @@ UNK_TOKEN = "[UNK]"
 PAD_TOKEN = "[PAD]"
 
 SPECIAL_TOKENS = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
+special_tokens = [CLS_TOKEN, SEP_TOKEN, UNK_TOKEN, PAD_TOKEN]
 
 MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
           (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
