@@ -18,7 +18,7 @@ from itertools import product
 import logging
 from torch.nn import CrossEntropyLoss, MSELoss
 from conll_eval import evaluate_conll_file
-from ner_dataset import NerDataset, NerDatasetLoader
+from ner_dataset import Vocab
 from nermodel import NerModel
 from gensim.utils import tokenize
 import matplotlib.pyplot as plt
@@ -51,6 +51,7 @@ model_names = ["BioBERT"]
 
 # train_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv"
 # dev_file_path = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804/BC2GM/ent_devel.tsv"
+
 
 def read_dc_dataset(file_path):
     dataset = json.load(open(file_path, "r"))
