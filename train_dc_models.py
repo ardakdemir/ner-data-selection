@@ -277,7 +277,6 @@ def evaluate(model, dataset_loader, save_path):
     model = model.eval()
     preds = labels = []
     conll_data = []
-    pad_index = dataset_loader.dataset.label_vocab.w2ind["[PAD]"]
     total_loss = 0
     for i in tqdm(range(len(dataset_loader)), desc="evaluation"):
         with torch.no_grad():
@@ -311,7 +310,6 @@ def train_model(model, dataset_loaders, save_folder, args):
     model = model.train()
 
     optimizer = AdamW(model.parameters(), lr=2e-5)
-    pad_index = dataset_loaders["train"].dataset.label_vocab.w2ind["[PAD]"]
 
     train_losses = []
     dev_losses = []
