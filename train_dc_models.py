@@ -112,20 +112,20 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataset_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
+        "--dataset_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
+        "--evaluate_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
         required=False
     )
     parser.add_argument(
-        "--train_file_path", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/train.json",
+        "--train_file_path", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/train.json",
         type=str,
         required=False
     )
     parser.add_argument(
-        "--test_file_path", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/test.json", type=str,
+        "--test_file_path", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/test.json", type=str,
         required=False
     )
     parser.add_argument(
