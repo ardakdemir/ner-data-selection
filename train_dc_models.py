@@ -4,7 +4,7 @@ import time
 from tqdm import tqdm
 import argparse
 from torch.utils.data import Dataset, DataLoader
-from sklearn.metrics import precision_recall_fscore_support,accuracy_score
+from sklearn.metrics import precision_recall_fscore_support, accuracy_score
 
 import json
 import h5py
@@ -58,6 +58,17 @@ def read_dc_dataset(file_path):
     dataset = json.load(open(file_path, "r"))
     sentences, labels = dataset["sentences"], dataset["labels"]
     return sentences, labels
+
+
+def plot_arrays(arrays, names, xlabel, ylabel, save_path):
+    plt.figure(figsize=(18, 12))
+    for n, a in zip(names, arrays):
+        plt.plot(a, label=n)
+    plt.legend()
+    plt.xlabel(xlabel)
+    plt.ylabel(ylabel)
+    plt.savefig(save_path)
+    plt.close()
 
 
 def get_vocab(tokens):
@@ -134,11 +145,11 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataset_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
+        "--dataset_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
+        "--evaluate_root", default="../biobert_data/datasets/BioNER_2505_DC_datasets", type=str,
         required=False
     )
     parser.add_argument(
@@ -300,7 +311,7 @@ def evaluate(model, dataset_loader):
 
     total_loss = total_loss / len(dataset_loader.dataset)
     print("Loss: {}".format(total_loss))
-    return pre, rec, f1, total_loss
+    return pre, rec, f1, total_loss, labels, preds
 
 
 def train_model(model, dataset_loaders, save_folder, args):
@@ -349,7 +360,7 @@ def train_model(model, dataset_loaders, save_folder, args):
         train_loss = total_loss / total_num
         train_losses.append(train_loss)
         train_loader.for_eval = True
-        pre, rec, f1, dev_loss = evaluate(model, eval_loader)
+        pre, rec, f1, dev_loss, labels, preds = evaluate(model, eval_loader)
         print("\n==== Result for epoch {} === F1: {} ====\n".format(j + 1, f1))
         dev_f1s.append(f1)
         dev_losses.append(dev_loss)
@@ -359,6 +370,8 @@ def train_model(model, dataset_loaders, save_folder, args):
             torch.save(best_model_weights, model_save_path)
 
     model.load_state_dict(torch.load(model_save_path))
+    test_pre, test_rec, test_f1, test_loss, labels, preds = evaluate(model, dataset_loaders["test"])
+
     return model, {"train_losses": train_losses,
                    "dev_losses": dev_losses,
                    "dev_f1s": dev_f1s,
