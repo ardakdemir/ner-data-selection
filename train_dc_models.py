@@ -110,11 +110,11 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataset_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets", type=str,
+        "--dataset_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets", type=str,
+        "--evaluate_root", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
         required=False
     )
     parser.add_argument(
@@ -123,7 +123,7 @@ def parse_args():
         required=False
     )
     parser.add_argument(
-        "--test_file_path", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/train.json", type=str,
+        "--test_file_path", default="~/biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM/test.json", type=str,
         required=False
     )
     parser.add_argument(
@@ -143,7 +143,8 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
-        "--target_dataset_path", default="../biobert_data/datasets/BioNER_2804/BC2GM", type=str, required=False)
+        "--target_dataset_path", default="../biobert_data/datasets/BioNER_2505_DC_datasets/BC2GM", type=str,
+        required=False)
     parser.add_argument(
         "--input_dims", default=768, type=int, required=False,
     )
@@ -340,6 +341,7 @@ def train_model(model, dataset_loaders, save_folder, args):
                    "class_to_idx": dataset_loaders["train"].dataset.label_vocab.w2ind,
                    "best_f1": best_f1}, dataset_loaders["train"].dataset.label_vocab.w2ind
 
+
 def load_model(model, model_load_path):
     print("Model's state_dict:")
     for param_tensor in model.state_dict():
@@ -351,6 +353,7 @@ def load_model(model, model_load_path):
         if param_tensor == "model.classifier.weight":
             print("After load ", model.state_dict()[param_tensor])
     return model
+
 
 def traindc_all_datasets(save_folder_root, my_dataset_list, args):
     results = {}
