@@ -77,6 +77,12 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
+        "--dc_model_weights", default="../dc_result/best_model_weights.pkh", type=str, required=False,
+    )
+    parser.add_argument(
+        "--load_dc_model", default=False, action="store_true", help="Whether to load dc model weights..."
+    )
+    parser.add_argument(
         "--save_folder_root", default="../dataselect_nerresult_2205", type=str, required=False,
         help="The path to save everything..."
     )
@@ -180,6 +186,9 @@ def train(args):
     dataset_loaders["test"] = test_dataset_loader
 
     model = NerModel(args, model_tuple)
+    if args.load_dc_model:
+        dc_weights = torch.load(args.dc_model_weights)
+        model = load_weights_with_skip(model, dc_weights)
     trained_model, train_result, class_to_idx = train_model(model, dataset_loaders, save_folder, args)
 
     # Plot train/dev losses
@@ -349,6 +358,18 @@ def inference_wrapper():
             args.save_folder = my_save_folder
             print("Saving {} results to {} ".format(d, my_save_folder))
             inference(model_path, class_dict_path, args)
+
+
+def load_weights_with_skip(model, weights, skip_layers=["bert.pooler", "classifier"]):
+    my_weights = {}
+    for x in weights:
+        if any([x.startswith(layer) for layer in skip_layers]):
+            print("Skipping loading {}".format(x))
+            continue
+        # model[x] = weights[x]
+        my_weights[x] = weights[x]
+    model.load_state_dict(my_weights, strict=False)
+    return model
 
 
 def load_model(model, model_load_path):

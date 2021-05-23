@@ -201,7 +201,7 @@ def train(args):
     target_dataset = os.path.split(target_dataset_path)[-1]
     train_dataset_name = os.path.split(os.path.split(train_file_path)[0])[-1]
 
-    print("Target dataset: {}\nTrain {} } test {}...\n".format(target_dataset, train_file_path, test_file_path))
+    print("Target dataset: {}\nTrain {} test {}...\n".format(target_dataset, train_file_path, test_file_path))
     model_name = model_tuple[2]
     tokenizer = BertTokenizer.from_pretrained(model_name)
 
