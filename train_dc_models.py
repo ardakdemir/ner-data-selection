@@ -331,7 +331,7 @@ def train_model(model, dataset_loaders, save_folder, args):
             print("Inputs: {} Labels: {}".format(inputs, labels))
             inputs = inputs.to(device)
             labels = labels.to(device)
-            output = model(inputs, labels=labels)
+            output = model(**inputs, labels=labels)
             loss = output.loss
             logits = output.logits
             # b, n, c = output.shape
