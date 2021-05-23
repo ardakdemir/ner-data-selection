@@ -117,7 +117,7 @@ class DCDatasetLoader:
             index = (index + b) % len(self.dataset)
             tokens, label = self.dataset[index]
             inps.append(" ".join(tokens))
-            labs.append(self.dataset.label_vocab.map([labels]))
+            labs.append(self.dataset.label_vocab.map([label])[0])
             raw_tokens.append(tokens)
 
         inputs = self.tokenizer(inps, return_tensors="pt", padding=True, truncation=True,
