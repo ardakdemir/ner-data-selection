@@ -107,7 +107,7 @@ class DCDatasetLoader:
     def __getitem__(self, index):
         inps = []
         labs = []
-        raw_tokens = []
+        raw_sentences = []
         final_labels = []
         if self.for_eval:
             index = index * self.batch_size
@@ -115,14 +115,14 @@ class DCDatasetLoader:
             index = np.random.randint(0, len(self.dataset) / self.batch_size)
         for b in range(self.batch_size):
             index = (index + b) % len(self.dataset)
-            tokens, label = self.dataset[index]
-            inps.append(" ".join(tokens))
+            sentence, label = self.dataset[index]
+            inps.append(sentence)
             labs.append(self.dataset.label_vocab.map([label])[0])
-            raw_tokens.append(tokens)
+            raw_sentences.append(sentence)
 
         inputs = self.tokenizer(inps, return_tensors="pt", padding=True, truncation=True,
                                 max_length=512)
-        return inputs, torch.tensor(labs)
+        return inputs, torch.tensor(labs), raw_sentences
 
 
 def parse_args():
@@ -325,7 +325,8 @@ def train_model(model, dataset_loaders, save_folder, args):
         train_loader.for_eval = False
         for i in tqdm(range(eval_interval), desc="training"):
             optimizer.zero_grad()
-            inputs, label, tokens = train_loader[i]
+            inputs, labels, sentences = train_loader[i]
+            print("Inputs: {} Labels: {}".format(inputs,labels))
             inputs = inputs.to(device)
             label = label.to(device)
             output = model(inputs, labels=label)
