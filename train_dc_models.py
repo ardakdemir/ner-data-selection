@@ -90,8 +90,8 @@ class DCDataset(Dataset):
 
     def __getitem__(self, index):
         sentence = self.sentences[index]
-        labels = self.labels[index]
-        return sentence, labels
+        label = self.labels[index]
+        return sentence, label
 
 
 class DCDatasetLoader:
@@ -115,9 +115,9 @@ class DCDatasetLoader:
             index = np.random.randint(0, len(self.dataset) / self.batch_size)
         for b in range(self.batch_size):
             index = (index + b) % len(self.dataset)
-            tokens, labels = self.dataset[index]
+            tokens, label = self.dataset[index]
             inps.append(" ".join(tokens))
-            labs.append(self.label_vocab.map(labels))
+            labs.append(self.dataset.label_vocab.map([labels]))
             raw_tokens.append(tokens)
 
         inputs = self.tokenizer(inps, return_tensors="pt", padding=True, truncation=True,
