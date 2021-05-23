@@ -221,11 +221,11 @@ def train(args):
     dataset_loaders["train"] = dataset_loader
     num_classes = len(dataset_loader.dataset.label_vocab)
     args.output_dim = num_classes
-    print("Label vocab: {}".format(ner_dataset.label_vocab.w2ind))
+    print("Label vocab: {}".format(dc_dataset.label_vocab.w2ind))
 
-    test_dc_dataset = NerDataset(test_file_path, size=size)
-    test_dc_dataset.label_vocab = ner_dataset.label_vocab
-    test_dc_dataset.token_vocab = ner_dataset.token_vocab
+    test_dc_dataset = DCDataset(test_file_path, size=size)
+    test_dc_dataset.label_vocab = dc_dataset.label_vocab
+    test_dc_dataset.token_vocab = dc_dataset.token_vocab
     test_dataset_loader = DCDatasetLoader(test_dc_dataset, tokenizer, batch_size=batch_size)
     dataset_loaders["test"] = test_dataset_loader
 
