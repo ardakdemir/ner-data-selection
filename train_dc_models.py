@@ -12,7 +12,7 @@ import json
 from transformers import AdamW, RobertaModel, BertForTokenClassification, \
     RobertaForTokenClassification, DistilBertForTokenClassification, \
     RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, \
-    BertTokenizer,BertForSequenceClassification
+    BertTokenizer, BertForSequenceClassification
 from collections import defaultdict
 from itertools import product
 import logging
@@ -58,6 +58,7 @@ def read_dc_dataset(file_path):
     sentences, labels = dataset["sentences"], dataset["labels"]
     return sentences, labels
 
+
 def get_vocab(tokens):
     w2ind = {}
     for s in special_tokens:
@@ -67,6 +68,7 @@ def get_vocab(tokens):
             if tok not in w2ind:
                 w2ind[tok] = len(w2ind)
     return w2ind
+
 
 class DCDataset(Dataset):
     def __init__(self, file_path, size=None):
@@ -206,7 +208,7 @@ def train(args):
 
     target_dataset_path = args.target_dataset_path
 
-    test_file_path = os.path.join(target_dataset_path, "ent_test.tsv")
+    test_file_path = args.test_file_path
     train_file_path = args.train_file_path
 
     target_dataset = os.path.split(target_dataset_path)[-1]
@@ -340,7 +342,7 @@ def train_model(model, dataset_loaders, save_folder, args):
         train_losses.append(train_loss)
         train_loader.for_eval = True
         pre, rec, f1, dev_loss = evaluate(model, eval_loader, eval_save_path)
-        print("\n==== Result for epoch {} === F1: {} ====\n".format(j+1,f1))
+        print("\n==== Result for epoch {} === F1: {} ====\n".format(j + 1, f1))
         dev_f1s.append(f1)
         dev_losses.append(dev_loss)
         if f1 > best_f1:
