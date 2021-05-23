@@ -77,7 +77,7 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
-        "--dc_model_weights", default="../dc_result/best_model_weights.pkh", type=str, required=False,
+        "--dc_model_weight_path", default="../dc_result/best_model_weights.pkh", type=str, required=False,
     )
     parser.add_argument(
         "--load_dc_model", default=False, action="store_true", help="Whether to load dc model weights..."
@@ -187,7 +187,9 @@ def train(args):
 
     model = NerModel(args, model_tuple)
     if args.load_dc_model:
-        dc_weights = torch.load(args.dc_model_weights)
+        load_path = args.dc_model_weight_path
+        print("Loading model from : {}".format(load_path))
+        dc_weights = torch.load(load_path)
         model = load_weights_with_skip(model, dc_weights)
     trained_model, train_result, class_to_idx = train_model(model, dataset_loaders, save_folder, args)
 
