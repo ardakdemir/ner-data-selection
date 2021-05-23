@@ -54,23 +54,23 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--dataset_root", default="../biobert_data/datasets/BioNER_2804_combined", type=str,
+        "--dataset_root", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str,
         required=False
     )
     parser.add_argument(
-        "--evaluate_root", default="../biobert_data/datasets/BioNER_2804_combined", type=str,
+        "--evaluate_root", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str,
         required=False
     )
     parser.add_argument(
-        "--train_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_train.tsv", type=str,
+        "--train_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_train.tsv", type=str,
         required=False
     )
 
     parser.add_argument(
-        "--dev_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_devel.tsv", type=str, required=False
+        "--dev_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_devel.tsv", type=str, required=False
     )
     parser.add_argument(
-        "--test_file_path", default="../biobert_data/datasets/BioNER_2804/BC2GM/ent_test.tsv", type=str, required=False
+        "--test_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_test.tsv", type=str, required=False
     )
     parser.add_argument(
         "--save_folder", default="../dataselect_nerresult_2205", type=str, required=False,
