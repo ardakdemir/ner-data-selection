@@ -41,9 +41,11 @@ def get_class_dataset(sentence_data, size=None):
     labels = []
     sentences = []
     for k, my_data in sentence_data.items():
+
         if size:
             np.random.shuffle(my_data)
             my_data = my_data[:size]
+        print(my_data[0])
         labs, vectors, sents = list(zip(*my_data))
         vecs.extend(vectors.numpy())
         labels.extend(labs)

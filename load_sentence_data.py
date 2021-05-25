@@ -15,6 +15,7 @@ def load_sentence_data(all_sentences_path, model_name):
         final_dict[label].append((label, vec, " ".join(tokens)))
     for k, l in final_dict.items():
         print("{} sentences for {}".format(len(l), k))
+        print("First sentence {}".format(l[0]))
     return final_dict
 
 
