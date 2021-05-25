@@ -152,7 +152,7 @@ def domain_classify(all_sentences_path=None):
 
 
 def main():
-    path = "dataselection_1005_labeled"
+    path = "../dataselection_1005_labeled/allsentences_pickle.p"
     domain_classify(path)
 
 
