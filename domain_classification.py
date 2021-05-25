@@ -43,13 +43,13 @@ def get_class_dataset(sentence_data, size=None):
     for k, my_data in sentence_data.items():
         if size:
             np.random.shuffle(my_data)
-            my_data = my_data[:size]
+            my_data = my_data[:wsize]
         labs, vectors, sents = list(zip(*my_data))
-        vecs.extend(vectors)
+        vecs.extend(vectors.numpy())
         labels.extend(labs)
         sentences.extend(sents)
     print("{} vecs {} labels {} sentences".format(len(vecs), len(labels), len(sentences)))
-    return vecs, labels, sentences
+    return np.array(vecs), labels, sentences
 
 
 def split_dataset(data, ratio=0.7):
