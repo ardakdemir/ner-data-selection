@@ -15,8 +15,9 @@ import os
 import seaborn as sn
 import pandas as pd
 import matplotlib.pyplot as plt
+from load_sentence_data import load_sentence_data
 
-SAVE_FOLDER = "../domain_classification_2205"
+SAVE_FOLDER = "../domain_classification_2505"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
 
@@ -35,20 +36,24 @@ def load_vectors_from_folder(folder):
     return vect_dict
 
 
-def get_class_dataset(vector_dict, size=None):
+def get_class_dataset(sentence_data, size=None):
     vecs = []
     labels = []
-    for k, v in vector_dict.items():
+    sentences = []
+    for k, my_data in vector_dict.items():
         if size:
-            np.random.shuffle(v)
-            v = v[:size]
-        vecs.extend(v)
-        labels.extend([k.split("_")[0]] * len(v))
-    return vecs, labels
+            np.random.shuffle(my_data)
+            data = data[:size]
+        labs, vectors, sents = list(zip(*data))
+        vecs.extend(vectors)
+        labels.extend(labs)
+        sentences.extend(sents)
+    print("{} vecs {} labels {} sentences".format(len(vecs), len(labels), len(sentences)))
+    return vecs, labels, sentences
 
 
-def split_dataset(vecs, labels, ratio=0.7):
-    data = list(zip(vecs, labels))
+def split_dataset(data, ratio=0.7):
+    # data = list(zip(vecs, labels))
     np.random.shuffle(data)
     i = int(len(data) * ratio)
     return data[:i], data[i:]
@@ -75,22 +80,25 @@ def plot_confusion_matrix(best_preds, save_folder):
         plt.savefig(os.path.join(save_folder, "confusion_matrix_{}.pdf".format(model)))
 
 
-def domain_classify():
-    experiment_list = [(False, -1), (True, 50),(True, 100),(True, 200)]
-    model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
-    num_experiments = 3
-    size = 5000
+def domain_classify(all_sentences_path=None):
+    # experiment_list = [(False, -1), (True, 50),(True, 100),(True, 200)]
+    # model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
+    experiment_list = [(False, -1)]
+    model_names = ["BioBERT"]
+    num_experiments = 1
+    size = 100
     result_json = {}
     predictions = {}  # Use for confusion matrix
+    wrong_save_path = "wrong_examples.json"
+    wrong_example_dict = {}
     for model_name in model_names:
-        folder = os.path.join(ROOT_FOLDER, model_name)
-        if not os.path.isdir(folder):
-            continue
-        vect_dict = load_vectors_from_folder(folder)
+        final_wrong_examples = []
+        sentence_data = load_sentence_data(all_sentences_path, model_name)
         result_json[model_name] = {}
         best_f1 = 0
         best_preds = None
         for exp in tqdm(experiment_list, desc="Experiment"):
+            wrong_examples = []
             print("Starting {} {}".format(model_name, exp[-1]))
             pres = []
             recs = []
@@ -98,7 +106,7 @@ def domain_classify():
             with_pca, pca_dim = exp
             for i in tqdm(range(num_experiments), desc="repeat"):
                 clf = make_pipeline(StandardScaler(), SVC(gamma='auto'))
-                vecs, labels = get_class_dataset(vect_dict, size=size)
+                vecs, labels, sentences = get_class_dataset(sentence_data, size=size)
                 if with_pca:
                     pca = PCA(n_components=pca_dim)
                     pca_vecs = pca.fit_transform(vecs)
@@ -106,10 +114,11 @@ def domain_classify():
                 else:
                     pca_dim = len(vecs[0])
                     pca_vecs = vecs
-                train, test = split_dataset(pca_vecs, labels, ratio=0.8)
+                data = list(zip(pca_vecs, labels, sentences))
+                train, test = split_dataset(data, ratio=0.8)
 
-                tr_x, tr_y = list(zip(*train))
-                ts_x, ts_y = list(zip(*test))
+                tr_x, tr_y, tr_sents = list(zip(*train))
+                ts_x, ts_y, ts_sents = list(zip(*test))
                 clf.fit(tr_x, tr_y)
                 y_pred = clf.predict(ts_x)
                 pre, rec, f1, _ = precision_recall_fscore_support(ts_y, y_pred, average='micro')
@@ -120,10 +129,15 @@ def domain_classify():
                 if f1 > best_f1:
                     best_f1 = f1
                     best_preds = (ts_y, y_pred)
+                    for p, t, s in zip(y_pred, ts_y, ts_sents):
+                        if p != t:
+                            wrong_examples.append({"sentence": s, "prediction": p, "true_label": t})
+                    final_wrong_examples = wrong_examples
             print("Results for {} {}: {}".format(model_name, exp, f1s))
             model_result = {"f1s": f1s, "recs": recs, "pres": pres}
             result_json[model_name][pca_dim] = model_result
             predictions[model_name] = best_preds
+            wrong_example_dict[model_name] = final_wrong_examples
 
     if not os.path.isdir(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
@@ -131,11 +145,15 @@ def domain_classify():
     with open(result_config_json, "w") as o:
         json.dump(result_json, o)
 
+    wrong_save_path = os.path.join(SAVE_FOLDER, wrong_save_path)
+    with open(wrong_save_path, "w") as o:
+        json.dump(wrong_example_dict, o)
     plot_confusion_matrix(predictions, SAVE_FOLDER)
 
 
 def main():
-    domain_classify()
+    path = "dataselection_1005_labeled"
+    domain_classify(path)
 
 
 if __name__ == "__main__":
