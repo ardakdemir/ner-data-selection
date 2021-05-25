@@ -40,7 +40,7 @@ def get_class_dataset(sentence_data, size=None):
     vecs = []
     labels = []
     sentences = []
-    for k, my_data in vector_dict.items():
+    for k, my_data in sentence_data.items():
         if size:
             np.random.shuffle(my_data)
             data = data[:size]
