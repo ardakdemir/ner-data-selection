@@ -43,8 +43,8 @@ def get_class_dataset(sentence_data, size=None):
     for k, my_data in sentence_data.items():
         if size:
             np.random.shuffle(my_data)
-            data = data[:size]
-        labs, vectors, sents = list(zip(*data))
+            my_data = my_data[:size]
+        labs, vectors, sents = list(zip(*my_data))
         vecs.extend(vectors)
         labels.extend(labs)
         sentences.extend(sents)
