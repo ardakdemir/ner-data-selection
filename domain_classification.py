@@ -46,7 +46,7 @@ def get_class_dataset(sentence_data, size=None):
             np.random.shuffle(my_data)
             my_data = my_data[:size]
         labs, vectors, sents = [list(x) for x in list(zip(*my_data))]
-        vecs.extend(vectors.numpy())
+        vecs.extend(torch.stack(vectors).numpy())
         labels.extend(labs)
         sentences.extend(sents)
     print("{} vecs {} labels {} sentences".format(len(vecs), len(labels), len(sentences)))
