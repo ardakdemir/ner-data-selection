@@ -470,11 +470,12 @@ def data_selection_for_all_models():
     select_store_data(models_to_use, dataset_list, args)
 
 
-def save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list):
-    model_to_domain_to_encodings = get_domaintest_vectors(ROOT_FOLDER, 10, models_to_use, TEST_SAVE_FOLDER,
+def save_test_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER, dataset_list):
+    model_to_domain_to_encodings = get_domaintest_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER,
                                                           dataset_list=dataset_list)
     allsentences_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "alltest_sentences_pickle.p")
     pickle.dump(all_sentences, open(model_to_domain_to_encodings, "wb"))
+
 
 def main():
     args = parse_args()
