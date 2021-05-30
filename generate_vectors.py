@@ -47,7 +47,8 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str, required=False)
+        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str,
+        required=False)
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
@@ -245,7 +246,7 @@ def cos_similarity(a, b):
     return inner(a, b) / (norm(a) * norm(b))
 
 
-def select_data_with_cosine(data_select_data, domain_encodings,args):
+def select_data_with_cosine(data_select_data, domain_encodings, args):
     size = args.select_size
     select_mode = args.select_mode
     print("Domain encoding keys: ", domain_encodings.keys())
@@ -263,18 +264,18 @@ def select_data_with_cosine(data_select_data, domain_encodings,args):
     if select_mode == "size":
         sims, data = list(zip(*data_with_sims))
         data = data[:size]
-        print("Selected {} instance  with {} as size ".format(len(data),size))
+        print("Selected {} instance  with {} as size ".format(len(data), size))
     else:
         print("Selection mode: {}".format(select_mode))
         thres = args.select_thres
         selected = []
         sims, data = list(zip(*data_with_sims))
-        for s, d in zip(sims,data):
-            if s<thres:
+        for s, d in zip(sims, data):
+            if s < thres:
                 break
             selected.append(d)
         data = selected
-        print("Selected {} instance  with {} as threshold ".format(len(data),thres))
+        print("Selected {} instance  with {} as threshold ".format(len(data), thres))
     return data
 
 
@@ -441,7 +442,9 @@ def data_selection_for_all_models():
     select_size = args.select_size
     models_to_use = [x[-1] for x in [MODELS[-1]]]
     models_to_use = models_to_use + ["BioWordVec"]
-    select_store_data(models_to_use, args)
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+
+    select_store_data(models_to_use, dataset_list, args)
 
 
 def main():
