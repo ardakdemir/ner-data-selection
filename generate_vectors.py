@@ -470,6 +470,12 @@ def data_selection_for_all_models():
     select_store_data(models_to_use, dataset_list, args)
 
 
+def save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list):
+    model_to_domain_to_encodings = get_domaintest_vectors(ROOT_FOLDER, 10, models_to_use, TEST_SAVE_FOLDER,
+                                                          dataset_list=dataset_list)
+    allsentences_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "alltest_sentences_pickle.p")
+    pickle.dump(all_sentences, open(model_to_domain_to_encodings, "wb"))
+
 def main():
     args = parse_args()
     global ROOT_FOLDER
@@ -497,7 +503,7 @@ def main():
     models_to_use = [x[-1] for x in [MODELS[-1]]]
     models_to_use = models_to_use + ["BioWordVec"]
     dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-    get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=dataset_list)
+    save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list)
 
 
 if __name__ == "__main__":
