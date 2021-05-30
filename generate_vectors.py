@@ -494,7 +494,10 @@ def main():
     # else:
     #     data_selection_for_all_models()
     TEST_SAVE_FOLDER = args.test_save_folder
-    get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=None)
+    models_to_use = [x[-1] for x in [MODELS[-1]]]
+    models_to_use = models_to_use + ["BioWordVec"]
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=dataset_list)
 
 
 if __name__ == "__main__":
