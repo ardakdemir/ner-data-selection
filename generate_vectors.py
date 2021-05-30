@@ -35,6 +35,7 @@ test_file_name = "ent_test.tsv"
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
+TEST_SAVE_FOLDER = "/home/aakdemir/bioner_testvectors_3005"
 SELECTED_SAVE_ROOT = "../dummy_selected_save_root"
 COS_SIM_SAMPLE_SIZE = 1000
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
@@ -56,13 +57,13 @@ def parse_args():
     parser.add_argument(
         "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_3005", type=str, required=False)
     parser.add_argument(
+        "--test_save_folder", default="/home/aakdemir/bioner_testvectors_3005", type=str, required=False)
+    parser.add_argument(
         "--selected_save_root", default="/home/aakdemir/dataselection_3005_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
-    parser.add_argument(
-        "--selection_method", default="cosine_subset", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
         "--select_mode", default="similarity", choices=["size", "similarity"], required=False)
     parser.add_argument(
@@ -224,6 +225,22 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER, dataset_
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
     if "BioWordVec" in models_to_use:
         dataset_to_states = encode_with_bioword2vec(datasets, DEV_SAVE_FOLDER)
+        model_to_domain_to_encodings.update(dataset_to_states)
+    return model_to_domain_to_encodings
+
+
+def get_domaintest_vectors(folder, size, models_to_use, TEST_SAVE_FOLDER, dataset_list=None):
+    """
+        Get the vectors for the development sets of each dataset
+    :param model_to_domain_to_encodings:
+    :param size:
+    :return:
+    """
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_test.tsv",
+                                                          dataset_list=dataset_list)
+    model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, TEST_SAVE_FOLDER)
+    if "BioWordVec" in models_to_use:
+        dataset_to_states = encode_with_bioword2vec(datasets, TEST_SAVE_FOLDER)
         model_to_domain_to_encodings.update(dataset_to_states)
     return model_to_domain_to_encodings
 
@@ -457,6 +474,7 @@ def main():
     args = parse_args()
     global ROOT_FOLDER
     global DEV_SAVE_FOLDER
+    global TEST_SAVE_FOLDER
     global SAVE_FOLDER
     global BIOWORDVEC_FOLDER
     global COS_SIM_SAMPLE_SIZE
@@ -475,6 +493,8 @@ def main():
             get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
     else:
         data_selection_for_all_models()
+    # TEST_SAVE_FOLDER = args.test_save_folder
+    # get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=None)
 
 
 if __name__ == "__main__":
