@@ -473,7 +473,7 @@ def save_test_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER, datase
     model_to_domain_to_encodings = get_domaintest_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER,
                                                           dataset_list=dataset_list)
     allsentences_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "alltest_sentences_pickle.p")
-    pickle.dump(model_to_domain_to_encodings, open(model_to_domain_to_encodings, "wb"))
+    pickle.dump(model_to_domain_to_encodings, open(allsentences_pickle_save_path, "wb"))
 
 
 def main():

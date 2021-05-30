@@ -4,15 +4,27 @@ import numpy as np
 import json
 
 ROOT_FOLDER = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2804_labeled_cleaned"
-SAVE_FOLDER = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2505_DC_datasets"
 
 bio_datasets = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR']
 news_datasets = ["conll-eng"]
+all_datasets = bio_datasets + news_datasets
 file_names = {"train": "ent_train.tsv",
               "dev": "ent_devel.tsv"}
 
 
-def get_dc_datasets(ROOT_FOLDER, split=0.80):
+def get_out_domain_data(domain_datasets, indomain_name, size):
+    out_domain_dataset = []
+    all_od_datasets = []
+    for x in domain_datasets:
+        if x == indomain_name: continue
+        all_od_datasets.extend(domain_datasets[x]["train"])
+    print("{} out of domain datasets in total. ".format(len(all_od_datasets)))
+    np.random.shuffle(all_od_datasets)
+    all_od_datasets = all_od_datasets[:size]
+    return all_od_datasets
+
+
+def get_dc_datasets(ROOT_FOLDER, split=0.80, oov_rel_size=5):
     domain_datasets = {}
     dc_datasets = {}
     for d in bio_datasets + news_datasets:
@@ -25,15 +37,14 @@ def get_dc_datasets(ROOT_FOLDER, split=0.80):
                              dataset]
                 domain_datasets[d][k] = sentences
 
-    for in_domain, out_domain, o_label in [[bio_datasets, news_datasets, "News"], [news_datasets, bio_datasets, "Bio"]]:
+    for in_domain in all_datasets:
+        o_label = "OTHER_DOMAIN"
         for d in in_domain:
             in_domain = domain_datasets[d]["dev"]
             in_domain_size = len(in_domain)
             print("{} indomain sentences for {}".format(in_domain_size, d))
-            out_domain_size = 5 * in_domain_size
-            out_domain_dataset = []
-            for od in out_domain:
-                out_domain_dataset.extend(domain_datasets[od]["train"])
+            out_domain_size = oov_rel_size * in_domain_size
+            out_domain_dataset = get_out_domain_data(domain_datasets, indomain_name, size)
             np.random.shuffle(out_domain_dataset)
             out_domain_dataset = out_domain_dataset[:out_domain_size]
             print("OOD size: {}".format(len(out_domain_dataset)))
@@ -54,4 +65,6 @@ def get_dc_datasets(ROOT_FOLDER, split=0.80):
                     json.dump(data, j)
 
 
-get_dc_datasets(ROOT_FOLDER, split=0.80)
+for rel_size in [1]:
+    SAVE_FOLDER = "/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/BioNER_2505_DC_datasets_relsize_{}".format(rel_size)
+    get_dc_datasets(ROOT_FOLDER, split=0.80,oov_rel_size=rel_size)
