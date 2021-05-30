@@ -436,8 +436,8 @@ def data_selection_for_all_models():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 30000
-    dev_size = 2000
+    train_size = 300
+    dev_size = 200
     select_size = args.select_size
     models_to_use = [x[-1] for x in [MODELS[-1]]]
     select_store_data(models_to_use, args)
