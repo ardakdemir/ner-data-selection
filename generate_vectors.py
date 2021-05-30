@@ -486,15 +486,15 @@ def main():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
     select_size = args.select_size
-    if args.random:
-        for r in range(args.repeat):
-            print("Generating random dataset {}".format(r + 1))
-            dataset_name = "random_{}".format(r)
-            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
-    else:
-        data_selection_for_all_models()
-    # TEST_SAVE_FOLDER = args.test_save_folder
-    # get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=None)
+    # if args.random:
+    #     for r in range(args.repeat):
+    #         print("Generating random dataset {}".format(r + 1))
+    #         dataset_name = "random_{}".format(r)
+    #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    # else:
+    #     data_selection_for_all_models()
+    TEST_SAVE_FOLDER = args.test_save_folder
+    get_domaintest_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list=None)
 
 
 if __name__ == "__main__":
