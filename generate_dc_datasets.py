@@ -3,7 +3,7 @@ import sys
 import numpy as np
 import json
 
-ROOT_FOLDER = "/Users/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned"
+ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned"
 
 bio_datasets = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR']
 news_datasets = ["conll-eng"]
@@ -67,6 +67,6 @@ def get_dc_datasets(ROOT_FOLDER, split=0.80, oov_rel_size=5):
 
 
 for rel_size in [1,2,3,5,10]:
-    SAVE_FOLDER = "/Users/aakdemir/biobert_data/datasets/BioNER_2505_DC_datasets_relsize_{}".format(
+    SAVE_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2505_DC_datasets_relsize_{}".format(
         rel_size)
     get_dc_datasets(ROOT_FOLDER, split=0.80, oov_rel_size=rel_size)
