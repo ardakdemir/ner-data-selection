@@ -190,7 +190,7 @@ def parse_args():
         "--eval_interval", default=-1, type=int, required=False,
     )
     parser.add_argument(
-        "--epoch_num", default=4, type=int, required=False,
+        "--epoch_num", default=5, type=int, required=False,
     )
     parser.add_argument(
         "--output_dim", default=6, type=int, required=False,
