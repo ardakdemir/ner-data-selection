@@ -65,19 +65,19 @@ def parse_args():
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
-        "--select_mode", default="similarity", choices=["size", "similarity"], required=False)
+        "--select_mode", default="size", choices=["size", "similarity"], required=False)
     parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=30000, type=int, required=False)
+        "--select_size", default=100000, type=int, required=False)
     parser.add_argument(
         "--select_thres", default=0.9, type=float, required=False)
     parser.add_argument(
         "--subset_size", default=20, type=int, required=False)
     parser.add_argument(
-        "--train_size", default=1000, type=int, required=False)
+        "--train_size", default=None, type=int, required=False)
     parser.add_argument(
-        "--dev_size", default=500, type=int, required=False)
+        "--dev_size", default=None, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
@@ -220,7 +220,8 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER, dataset_
     :param size:
     :return:
     """
-    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size, file_name="ent_devel.tsv",
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=None, # Get all dev data for selection!!
+                                                          file_name="ent_devel.tsv",
                                                           dataset_list=dataset_list)
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
     if "BioWordVec" in models_to_use:
@@ -247,7 +248,7 @@ def get_domaintest_vectors(folder, size, models_to_use, TEST_SAVE_FOLDER, datase
 
 def get_domaintrain_vectors(folder, size, models_to_use, save_folder, dataset_list=None):
     datasets = utils.get_datasets_from_folder_with_labels(folder,
-                                                          size=size,
+                                                          size=None, # Use all training data!!!!
                                                           file_name="ent_train.tsv",
                                                           dataset_list=dataset_list)
 
@@ -460,10 +461,8 @@ def data_selection_for_all_models():
     BIOWORDVEC_FOLDER = args.biowordvec_folder
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
-    train_size = 300
-    dev_size = 200
     select_size = args.select_size
-    models_to_use = [x[-1] for x in [MODELS[-1]]]
+    models_to_use = [x[-1] for x in MODELS]
     models_to_use = models_to_use + ["BioWordVec"]
     dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
@@ -493,18 +492,18 @@ def main():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
     select_size = args.select_size
-    # if args.random:
-    #     for r in range(args.repeat):
-    #         print("Generating random dataset {}".format(r + 1))
-    #         dataset_name = "random_{}".format(r)
-    #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
-    # else:
-    #     data_selection_for_all_models()
-    TEST_SAVE_FOLDER = args.test_save_folder
-    models_to_use = [x[-1] for x in [MODELS[-1]]]
-    models_to_use = models_to_use + ["BioWordVec"]
-    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-    save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list)
+    if args.random:
+        for r in range(args.repeat):
+            print("Generating random dataset {}".format(r + 1))
+            dataset_name = "random_{}".format(r)
+            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    else:
+        data_selection_for_all_models()
+    # TEST_SAVE_FOLDER = args.test_save_folder
+    # models_to_use = [x[-1] for x in [MODELS[-1]]]
+    # models_to_use = models_to_use + ["BioWordVec"]
+    # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    # save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list)
 
 
 if __name__ == "__main__":
