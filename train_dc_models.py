@@ -162,11 +162,11 @@ def parse_args():
         required=False
     )
     parser.add_argument(
-        "--save_folder", default="../dc_result", type=str, required=False,
+        "--save_folder", default="../dc_result_3105", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
-        "--save_folder_root", default="../dc_result", type=str, required=False,
+        "--save_folder_root", default="../dc_result_3105", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
