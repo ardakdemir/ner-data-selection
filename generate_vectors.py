@@ -62,11 +62,17 @@ def parse_args():
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
+        "--selection_method", default="cosine_subset", choices=["cosine_instance", "cosine_subset"], required=False)
+    parser.add_argument(
+        "--select_mode", default="similarity", choices=["size", "similarity"], required=False)
+    parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=200, type=int, required=False)
+        "--select_size", default=30000, type=int, required=False)
     parser.add_argument(
-        "--subset_size", default=10, type=int, required=False)
+        "--select_thres", default=0.9, type=float, required=False)
+    parser.add_argument(
+        "--subset_size", default=20, type=int, required=False)
     parser.add_argument(
         "--train_size", default=1000, type=int, required=False)
     parser.add_argument(
