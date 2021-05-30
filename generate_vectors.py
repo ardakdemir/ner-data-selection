@@ -47,15 +47,15 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled", type=str, required=False)
+        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str, required=False)
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
-        "--save_folder", default="/home/aakdemir/all_encoded_vectors_1705", type=str, required=False)
+        "--save_folder", default="/home/aakdemir/all_encoded_vectors_3005", type=str, required=False)
     parser.add_argument(
-        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_1705", type=str, required=False)
+        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_3005", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/dataselection_1705_labeled", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/dataselection_3005_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
@@ -440,6 +440,7 @@ def data_selection_for_all_models():
     dev_size = 200
     select_size = args.select_size
     models_to_use = [x[-1] for x in [MODELS[-1]]]
+    models_to_use = models_to_use + ["BioWordVec"]
     select_store_data(models_to_use, args)
 
 

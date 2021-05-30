@@ -6,4 +6,3 @@ from gensim.models.wrappers import fasttext as ft_wrapper
 
 
 wv = KeyedVectors.load_word2vec_format(p,binary=True)
-
