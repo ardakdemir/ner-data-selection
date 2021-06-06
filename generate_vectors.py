@@ -52,13 +52,13 @@ def parse_args():
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
     parser.add_argument(
-        "--save_folder", default="/home/aakdemir/all_encoded_vectors_3105", type=str, required=False)
+        "--save_folder", default="/home/aakdemir/all_encoded_vectors_0606", type=str, required=False)
     parser.add_argument(
-        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_3105", type=str, required=False)
+        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0606", type=str, required=False)
     parser.add_argument(
-        "--test_save_folder", default="/home/aakdemir/bioner_testvectors_3105", type=str, required=False)
+        "--test_save_folder", default="/home/aakdemir/bioner_testvectors_0606", type=str, required=False)
     parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/dataselection_3105_labeled", type=str, required=False)
+        "--selected_save_root", default="/home/aakdemir/dataselection_0606_labeled", type=str, required=False)
     parser.add_argument(
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
