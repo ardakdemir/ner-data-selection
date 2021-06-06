@@ -461,11 +461,11 @@ def data_selection_for_all_models():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     select_size = args.select_size
-    models_to_use = [x[-1] for x in [MODELS[-1]]]
-    # models_to_use = models_to_use + ["BioWordVec"]
+    models_to_use = [x[-1] for x in MODELS]
+    models_to_use = models_to_use + ["BioWordVec"]
 
-    # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-    dataset_list = ['s800']
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    # dataset_list = ['s800']
 
     select_store_data(models_to_use, dataset_list, args)
 
