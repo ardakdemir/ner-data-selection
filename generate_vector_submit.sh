@@ -4,4 +4,4 @@
 #$ -N dataselection_pipeline
 
 cd ~/ner-data-selection
-singularity exec  --nv  --writable ~/singularity/pt-cuda-tf-tr-ft python ~/ner-data-selection/dataselection_pipeline.py
+#singularity exec  --nv  --writable ~/singularity/pt-cuda-tf-tr-ft python ~/ner-data-selection/dataselection_pipeline.py

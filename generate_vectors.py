@@ -68,15 +68,15 @@ def parse_args():
     parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=200, type=int, required=False)
+        "--select_size", default=100000, type=int, required=False)
     parser.add_argument(
         "--select_thres", default=0.9, type=float, required=False)
     parser.add_argument(
         "--subset_size", default=20, type=int, required=False)
     parser.add_argument(
-        "--train_size", default=200, type=int, required=False)
+        "--train_size", default=50000, type=int, required=False)
     parser.add_argument(
-        "--dev_size", default=200, type=int, required=False)
+        "--dev_size", default=20000, type=int, required=False)
     parser.add_argument(
         "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
     parser.add_argument(
