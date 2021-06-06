@@ -11,7 +11,6 @@ from numpy.linalg import norm
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
-# from transformers import *
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
 from collections import defaultdict
@@ -69,7 +68,7 @@ def parse_args():
     parser.add_argument(
         "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
     parser.add_argument(
-        "--select_size", default=100, type=int, required=False)
+        "--select_size", default=200, type=int, required=False)
     parser.add_argument(
         "--select_thres", default=0.9, type=float, required=False)
     parser.add_argument(
@@ -462,10 +461,11 @@ def data_selection_for_all_models():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     select_size = args.select_size
-    models_to_use = [x[-1] for x in MODELS]
-    models_to_use = models_to_use + ["BioWordVec"]
+    models_to_use = [x[-1] for x in [MODELS[-1]]]
+    # models_to_use = models_to_use + ["BioWordVec"]
 
-    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    dataset_list = ['s800']
 
     select_store_data(models_to_use, dataset_list, args)
 
