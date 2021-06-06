@@ -219,7 +219,7 @@ def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER, dataset_
     :param size:
     :return:
     """
-    datasets = utils.get_datasets_from_folder_with_labels(folder, size=None,  # Get all dev data for selection!!
+    datasets = utils.get_datasets_from_folder_with_labels(folder, size=size,  # Get all dev data for selection!!
                                                           file_name="ent_devel.tsv",
                                                           dataset_list=dataset_list)
     model_to_domain_to_encodings = encode_with_models(datasets, models_to_use, DEV_SAVE_FOLDER)
@@ -247,7 +247,7 @@ def get_domaintest_vectors(folder, size, models_to_use, TEST_SAVE_FOLDER, datase
 
 def get_domaintrain_vectors(folder, size, models_to_use, save_folder, dataset_list=None):
     datasets = utils.get_datasets_from_folder_with_labels(folder,
-                                                          size=None,  # Use all training data!!!!
+                                                          size=size,  # Use all training data!!!!
                                                           file_name="ent_train.tsv",
                                                           dataset_list=dataset_list)
 
