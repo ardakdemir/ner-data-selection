@@ -6,8 +6,9 @@ from copy_devtest import copy_devtest
 import pickle
 import torch
 
-
 SRC_FOLDER_ROOT = "../biobert_data/datasets/BioNER_2804_labeled_cleaned"
+
+
 def generate_subsets(selected_file, save_folder_root, size, file_name="ent_train.tsv"):
     selected_data = pickle.load(open(selected_file, "rb"))
     for model_name, datasets in selected_data.items():
@@ -25,27 +26,26 @@ def generate_subsets(selected_file, save_folder_root, size, file_name="ent_train
     copy_devtest(SRC_FOLDER_ROOT, save_folder_root, model_list=selected_data.keys())
 
 
-
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_folder', type=str,
-                        default='/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/EntNER_2504',
+                        default='/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned',
                         help='training file for sa')
     parser.add_argument('--save_folder', type=str,
-                        default='/Users/ardaakdemir/bioMLT_folder/biobert_data/datasets/small_EntNER_2504',
+                        default='/home/aakdemir/deneme_0806_datasets',
                         help='validation file for sa')
     parser.add_argument('--selected_file_path', type=str,
                         default='/home/aakdemir/dataselection_0606_labeled/selected_pickle.p',
                         help='validation file for sa')
-    parser.add_argument('--seed', type=int, default=1234)
-    parser.add_argument('--size', type=int, default=500)
+    parser.add_argument('--size', type=int, default=100)
     return args
 
 
 def main():
-    args = parser.parse_args()
+    args = parse_args()
     root, save, size, selected_file_path = args.root_folder, args.save_folder, args.size, args.selected_file_path
     generate_subsets(selected_file_path, save, size, file_name="ent_train.tsv")
+
 
 if __name__ == "__main__":
     main()
