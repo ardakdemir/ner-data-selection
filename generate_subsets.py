@@ -12,7 +12,7 @@ SRC_FOLDER_ROOT = "../biobert_data/datasets/BioNER_2804_labeled_cleaned"
 def generate_subsets(selected_file, save_folder_root, size, file_name="ent_train.tsv"):
     selected_data = pickle.load(open(selected_file, "rb"))
     for model_name, datasets in selected_data.items():
-        for dataset, data in datasets.values():
+        for dataset, data in datasets.items():
             selected_data = data["selected_data"]
             my_data = selected_data[:size]
             save_folder = os.path.join(save_folder_root, model_name, dataset)
