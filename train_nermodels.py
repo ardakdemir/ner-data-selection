@@ -62,15 +62,18 @@ def parse_args():
         required=False
     )
     parser.add_argument(
-        "--train_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_train.tsv", type=str,
+        "--train_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_train.tsv",
+        type=str,
         required=False
     )
 
     parser.add_argument(
-        "--dev_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_devel.tsv", type=str, required=False
+        "--dev_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_devel.tsv", type=str,
+        required=False
     )
     parser.add_argument(
-        "--test_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_test.tsv", type=str, required=False
+        "--test_file_path", default="../biobert_data/datasets/BioNER_2804_labeled_cleaned/BC2GM/ent_test.tsv", type=str,
+        required=False
     )
     parser.add_argument(
         "--save_folder", default="../dataselect_nerresult_2205", type=str, required=False,
@@ -437,8 +440,7 @@ def train_all_datasets(save_folder_root, my_dataset_list, args):
         args.test_file_path = os.path.join(args.evaluate_root, d, "ent_test.tsv")
         args.save_folder = my_save_folder
         print("Saving {} results to {} ".format(d, my_save_folder))
-        print(
-            "Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
+        print("Train {} dev {} test {}".format(args.train_file_path, args.dev_file_path, args.test_file_path))
         res = train(args)
         results[d] = res
     return results
