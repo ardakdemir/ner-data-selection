@@ -38,6 +38,7 @@ def parse_args():
                         default='/home/aakdemir/dataselection_0606_labeled/selected_pickle.p',
                         help='validation file for sa')
     parser.add_argument('--size', type=int, default=100)
+    args = parser.parse_args()
     return args
 
 
