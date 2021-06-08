@@ -39,7 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 # model_names = ["random_0","random_1","random_2","random_3"]
-model_names = ["robertaLarge","distilbertBaseUncased","BioBERT", "BioWordVec"]
+model_names = ["robertaLarge", "distilbertBaseUncased", "BioBERT", "BioWordVec"]
 
 
 # dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
@@ -449,6 +449,8 @@ def train_all_datasets(save_folder_root, my_dataset_list, args):
 def main():
     args = parse_args()
     save_folder_root = args.save_folder
+    evaluate_root_allmodels = args.evaluate_root
+    dataset_root_allmodels = args.dataset_root
     if args.inference:
         inference_wrapper()
     elif args.multiple:
@@ -456,6 +458,8 @@ def main():
             for model in model_names:
                 save_folder_allmodels = args.save_folder_root
                 save_folder_root = os.path.join(save_folder_allmodels, model)
+                args.evaluate_root = os.path.join(evaluate_root_allmodels, model)
+                args.dataset_root = os.path.join(dataset_root_allmodels, model)
                 train_all_datasets(save_folder_root, dataset_list, args)
         else:
             for d in dataset_list:
