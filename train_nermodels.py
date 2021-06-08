@@ -39,7 +39,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 
 # model_names = ["random_0","random_1","random_2","random_3"]
-model_names = ["BioBERT", "BioWordVec"]
+model_names = ["robertaLarge","distilbertBaseUncased","BioBERT", "BioWordVec"]
 
 
 # dataset_list = ['BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
