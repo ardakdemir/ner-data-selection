@@ -131,14 +131,14 @@ def encode_sent_with_w2v(tokens, model, max_pool=False):
 
 
 def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=50):
-    train_sizes, train_combined_tokens = combine_all_datasets(train_datasets)
+    train_sizes, train_combined_tokens, train_names = combine_all_datasets(train_datasets)
     dev_tokens = [" ".join([d[0] for d in data]) for data in dev_dataset]
     dev_size = len(dev_tokens)
     all_sentences = train_combined_tokens + dev_tokens
     vectorizer = TfidfVectorizer(max_df=0.7, stop_words=english_stopwords)
     tf_idf = vectorizer.fit_transform(all_sentences)
     feature_names = vectorizer.get_feature_names()
-    print("Found {} tfidf features".format(feature_names))
+    print("Found {} tfidf features".format(len(feature_names)))
     train_lda_vectors = {}
 
     vecs = tf_idf.toarray()
@@ -149,7 +149,7 @@ def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=5
 
     s = 0
     for i, size in enumerate(train_sizes):
-        dataset_name = train_datasets[i]
+        dataset_name = train_names[i]
         train_lda_vectors[dataset_name] = topic_vectors[s:s + size]
         s = s + size
     dev_lda_vecs = topic_vectors[-dev_size:]
@@ -159,12 +159,14 @@ def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=5
 def combine_all_datasets(train_datasets):
     train_sizes = []
     train_combined_tokens = []
+    train_names = []
     for k, dataset in train_datasets:
         tokens = [" ".join([d[0] for d in data]) for data in dataset]
         train_sizes.append(len(tokens))
         print("{} sentences for {}-train...".format(len(tokens), k))
         train_combined_tokens.extend(tokens)
-    return train_sizes, train_combined_tokens
+        train_names.append(k)
+    return train_sizes, train_combined_tokens, train_names
 
 
 def get_lda_sims(select_data, dev_lda_vecs, sample_size=100):
@@ -202,8 +204,8 @@ def select_with_lda(folder, train_size, dev_size, select_size):
                 select_data.append((name, vec, tokens, labels))
         print("{} sentences to select from in total...".format(len(select_data)))
         all_lda_sims = get_lda_sims(select_data, dev_lda_vecs, sample_size=100)
-        all_select_data_with_sims = zip(all_sims, select_data)
-        all_select_data_with_sims.sort(reverse=True)
+        all_select_data_with_sims = zip(all_lda_sims, select_data)
+        all_select_data_with_sims.sort(key=lambda x: x[0], reverse=True)
         all_select_data_with_sims = all_select_data_with_sims[:select_size]
         sims, selected_data = list(zip(*all_select_data_with_sims))
         print("selected {} data".format(len(selected_data)))
@@ -589,7 +591,7 @@ def main():
     #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
     # else:
     #     data_selection_for_all_models()
-    select_with_lda(ROOT_FOLDER, 1000, 100, 300)
+    select_with_lda(ROOT_FOLDER, 200, 100, 300)
     # TEST_SAVE_FOLDER = args.test_save_folder
     # models_to_use = [x[-1] for x in [MODELS[-1]]]
     # models_to_use = models_to_use + ["BioWordVec"]
