@@ -17,6 +17,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from load_sentence_data import load_sentence_data
 import torch
+
 SAVE_FOLDER = "../domain_classification_2505"
 ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 

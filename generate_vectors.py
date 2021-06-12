@@ -21,6 +21,10 @@ import logging
 import utils
 import pickle
 from gensim.models import FastText, KeyedVectors
+from stopwords import english_stopwords
+
+from sklearn.decomposition import LatentDirichletAllocation, NMF
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 from gensim.utils import tokenize
 
@@ -124,6 +128,50 @@ def encode_sent_with_w2v(tokens, model, max_pool=False):
     else:
         pooled = model['unk']
     return pooled, tokens
+
+
+def get_all_tfidf_vector_representations(train_datasets, dev_dataset):
+    train_sizes, train_combined_tokens = combine_all_datasets(train_datasets)
+    dev_tokens = [[d[0] for d in data] for data in dev_dataset]
+    dev_size = len(dev_tokens)
+    all_sentences = train_combined_tokens + dev_tokens
+    vectorizer = TfidfVectorizer(max_df=0.7, stop_words=english_stopwords)
+    tf_idf = vectorizer.fit_transform(all_sentences)
+    feature_names = vectorizer.get_feature_names()
+    print("Found {} tfidf features".format(feature_names))
+    return tf_idf, feature_names
+
+
+def combine_all_datasets(train_datasets):
+    train_sizes = []
+    train_combined_tokens = []
+    for k, dataset in train_datasets:
+        tokens = [[d[0] for d in data] for data in dataset]
+        train_sizes.append(len(tokens))
+        print("{} sentences for {}-train...".format(len(tokens), k))
+        train_combined_tokens.extend(tokens)
+    return train_sizes, train_combined_tokens
+
+
+def select_with_lda(folder):
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    train_datasets = utils.get_datasets_from_folder_with_labels(folder,
+                                                                size=size,  # Use all training data!!!!
+                                                                file_name="ent_train.tsv",
+                                                                dataset_list=dataset_list)
+    dev_datasets = utils.get_datasets_from_folder_with_labels(folder,
+                                                              size=size,  # Use all training data!!!!
+                                                              file_name="ent_devel.tsv",
+                                                              dataset_list=dataset_list)
+
+    # tf_idf, feature_names, vectorizer = get_all_tfidf_vector_representations(train_datasets, dev_datasets)
+    for dataset_name, dataset in dev_datasets:
+        print("Getting LDA for {}".format(dataset_name))
+        get_all_tfidf_vector_representations(train_datasets, dev_dataset)
+    # vecs = np.array(self.dataset_tfidf_vectors)
+    # print("Shape of dataset vectors : {} ".format(vecs.shape))
+    # lda = LatentDirichletAllocation(n_components=self.args.lda_topic_num, random_state=0)
+    # topic_vectors = lda.fit_transform(vecs)
 
 
 def encode_with_bioword2vec(datasets, save_folder):
@@ -493,13 +541,14 @@ def main():
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
     select_size = args.select_size
-    if args.random:
-        for r in range(args.repeat):
-            print("Generating random dataset {}".format(r + 1))
-            dataset_name = "random_{}".format(r)
-            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
-    else:
-        data_selection_for_all_models()
+    # if args.random:
+    #     for r in range(args.repeat):
+    #         print("Generating random dataset {}".format(r + 1))
+    #         dataset_name = "random_{}".format(r)
+    #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    # else:
+    #     data_selection_for_all_models()
+    select_with_lda(ROOT_FOLDER)
     # TEST_SAVE_FOLDER = args.test_save_folder
     # models_to_use = [x[-1] for x in [MODELS[-1]]]
     # models_to_use = models_to_use + ["BioWordVec"]
