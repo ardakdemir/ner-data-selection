@@ -76,7 +76,7 @@ def parse_args():
         required=False
     )
     parser.add_argument(
-        "--save_folder", default="../dataselect_nerresult_2205", type=str, required=False,
+        "--save_folder", default="../dataselect_lda_nerresult_1306", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(

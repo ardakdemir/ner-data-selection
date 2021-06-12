@@ -30,13 +30,13 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--root_folder', type=str,
                         default='/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned',
-                        help='training file for sa')
+                        help='')
     parser.add_argument('--save_folder', type=str,
-                        default='/home/aakdemir/deneme_0806_datasets',
-                        help='validation file for sa')
+                        default='/home/aakdemir/lda_small_1306',
+                        help='')
     parser.add_argument('--selected_file_path', type=str,
-                        default='/home/aakdemir/dataselection_0606_labeled/selected_pickle.p',
-                        help='validation file for sa')
+                        default='/home/aakdemir/lda_save_1106/selected_pickle.p',
+                        help='')
     parser.add_argument('--size', type=int, default=100)
     args = parser.parse_args()
     return args

@@ -607,7 +607,7 @@ def main():
     #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
     # else:
     #     data_selection_for_all_models()
-    
+
     train_size = args.train_size
     dev_size = args.dev_size
     select_size = args.select_size
