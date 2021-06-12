@@ -130,7 +130,7 @@ def encode_sent_with_w2v(tokens, model, max_pool=False):
     return pooled, tokens
 
 
-def get_all_tfidf_vector_representations(train_datasets, dev_dataset):
+def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=50):
     train_sizes, train_combined_tokens = combine_all_datasets(train_datasets)
     dev_tokens = [[d[0] for d in data] for data in dev_dataset]
     dev_size = len(dev_tokens)
@@ -139,7 +139,20 @@ def get_all_tfidf_vector_representations(train_datasets, dev_dataset):
     tf_idf = vectorizer.fit_transform(all_sentences)
     feature_names = vectorizer.get_feature_names()
     print("Found {} tfidf features".format(feature_names))
-    return tf_idf, feature_names
+    train_lda_vectors = {}
+    s = 0
+
+    vecs = tf_idf.toarray()
+    print("Shape of input to lda : {}".format(vecs.shape))
+    lda = LatentDirichletAllocation(n_components=num_topics, random_state=0)
+    topic_vectors = lda.fit_transform(vecs)
+    print("Shape of lda output: {}".format(topic_vectors.shape))
+
+    for i, size in enumerate(train_sizes):
+        dataset_name = train_datasets[i]
+        train_lda_vectors[dataset_name] = topic_vectors[s:s + size]
+    dev_lda_vecs = topic_vectors[-dev_size:]
+    return feature_names, train_lda_vectors, dev_lda_vecs
 
 
 def combine_all_datasets(train_datasets):
@@ -153,7 +166,17 @@ def combine_all_datasets(train_datasets):
     return train_sizes, train_combined_tokens
 
 
-def select_with_lda(folder):
+def get_lda_sims(select_data, dev_lda_vecs, sample_size=100):
+    all_sims = []
+    for d in select_data:
+        np.random.shuffle(dev_lda_vecs)
+        sample_vecs = dev_lda_vecs[:sample_size]
+        my_sim = max([cos_similarity(d[1], v) for v in sample_vecs])
+        all_sims.append(my_sim)
+    return all_sims
+
+
+def select_with_lda(folder, train_size, dev_size, select_size):
     dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
     train_datasets = utils.get_datasets_from_folder_with_labels(folder,
                                                                 size=size,  # Use all training data!!!!
@@ -167,7 +190,24 @@ def select_with_lda(folder):
     # tf_idf, feature_names, vectorizer = get_all_tfidf_vector_representations(train_datasets, dev_datasets)
     for dataset_name, dataset in dev_datasets:
         print("Getting LDA for {}".format(dataset_name))
-        get_all_tfidf_vector_representations(train_datasets, dev_dataset)
+        feature_names, train_lda_vectors, dev_lda_vecs = get_all_lda_vector_representations(train_datasets,
+                                                                                            dev_dataset)
+        select_data = []
+        for name, dataset in train_datasets:
+            lda_vecs = train_lda_vectors[name]
+            for data, vec in zip(dataset, lda_vecs):
+                tokens = [d[0] for d in data]
+                labels = [d[-1] for d in data]
+                select_data.append((name, vec, tokens, labels))
+        print("{} sentences to select from in total...".format(len(select_data)))
+        all_lda_sims = get_lda_sims(select_data, dev_lda_vecs, sample_size=100)
+        all_select_data_with_sims = zip(all_sims, select_data)
+        all_select_data_with_sims.sort(reverse=True)
+        all_select_data_with_sims = all_select_data_with_sims[select_size]
+        sims, selected_data = list(zip(*all_select_data_with_sims))
+        print("selected {} data".format(len(selected_data)))
+        for d in selected_data:
+            print("source ",d[0])
     # vecs = np.array(self.dataset_tfidf_vectors)
     # print("Shape of dataset vectors : {} ".format(vecs.shape))
     # lda = LatentDirichletAllocation(n_components=self.args.lda_topic_num, random_state=0)
@@ -548,7 +588,7 @@ def main():
     #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
     # else:
     #     data_selection_for_all_models()
-    select_with_lda(ROOT_FOLDER)
+    select_with_lda(ROOT_FOLDER, 1000, 100, 300)
     # TEST_SAVE_FOLDER = args.test_save_folder
     # models_to_use = [x[-1] for x in [MODELS[-1]]]
     # models_to_use = models_to_use + ["BioWordVec"]
