@@ -132,7 +132,7 @@ def encode_sent_with_w2v(tokens, model, max_pool=False):
 
 def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=50):
     train_sizes, train_combined_tokens = combine_all_datasets(train_datasets)
-    dev_tokens = ["".join([d[0] for d in data]) for data in dev_dataset]
+    dev_tokens = [" ".join([d[0] for d in data]) for data in dev_dataset]
     dev_size = len(dev_tokens)
     all_sentences = train_combined_tokens + dev_tokens
     vectorizer = TfidfVectorizer(max_df=0.7, stop_words=english_stopwords)
@@ -158,7 +158,7 @@ def combine_all_datasets(train_datasets):
     train_sizes = []
     train_combined_tokens = []
     for k, dataset in train_datasets:
-        tokens = ["".join([d[0] for d in data]) for data in dataset]
+        tokens = [" ".join([d[0] for d in data]) for data in dataset]
         train_sizes.append(len(tokens))
         print("{} sentences for {}-train...".format(len(tokens), k))
         train_combined_tokens.extend(tokens)
