@@ -132,7 +132,7 @@ def encode_sent_with_w2v(tokens, model, max_pool=False):
 
 def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=50):
     train_sizes, train_combined_tokens = combine_all_datasets(train_datasets)
-    dev_tokens = [[d[0] for d in data] for data in dev_dataset]
+    dev_tokens = ["".join([d[0] for d in data]) for data in dev_dataset]
     dev_size = len(dev_tokens)
     all_sentences = train_combined_tokens + dev_tokens
     vectorizer = TfidfVectorizer(max_df=0.7, stop_words=english_stopwords)
@@ -140,7 +140,6 @@ def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=5
     feature_names = vectorizer.get_feature_names()
     print("Found {} tfidf features".format(feature_names))
     train_lda_vectors = {}
-    s = 0
 
     vecs = tf_idf.toarray()
     print("Shape of input to lda : {}".format(vecs.shape))
@@ -159,7 +158,7 @@ def combine_all_datasets(train_datasets):
     train_sizes = []
     train_combined_tokens = []
     for k, dataset in train_datasets:
-        tokens = [[d[0] for d in data] for data in dataset]
+        tokens = ["".join([d[0] for d in data]) for data in dataset]
         train_sizes.append(len(tokens))
         print("{} sentences for {}-train...".format(len(tokens), k))
         train_combined_tokens.extend(tokens)
@@ -207,7 +206,7 @@ def select_with_lda(folder, train_size, dev_size, select_size):
         sims, selected_data = list(zip(*all_select_data_with_sims))
         print("selected {} data".format(len(selected_data)))
         for d in selected_data:
-            print("source ",d[0])
+            print("source ", d[0])
     # vecs = np.array(self.dataset_tfidf_vectors)
     # print("Shape of dataset vectors : {} ".format(vecs.shape))
     # lda = LatentDirichletAllocation(n_components=self.args.lda_topic_num, random_state=0)
