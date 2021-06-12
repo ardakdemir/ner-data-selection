@@ -179,11 +179,11 @@ def get_lda_sims(select_data, dev_lda_vecs, sample_size=100):
 def select_with_lda(folder, train_size, dev_size, select_size):
     dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
     train_datasets = utils.get_datasets_from_folder_with_labels(folder,
-                                                                size=size,  # Use all training data!!!!
+                                                                size=train_size,  # Use all training data!!!!
                                                                 file_name="ent_train.tsv",
                                                                 dataset_list=dataset_list)
     dev_datasets = utils.get_datasets_from_folder_with_labels(folder,
-                                                              size=size,  # Use all training data!!!!
+                                                              size=dev_size,  # Use all training data!!!!
                                                               file_name="ent_devel.tsv",
                                                               dataset_list=dataset_list)
 
@@ -203,7 +203,7 @@ def select_with_lda(folder, train_size, dev_size, select_size):
         all_lda_sims = get_lda_sims(select_data, dev_lda_vecs, sample_size=100)
         all_select_data_with_sims = zip(all_sims, select_data)
         all_select_data_with_sims.sort(reverse=True)
-        all_select_data_with_sims = all_select_data_with_sims[select_size]
+        all_select_data_with_sims = all_select_data_with_sims[:select_size]
         sims, selected_data = list(zip(*all_select_data_with_sims))
         print("selected {} data".format(len(selected_data)))
         for d in selected_data:
