@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
-from collections import defaultdict
+from collections import defaultdict, Counter
 from itertools import product
 from copy_devtest import copy_devtest
 from annotate_all_entities import annotate_all_entities
@@ -179,7 +179,7 @@ def get_lda_sims(select_data, dev_lda_vecs, sample_size=100):
     return all_sims
 
 
-def select_with_lda(folder, train_size, dev_size, select_size):
+def select_with_lda(folder, train_size, dev_size, select_size, save_folder):
     dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
     train_datasets = utils.get_datasets_from_folder_with_labels(folder,
                                                                 size=train_size,  # Use all training data!!!!
@@ -191,6 +191,8 @@ def select_with_lda(folder, train_size, dev_size, select_size):
                                                               dataset_list=dataset_list)
 
     # tf_idf, feature_names, vectorizer = get_all_tfidf_vector_representations(train_datasets, dev_datasets)
+    all_sentences = {}
+    selected_sentences = {"LDA": {}}
     for dataset_name, dataset in dev_datasets:
         print("Getting LDA for {}".format(dataset_name))
         feature_names, train_lda_vectors, dev_lda_vecs = get_all_lda_vector_representations(train_datasets,
@@ -203,14 +205,29 @@ def select_with_lda(folder, train_size, dev_size, select_size):
                 labels = [d[-1] for d in data]
                 select_data.append((name, vec, tokens, labels))
         print("{} sentences to select from in total...".format(len(select_data)))
+        all_sentences["LDA_{}".format(dataset_name)] = select_data
         all_lda_sims = get_lda_sims(select_data, dev_lda_vecs, sample_size=100)
-        all_select_data_with_sims = zip(all_lda_sims, select_data)
+        all_select_data_with_sims = [(s, d) for s, d in zip(all_lda_sims, select_data)]
         all_select_data_with_sims.sort(key=lambda x: x[0], reverse=True)
         all_select_data_with_sims = all_select_data_with_sims[:select_size]
         sims, selected_data = list(zip(*all_select_data_with_sims))
         print("selected {} data".format(len(selected_data)))
-        for d in selected_data:
-            print("source ", d[0])
+        source_counts = Counter([d[0] for d in selected_data])
+        print("Source counts: {}".format(source_counts))
+        selected_sentences["LDA"][dataset_name] = {"selected_data": selected_data,
+                                                   "target_data": {"states": dev_lda_vecs, "dataset": dataset}}
+    if not os.path.exists(save_folder):
+        os.makedirs(save_folder)
+
+    selected_pickle_save_path = os.path.join(save_folder, "selected_pickle.p")
+    pickle.dump(selected_sentences, open(selected_pickle_save_path, "wb"))
+
+    allsentences_pickle_save_path = os.path.join(save_folder, "allsentences_pickle.p")
+    pickle.dump(all_sentences, open(allsentences_pickle_save_path, "wb"))
+
+    write_selected_sentences(selected_sentences, save_folder, file_name="ent_train.tsv")
+    copy_devtest(ROOT_FOLDER, save_folder, model_list=["LDA"])
+
     # vecs = np.array(self.dataset_tfidf_vectors)
     # print("Shape of dataset vectors : {} ".format(vecs.shape))
     # lda = LatentDirichletAllocation(n_components=self.args.lda_topic_num, random_state=0)
@@ -583,7 +600,6 @@ def main():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
-    select_size = args.select_size
     # if args.random:
     #     for r in range(args.repeat):
     #         print("Generating random dataset {}".format(r + 1))
@@ -591,7 +607,12 @@ def main():
     #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
     # else:
     #     data_selection_for_all_models()
-    select_with_lda(ROOT_FOLDER, 200, 100, 300)
+    
+    train_size = args.train_size
+    dev_size = args.dev_size
+    select_size = args.select_size
+
+    select_with_lda(ROOT_FOLDER, train_size, dev_size, select_size, SAVE_FOLDER)
     # TEST_SAVE_FOLDER = args.test_save_folder
     # models_to_use = [x[-1] for x in [MODELS[-1]]]
     # models_to_use = models_to_use + ["BioWordVec"]
