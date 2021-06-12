@@ -191,7 +191,7 @@ def select_with_lda(folder, train_size, dev_size, select_size):
     for dataset_name, dataset in dev_datasets:
         print("Getting LDA for {}".format(dataset_name))
         feature_names, train_lda_vectors, dev_lda_vecs = get_all_lda_vector_representations(train_datasets,
-                                                                                            dev_dataset)
+                                                                                            dataset)
         select_data = []
         for name, dataset in train_datasets:
             lda_vecs = train_lda_vectors[name]
