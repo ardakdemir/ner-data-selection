@@ -147,9 +147,11 @@ def get_all_lda_vector_representations(train_datasets, dev_dataset, num_topics=5
     topic_vectors = lda.fit_transform(vecs)
     print("Shape of lda output: {}".format(topic_vectors.shape))
 
+    s = 0
     for i, size in enumerate(train_sizes):
         dataset_name = train_datasets[i]
         train_lda_vectors[dataset_name] = topic_vectors[s:s + size]
+        s = s + size
     dev_lda_vecs = topic_vectors[-dev_size:]
     return feature_names, train_lda_vectors, dev_lda_vecs
 
