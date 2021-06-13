@@ -32,7 +32,7 @@ def parse_args():
                         default='/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned',
                         help='')
     parser.add_argument('--save_folder', type=str,
-                        default='/home/aakdemir/lda_small_1306',
+                        default='/home/aakdemir/lda_selecteddata_1306',
                         help='')
     parser.add_argument('--selected_file_path', type=str,
                         default='/home/aakdemir/lda_save_1106/selected_pickle.p',
