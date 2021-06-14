@@ -361,8 +361,8 @@ def inference_wrapper():
     class_dict_path = args.class_dict_path
     save_folder_root = args.save_folder
 
-    assert os.path.exists(class_dict_path) and os.path.exists(
-        model_path), "model_path and class_dict_path must exist in inference"
+    # assert os.path.exists(class_dict_path) and os.path.exists(
+    #     model_path), "model_path and class_dict_path must exist in inference"
     if args.multiple:
         for d in dataset_list:
             if args.model_per_dataset:
