@@ -3,7 +3,7 @@
 #dataset_root="../biobert_data/datasets/BioNER_2804_labeled_combined"
 #Train models
 
-ner_save_folder="/home/aakdemir/dataselect_lda_nerresult_1306"
+ner_save_folder="/home/aakdemir/dataselect_lda_nerresult_1406"
 
 for dataset_name in 's800' 'NCBI-disease' 'JNLPBA' 'linnaeus' 'BC4CHEMD' 'BC2GM' 'BC5CDR' 'conll-eng'
 do
