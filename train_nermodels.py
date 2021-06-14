@@ -93,6 +93,10 @@ def parse_args():
         help="The path to save everything..."
     )
     parser.add_argument(
+        "--model_path_root", default="../dataselect_lda_nerresult_1406", type=str, required=False,
+        help="The path to save everything..."
+    )
+    parser.add_argument(
         "--model_path", default="../dataselect_nerresult_0505/best_model_weights.pkh", type=str, required=False,
         help="The path to save everything..."
     )
@@ -125,6 +129,9 @@ def parse_args():
     )
     parser.add_argument(
         "--multi_model", default=False, action="store_true", help="Run for all model"
+    )
+    parser.add_argument(
+        "--model_per_dataset", default=False, action="store_true", help="Run for all model"
     )
     parser.add_argument(
         "--inference", default=False, action="store_true", help="Run inference only."
@@ -357,7 +364,13 @@ def inference_wrapper():
     assert os.path.exists(class_dict_path) and os.path.exists(
         model_path), "model_path and class_dict_path must exist in inference"
     if args.multiple:
-        for d in dataset_list:
+        for d in dataset_list:-
+            if args.model_per_dataset:
+                print("Model per dataset!")
+                model_file_name = "best_model_weights.pkh"
+                class_dict_name = "class_to_idx.json"
+                model_path = os.path.join(args.model_path_root,d,model_file_name)
+                class_dict_path = os.path.join(args.model_path_root,d,class_dict_name)
             print("Inference for {}".format(d))
             my_save_folder = os.path.join(save_folder_root, d)
             if not os.path.exists(my_save_folder): os.makedirs(my_save_folder)
