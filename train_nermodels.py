@@ -366,6 +366,15 @@ def inference_wrapper():
             args.save_folder = my_save_folder
             print("Saving {} results to {} ".format(d, my_save_folder))
             inference(model_path, class_dict_path, args)
+    else:
+        dataset_name = os.path.split(args.evaluate_root)[-1]
+        my_save_folder = os.path.join(save_folder_root)
+        if not os.path.exists(my_save_folder): os.makedirs(my_save_folder)
+        args.dev_file_path = os.path.join(args.evaluate_root, "ent_devel.tsv")
+        args.test_file_path = os.path.join(args.evaluate_root, "ent_test.tsv")
+        args.save_folder = my_save_folder
+        print("Saving {} results to {} ".format(dataset_name, my_save_folder))
+        inference(model_path, class_dict_path, args)
 
 
 def load_weights_with_skip(model, weights, skip_layers=["bert.pooler", "classifier"]):
