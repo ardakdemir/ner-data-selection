@@ -364,7 +364,7 @@ def inference_wrapper():
     assert os.path.exists(class_dict_path) and os.path.exists(
         model_path), "model_path and class_dict_path must exist in inference"
     if args.multiple:
-        for d in dataset_list:-
+        for d in dataset_list:
             if args.model_per_dataset:
                 print("Model per dataset!")
                 model_file_name = "best_model_weights.pkh"
