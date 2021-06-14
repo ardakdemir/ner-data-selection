@@ -89,7 +89,7 @@ def parse_args():
         "--load_dc_model", default=False, action="store_true", help="Whether to load dc model weights..."
     )
     parser.add_argument(
-        "--save_folder_root", default="../dataselect_nerresult_2205", type=str, required=False,
+        "--save_folder_root", default="../dataselect_nerresult_1406", type=str, required=False,
         help="The path to save everything..."
     )
     parser.add_argument(
@@ -112,7 +112,7 @@ def parse_args():
         "--eval_interval", default=-1, type=int, required=False,
     )
     parser.add_argument(
-        "--epoch_num", default=4, type=int, required=False,
+        "--epoch_num", default=12, type=int, required=False,
     )
     parser.add_argument(
         "--output_dim", default=6, type=int, required=False,

@@ -5,8 +5,8 @@ import sys
 file_names = ["ent_devel.tsv", "ent_test.tsv"]
 dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
 # model_list = ['robertaLarge', 'distilbertBaseUncased', 'BioBERT', 'BioWordVec']
-model_list = ['BioBERT', 'BioWordVec']
-
+# model_list = ['BioBERT', 'BioWordVec']
+model_list = ["LDA"]
 
 def copy_devtest(src_folder_root, save_folder_root, model_list=model_list):
     for model in model_list:
