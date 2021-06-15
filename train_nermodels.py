@@ -365,6 +365,7 @@ def inference_wrapper():
     #     model_path), "model_path and class_dict_path must exist in inference"
     if args.multiple:
         for d in dataset_list:
+            if not d=="conll-eng":continue
             if args.model_per_dataset:
                 print("Model per dataset!")
                 model_file_name = "best_model_weights.pkh"
@@ -500,6 +501,7 @@ def main():
                 train(args)
     else:
         d = args.dataset_root
+        args.target_dataset_path = os.path.join(args.dataset_root, d)
         print("Training for {}".format(d))
         my_save_folder = os.path.join(save_folder_root, os.path.split(d)[-1])
         args.train_file_path = os.path.join(d, "ent_train.tsv")
