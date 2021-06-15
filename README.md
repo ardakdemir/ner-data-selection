@@ -18,7 +18,7 @@ docker pull aakdemir/pytorch-cuda-tensorflow
 Run a docker shell:  
 
 ```
-docker run -v <LOCAL_TO_MOUNT>:<PATH_INSIDE_CONTAINEER> -it aakdemir/pytorch-cuda-tensorflow:latest /bin/bash
+docker run -v <LOCAL_TO_MOUNT>:<PATH_INSIDE_CONTAINER> -it aakdemir/pytorch-cuda-tensorflow:latest /bin/bash
 ```
 
 
@@ -50,9 +50,7 @@ All the source code to replicates is available [here](https://drive.google.com/f
 ***Selecting data.***
 
 ```
-
 python3 generate_vectors.py --root_folder <Folder containing the all the datasets> --selected_save_root <Folder to store the selected sentences> 
-
 ```
 
 
@@ -62,14 +60,12 @@ python3 generate_vectors.py --root_folder <Folder containing the all the dataset
 For all datasets and models (BioWordVec, RoBERTa, distilBERT, BioBERT)
 ```
 python3 train_nermodels.py  --dataset_root <Root folder containing all training data> --evaluate_root <Root folder containing all test data>  --multiple --multi_model
-
 ```
 
 ***Inference mode for NER.*** 
 
 ```
 python3 train_nermodels.py  --inference  --dataset_root <PATH_TO_TEST_FOLDER> --evaluate_root <PATH_TO_TEST_FOLDER> --model_path <<PATH_TO_SAVED_MODEL> --class_dict_path <PATH_TO_CLASS_TO_IDX_FILE>
-
 ```
 
 ***Pretrain BioBERT for Domain Classification.*** 
@@ -80,13 +76,11 @@ python3 train_nermodels.py  --inference  --dataset_root <PATH_TO_TEST_FOLDER> --
 
 ```
 python3 generate_dc_datasets.py
-
 ```
 
 2- Train.  
 ```
 python3 train_dc_models.py  --multiple  --save_folder <PATH_TO_STORE_THE_TRAINED_MODELS> --dataset_root <Root folder containing all training data> --evaluate_root <Root folder containing all test data>
-
 ```
 
 
@@ -97,5 +91,4 @@ You can generate these encodings by running the ```generate_vectors.py ``` scrip
 
 ```
 python3 domain_classification.py
-
 ```
