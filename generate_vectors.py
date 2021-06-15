@@ -600,13 +600,13 @@ def main():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
-    # if args.random:
-    #     for r in range(args.repeat):
-    #         print("Generating random dataset {}".format(r + 1))
-    #         dataset_name = "random_{}".format(r)
-    #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
-    # else:
-    #     data_selection_for_all_models()
+    if args.random:
+        for r in range(args.repeat):
+            print("Generating random dataset {}".format(r + 1))
+            dataset_name = "random_{}".format(r)
+            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    else:
+        data_selection_for_all_models()
 
     train_size = args.train_size
     dev_size = args.dev_size

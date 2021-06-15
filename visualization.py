@@ -11,7 +11,7 @@ import torch
 import pickle
 
 import matplotlib.pyplot as plt
-import plotly.graph_objects as go
+# import plotly.graph_objects as go
 
 file_names = {"train": "ent_train.tsv",
               "dev": "ent_devel.tsv",
@@ -26,9 +26,12 @@ dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM
 all_sentences_pickle = "/Users/ardaakdemir/dataselection_data/instanceselection_2005_labeled/allsentences_pickle.p"
 selected_pickle = "/Users/ardaakdemir/dataselection_data/instanceselection_2005_labeled/selected_pickle.p"
 
+
+
+
 all_sentences = pickle.load(open(all_sentences_pickle, "rb"))
 selected_sentences = pickle.load(open(selected_pickle, "rb"))
-selected_save_folder = "../biobert_selected"
+selected_save_folder = "../biobert_selected_1506"
 m = "BioBERT"
 
 
@@ -58,12 +61,12 @@ def load_vectors_from_folder(folder):
 
 def visualize_selected():
     if not os.path.isdir(selected_save_folder): os.makedirs(selected_save_folder)
-    select_size = 10000
+    select_size = 3000
     for i, d in enumerate(dataset_list):
         all_target_vectors = [x.numpy() for x in selected_sentences[m][d]["all_target_data"]["states"]]
         all_model_vectors = [s[vector_index].numpy() for s in all_sentences[m]]
         all_selected_vectors = [x[1].numpy() for x in selected_sentences[m][d]["selected_data"]]
-        sample_size = 40000
+        sample_size = 30000
         np.random.shuffle(all_model_vectors)
         print("{} == All source size: {} target size : {}  selected size : {}".format(d, len(
             all_model_vectors[:sample_size]),
@@ -72,14 +75,15 @@ def visualize_selected():
         v = np.array(all_model_vectors[:sample_size] + all_target_vectors + all_selected_vectors[:select_size])
         print("V shape: {}".format(v.shape))
         pca = PCA(n_components=2)
-        pca_vecs = pca.fit_transform(v)
-        selected_pca = pca.fit_transform(all_selected_vectors[:select_size])
-        target_pca = pca.fit_transform(all_target_vectors)
+        pca.fit(v)
+        selected_pca = pca.transform(all_selected_vectors[:select_size])
+        target_pca = pca.transform(all_target_vectors)
+        source_pca = pca.transform(all_model_vectors[:sample_size])
         plt.figure(figsize=(12, 8))
         plt.title(d if d != "conll-eng" else "News", fontsize=25)
-        plt.scatter(pca_vecs[:, 0],
-                    pca_vecs[:, 1],
-                    color="cyan",
+        plt.scatter(source_pca[:, 0],
+                    source_pca[:, 1],
+                    color="grey",
                     marker=markers[0],
                     label="all source data", alpha=0.3)
         plt.scatter(selected_pca[:, 0],
@@ -92,7 +96,7 @@ def visualize_selected():
                     color=colors[1],
                     marker=markers[1],
                     label="target",
-                    alpha=1)
+                    alpha=0.8)
         plt.tight_layout()
         if i == 0:
             plt.legend(markerscale=3, fontsize=25)
@@ -117,8 +121,8 @@ def plot_sizes():
 
 
 def main():
-    # visualize_selected()
-    plot_sizes()
+    visualize_selected()
+    # plot_sizes()
 
 
 if __name__ == "__main__":
