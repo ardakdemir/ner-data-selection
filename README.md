@@ -5,6 +5,24 @@ This repository contains the code and the data accompanying our CoNLL 2021 submi
 For the blind-review phase, we redact all private/personal information.
 
 
+
+## Setup
+
+We provide a docker image to relieve the need for installing python dependencies for running the code.
+
+Pull image:  
+```
+docker pull aakdemir/pytorch-cuda-tensorflow
+```
+
+Run a docker shell:  
+
+```
+docker run -v <LOCAL_TO_MOUNT>:<PATH_INSIDE_CONTAINEER> -it aakdemir/pytorch-cuda-tensorflow:latest /bin/bash
+```
+
+
+
 ## Data
 
 All datasets used in our experiments is available [here](https://drive.google.com/file/d/1iZ3Jv1RrChbbxB0vaQHIrPw5EftjHzds/view?usp=sharing) (11Mb).
@@ -68,5 +86,16 @@ python3 generate_dc_datasets.py
 2- Train.  
 ```
 python3 train_dc_models.py  --multiple  --save_folder <PATH_TO_STORE_THE_TRAINED_MODELS> --dataset_root <Root folder containing all training data> --evaluate_root <Root folder containing all test data>
+
+```
+
+
+***Domain Classification for all Models.*** 
+
+Please update the ```path``` variable to point to the ```allsentences_pickle.p``` pickle file that contains the sentences encodings for all 4 LMs.  
+You can generate these encodings by running the ```generate_vectors.py ``` script for all models.
+
+```
+python3 domain_classification.py
 
 ```

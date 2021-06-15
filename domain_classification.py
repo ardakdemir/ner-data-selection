@@ -19,7 +19,6 @@ from load_sentence_data import load_sentence_data
 import torch
 
 SAVE_FOLDER = "../domain_classification_2505"
-ROOT_FOLDER = "/home/aakdemir/all_encoded_vectors_0305"
 
 
 def load_vectors(p):
@@ -84,9 +83,9 @@ def plot_confusion_matrix(best_preds, save_folder):
 
 def domain_classify(all_sentences_path=None):
     # experiment_list = [(False, -1), (True, 50),(True, 100),(True, 200)]
-    # model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
+    model_names = ["BioWordVec", "distilbertBaseUncased", "robertaLarge", "BioBERT"]
     experiment_list = [(False, -1)]
-    model_names = ["BioBERT"]
+    # model_names = ["BioBERT"]
     num_experiments = 1
     size = 10000
     result_json = {}
