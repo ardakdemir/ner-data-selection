@@ -1,8 +1,8 @@
 # UDON: Unsupervised Data selectiON for Biomedical Entity Recognition
 
 
-This repository contains the code and the data accompanying our CoNLL 2021 submission, ***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.
-
+This repository contains the code and the data accompanying our CoNLL 2021 submission, ***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.  
+For the blind-review phase, we redact all private/personal information.
 
 
 ## Data
@@ -57,7 +57,7 @@ python3 train_nermodels.py  --inference  --dataset_root <PATH_TO_TEST_FOLDER> --
 ***Pretrain BioBERT for Domain Classification.*** 
 
 
-1- Generate DC datasets. Update the ```ROOT_FOLDER``` and ```SAVE_FOLDER``` values accordingly. 
+1- Generate DC datasets. Update the ```ROOT_FOLDER``` and ```SAVE_FOLDER``` values inside the script accordingly. 
 
 
 ```
