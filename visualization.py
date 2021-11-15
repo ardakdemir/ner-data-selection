@@ -61,7 +61,7 @@ def load_vectors_from_folder(folder):
 
 def visualize_selected():
     if not os.path.isdir(selected_save_folder): os.makedirs(selected_save_folder)
-    select_size = 3000
+    select_size = 5000
     for i, d in enumerate(dataset_list):
         all_target_vectors = [x.numpy() for x in selected_sentences[m][d]["all_target_data"]["states"]]
         all_model_vectors = [s[vector_index].numpy() for s in all_sentences[m]]
@@ -85,18 +85,18 @@ def visualize_selected():
                     source_pca[:, 1],
                     color="grey",
                     marker=markers[0],
-                    label="all source data", alpha=0.3)
+                    label="general domain", alpha=0.3)
         plt.scatter(selected_pca[:, 0],
                     selected_pca[:, 1],
                     color="tab:orange",
                     marker=markers[2],
-                    label="selected", alpha=0.8)
+                    label="selected", alpha=0.9)
         plt.scatter(target_pca[:, 0],
                     target_pca[:, 1],
-                    color=colors[1],
+                    color="green",
                     marker=markers[1],
-                    label="target",
-                    alpha=0.8)
+                    label="in-domain",
+                    alpha=0.4)
         plt.tight_layout()
         if i == 0:
             plt.legend(markerscale=3, fontsize=25)

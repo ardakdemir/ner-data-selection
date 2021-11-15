@@ -131,7 +131,6 @@ def select_data(models_to_use, dataset_list, args):
 def train_model(save_folder_root, dataset_list, args):
     train_all_datasets(save_folder_root, dataset_list, args)
 
-
 def hyperparameter_search():
     select_sizes = [5000]
     if args.toy:

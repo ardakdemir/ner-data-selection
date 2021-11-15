@@ -1,9 +1,7 @@
 # UDON: Unsupervised Data selectiON for Biomedical Entity Recognition
 
 
-This repository contains the code and the data accompanying our CoNLL 2021 submission, ***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.  
-For the blind-review phase, we redact all private/personal information.
-
+This repository contains the code and the data accompanying our ICCBD 2021 submission, ***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.  
 
 
 ## Setup
