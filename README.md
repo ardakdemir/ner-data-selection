@@ -1,7 +1,8 @@
 # UDON: Unsupervised Data selectiON for Biomedical Entity Recognition
 
 
-This repository contains the code and the data accompanying our ICCBD 2021 submission, ***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.  
+This repository contains the code and the data accompanying our ICCBD 2021 submission, 
+***UDON: Unsupervised Data selectiON for Biomedical Entity Recognition***.  
 
 
 ## Setup
@@ -23,7 +24,7 @@ docker run -v <LOCAL_TO_MOUNT>:<PATH_INSIDE_CONTAINER> -it aakdemir/pytorch-cuda
 
 ## Data
 
-All datasets used in our experiments is available [here](https://drive.google.com/file/d/1iZ3Jv1RrChbbxB0vaQHIrPw5EftjHzds/view?usp=sharing) (11Mb).
+All datasets used in our experiments are available [here](https://drive.google.com/file/d/1iZ3Jv1RrChbbxB0vaQHIrPw5EftjHzds/view?usp=sharing) (11Mb).
 The dataset contains 8 datasets:
 
 - s800
@@ -36,11 +37,6 @@ The dataset contains 8 datasets:
 - conll-eng
 
 
-## Code
-
-All the source code to replicates is available [here](https://drive.google.com/file/d/1OD-72i7G0tVbbp43DcaDlRh1F4puZOTB/view?usp=sharing).
-- ***source_code*** folder contains all the codes for running the experiments.  
-- ***helper_notebooks*** folder contains two jupyter notebooks for generating the visualizations and tables in the paper.
 
 ### How to run the code.
 
