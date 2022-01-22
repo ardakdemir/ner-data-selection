@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
 from collections import defaultdict, Counter
-from itertools import product
+from itertools import product,chain
 from copy_devtest import copy_devtest
 from annotate_all_entities import annotate_all_entities
 import logging
@@ -319,6 +319,104 @@ def encode_with_models(datasets, models_to_use, save_folder):
             model_to_domain_to_encodings[k][dataset_name] = d
     return model_to_domain_to_encodings
 
+def get_entity_states(words, entity_ids, token_map, vectors):
+    entity_states = {}
+    for ent_id in entity_ids:
+        entity = ' '.join([words[e] for e in ent_id])
+        entity_token_ids = [token_map[i] for i in ent_id]
+        my_vecs = []
+        for e in entity_token_ids:
+            for i in e:
+                my_vecs.append(vectors[i])
+        print("{} vectors for {}".format(len(my_vecs), entity))
+        mean_vec = torch.mean(torch.stack(my_vecs),dim=0)
+        entity_states[entity] = mean_vec
+    return entity_states
+
+def get_bio_entity_ids(labels):
+    entity_ids = []
+    current_entity = []
+    for i, l in enumerate(labels):
+        if l.startswith("I-"):
+            current_entity.append(i)
+        else:
+            if len(current_entity) > 0:
+                entity_ids.append(current_entity)
+                current_entity = []
+            if l.startswith("B-"):
+                current_entity.append(i)
+    if len(current_entity) > 0:
+        entity_ids.append(current_entity)
+    return entity_ids
+
+
+def map_ids_to_tokens(input_ids_per_word, idx=1):
+    token_map = []
+    for token in input_ids_per_word:
+        tokenoutput = []
+        for ids in token:
+            tokenoutput.append(idx)
+            idx += 1
+        token_map.append(tokenoutput)
+    return token_map
+
+
+def encode_entities_with_models(datasets, models_to_use,size=10):
+    """
+
+    :param lines:
+    :param models:
+    :return:
+    """
+    dataset_to_model_to_entity_to_encodings = defaultdict(dict)
+    for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
+        model_to_entity_states = {}
+        for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
+            if save_name not in models_to_use:
+                print("Skipping {}".format(save_name))
+                continue
+            # Load pretrained model/tokenizer
+            tokenizer = tokenizer_class.from_pretrained(model_name)
+            model = model_class.from_pretrained(model_name)
+            model.to(DEVICE)
+            model_to_entity_states[save_name] = defaultdict(list)
+            # Encode text
+            start = time.time()
+            i = 0
+            for data in tqdm(dataset, desc="sentences.."):
+                labels = [d[-1] for d in data]
+                tokens = [d[0] for d in data]
+                sentence = " ".join(tokens)
+                if i == 0:
+                    print(tokens, labels)
+                    i += 1
+                if len(model_to_entity_states[save_name])>size:
+                    print("{} entities already encoded for {} {}. Breaking...".format(len(model_to_entity_states[save_name]),dataset_name,save_name))
+                    break
+                idx = 1
+                input_ids_per_word = [tokenizer.encode(x, add_special_tokens=False) for x in tokens]
+                token_map = map_ids_to_tokens(input_ids_per_word, idx=1)
+                input_ids_per_word = list(chain.from_iterable(input_ids_per_word))
+                input_ids_per_word = torch.tensor([tokenizer.cls_token_id] + input_ids_per_word + [tokenizer.sep_token_id])
+                entity_ids = get_bio_entity_ids(labels)  #
+
+                input_ids = input_ids_per_word.to(DEVICE)
+                input_ids = input_ids.unsqueeze(0)
+                with torch.no_grad():
+                    output = model(input_ids)
+                    last_hidden_states = output[0]
+                    vectors = last_hidden_states.squeeze(0)
+                    entity_dict = get_entity_states(tokens, entity_ids, token_map, vectors)
+                    for e,v in entity_dict.items():
+                        model_to_entity_states[save_name][e].append(v)
+
+            end = time.time()
+            t = round(end - start)
+            print('Encoded {}  with {} in {} seconds'.format(dataset_name, model_name, t))
+        for k, d in model_to_entity_states.items():
+            dataset_to_model_to_entity_to_encodings[k][dataset_name] = d
+    return dataset_to_model_to_entity_to_encodings
+
 
 def get_domaindev_vectors(folder, size, models_to_use, DEV_SAVE_FOLDER, dataset_list=None):
     """
@@ -585,6 +683,26 @@ def save_test_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER, datase
     pickle.dump(model_to_domain_to_encodings, open(allsentences_pickle_save_path, "wb"))
 
 
+def get_entity_vectors(root_folder,dataset_list, models_to_use, size, file_name):
+    datasets = utils.get_datasets_from_folder_with_labels(root_folder, size=None, file_name=file_name,
+                                                          dataset_list=dataset_list)
+    model_to_domain_to_entity_encodings = encode_entities_with_models(datasets, models_to_use, size)
+    return model_to_domain_to_entity_encodings
+
+
+def save_entity_vectors(root_folder, save_folder):
+    models_to_use = [x[-1] for x in MODELS]
+    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    # dataset_list = ["s800"]
+    size = 20
+    file_name = "ent_test.tsv"
+    entity_vector_dict = get_entity_vectors(root_folder,dataset_list, models_to_use, size, file_name)
+    selected_pickle_save_path = os.path.join(save_folder,"entity_vectors_2201.pkl")
+    print("Saving entity vectors to {}".format(selected_pickle_save_path ))
+    with open(selected_pickle_save_path, "wb") as p:
+        pickle.dump(entity_vector_dict, p)
+
+
 def main():
     args = parse_args()
     global ROOT_FOLDER
@@ -600,19 +718,24 @@ def main():
     SELECTED_SAVE_ROOT = args.selected_save_root
     COS_SIM_SAMPLE_SIZE = args.cos_sim_sample_size
     dataset_name = args.dataset_name
-    if args.random:
-        for r in range(args.repeat):
-            print("Generating random dataset {}".format(r + 1))
-            dataset_name = "random_{}".format(r)
-            get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
-    else:
-        data_selection_for_all_models()
 
-    train_size = args.train_size
-    dev_size = args.dev_size
-    select_size = args.select_size
+    if not os.path.exists(SAVE_FOLDER):
+        os.makedirs(SAVE_FOLDER)
 
-    select_with_lda(ROOT_FOLDER, train_size, dev_size, select_size, SAVE_FOLDER)
+    save_entity_vectors(ROOT_FOLDER, SAVE_FOLDER)
+    # if args.random:
+    #     for r in range(args.repeat):
+    #         print("Generating random dataset {}".format(r + 1))
+    #         dataset_name = "random_{}".format(r)
+    #         get_random_data(ROOT_FOLDER, SELECTED_SAVE_ROOT, dataset_name, select_size, file_name="ent_train.tsv")
+    # else:
+    #     data_selection_for_all_models()
+    #
+    # train_size = args.train_size
+    # dev_size = args.dev_size
+    # select_size = args.select_size
+    #
+    # select_with_lda(ROOT_FOLDER, train_size, dev_size, select_size, SAVE_FOLDER)
     # TEST_SAVE_FOLDER = args.test_save_folder
     # models_to_use = [x[-1] for x in [MODELS[-1]]]
     # models_to_use = models_to_use + ["BioWordVec"]
