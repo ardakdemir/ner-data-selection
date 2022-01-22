@@ -78,15 +78,16 @@ def get_sentences_from_dataset(file_path, size=None):
         return sentences[:size]
 
 
-def get_tokens_from_dataset_with_labels(file_path, size=None):
+def get_tokens_from_dataset_with_labels(file_path, size=None,shuffle=False):
     sentences = open(file_path).read().split("\n\n")
     prune_short_sentences_limit = 6
     sentences = [[(x.split()[0], x.split()[-1]) for x in sent.split("\n") if len(x.split()) > 0] for sent in sentences
                  if len(sent.split("\n")) > prune_short_sentences_limit]
+    if shuffle:
+        np.random.shuffle(sentences)
     if not size:
         return sentences
     else:
-        np.random.shuffle(sentences)
         return sentences[:size]
 
 
@@ -106,8 +107,12 @@ def get_sentence_datasets_from_folder(folder, size=None, file_name="ent_train.ts
     return [(f, get_sentences_from_dataset(os.path.join(folder, f, file_name), size=size)) for f in os.listdir(folder)]
 
 
-def get_datasets_from_folder_with_labels(folder, size=None, file_name="ent_train.tsv",dataset_list=None):
-    return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size)) for f in
+def get_datasets_from_folder_with_labels(folder,
+                                         size=None,
+                                         file_name="ent_train.tsv",
+                                         dataset_list=None,
+                                         shuffle=False):
+    return [(f, get_tokens_from_dataset_with_labels(os.path.join(folder, f, file_name), size=size,shuffle=shuffle)) for f in
             os.listdir(folder) if (dataset_list is None or f in dataset_list)]
 
 

@@ -14,7 +14,7 @@ from torch.utils.data import Dataset, DataLoader
 from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
 from collections import defaultdict, Counter
-from itertools import product,chain
+from itertools import product, chain
 from copy_devtest import copy_devtest
 from annotate_all_entities import annotate_all_entities
 import logging
@@ -67,6 +67,8 @@ def parse_args():
         "--random", default=False, action="store_true", required=False)
     parser.add_argument(
         "--repeat", default=4, type=int, required=False)
+    parser.add_argument(
+        "--entity_size", default=500, type=int, required=False)
     parser.add_argument(
         "--select_mode", default="size", choices=["size", "similarity"], required=False)
     parser.add_argument(
@@ -319,6 +321,7 @@ def encode_with_models(datasets, models_to_use, save_folder):
             model_to_domain_to_encodings[k][dataset_name] = d
     return model_to_domain_to_encodings
 
+
 def get_entity_states(words, entity_ids, token_map, vectors):
     entity_states = {}
     for ent_id in entity_ids:
@@ -329,9 +332,11 @@ def get_entity_states(words, entity_ids, token_map, vectors):
             for i in e:
                 my_vecs.append(vectors[i])
         print("{} vectors for {}".format(len(my_vecs), entity))
-        mean_vec = torch.mean(torch.stack(my_vecs),dim=0)
+        mean_vec = torch.mean(torch.stack(my_vecs), dim=0)  # represent each entity as the mean of all subtokens
+        mean_vec = my_vecs[0]  # represent each entity with the first subtoken
         entity_states[entity] = mean_vec
     return entity_states
+
 
 def get_bio_entity_ids(labels):
     entity_ids = []
@@ -361,7 +366,7 @@ def map_ids_to_tokens(input_ids_per_word, idx=1):
     return token_map
 
 
-def encode_entities_with_models(datasets, models_to_use,size=10):
+def encode_entities_with_models(datasets, models_to_use, size=10):
     """
 
     :param lines:
@@ -390,14 +395,16 @@ def encode_entities_with_models(datasets, models_to_use,size=10):
                 if i == 0:
                     print(tokens, labels)
                     i += 1
-                if len(model_to_entity_states[save_name])>size:
-                    print("{} entities already encoded for {} {}. Breaking...".format(len(model_to_entity_states[save_name]),dataset_name,save_name))
+                if len(model_to_entity_states[save_name]) > size:
+                    print("{} entities already encoded for {} {}. Breaking...".format(
+                        len(model_to_entity_states[save_name]), dataset_name, save_name))
                     break
                 idx = 1
                 input_ids_per_word = [tokenizer.encode(x, add_special_tokens=False) for x in tokens]
                 token_map = map_ids_to_tokens(input_ids_per_word, idx=1)
                 input_ids_per_word = list(chain.from_iterable(input_ids_per_word))
-                input_ids_per_word = torch.tensor([tokenizer.cls_token_id] + input_ids_per_word + [tokenizer.sep_token_id])
+                input_ids_per_word = torch.tensor(
+                    [tokenizer.cls_token_id] + input_ids_per_word + [tokenizer.sep_token_id])
                 entity_ids = get_bio_entity_ids(labels)  #
 
                 input_ids = input_ids_per_word.to(DEVICE)
@@ -407,7 +414,7 @@ def encode_entities_with_models(datasets, models_to_use,size=10):
                     last_hidden_states = output[0]
                     vectors = last_hidden_states.squeeze(0)
                     entity_dict = get_entity_states(tokens, entity_ids, token_map, vectors)
-                    for e,v in entity_dict.items():
+                    for e, v in entity_dict.items():
                         model_to_entity_states[save_name][e].append(v)
 
             end = time.time()
@@ -683,22 +690,23 @@ def save_test_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER, datase
     pickle.dump(model_to_domain_to_encodings, open(allsentences_pickle_save_path, "wb"))
 
 
-def get_entity_vectors(root_folder,dataset_list, models_to_use, size, file_name):
+def get_entity_vectors(root_folder, dataset_list, models_to_use, size, file_name):
     datasets = utils.get_datasets_from_folder_with_labels(root_folder, size=None, file_name=file_name,
-                                                          dataset_list=dataset_list)
+                                                          dataset_list=dataset_list,
+                                                          shuffle=True)
     model_to_domain_to_entity_encodings = encode_entities_with_models(datasets, models_to_use, size)
     return model_to_domain_to_entity_encodings
 
 
-def save_entity_vectors(root_folder, save_folder):
+def save_entity_vectors(root_folder, save_folder, args):
     models_to_use = [x[-1] for x in MODELS]
-    dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
+    dataset_list = ['NCBI-disease', 'JNLPBA', 'BC4CHEMD']
     # dataset_list = ["s800"]
-    size = 20
-    file_name = "ent_test.tsv"
-    entity_vector_dict = get_entity_vectors(root_folder,dataset_list, models_to_use, size, file_name)
-    selected_pickle_save_path = os.path.join(save_folder,"entity_vectors_2201.pkl")
-    print("Saving entity vectors to {}".format(selected_pickle_save_path ))
+    size = args.entity_size
+    file_name = "ent_train.tsv"
+    entity_vector_dict = get_entity_vectors(root_folder, dataset_list, models_to_use, size, file_name)
+    selected_pickle_save_path = os.path.join(save_folder, "entity_vectors_{}_entities.pkl".format(size))
+    print("Saving entity vectors to {}".format(selected_pickle_save_path))
     with open(selected_pickle_save_path, "wb") as p:
         pickle.dump(entity_vector_dict, p)
 
@@ -722,7 +730,7 @@ def main():
     if not os.path.exists(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
 
-    save_entity_vectors(ROOT_FOLDER, SAVE_FOLDER)
+    save_entity_vectors(ROOT_FOLDER, SAVE_FOLDER, args)
     # if args.random:
     #     for r in range(args.repeat):
     #         print("Generating random dataset {}".format(r + 1))
