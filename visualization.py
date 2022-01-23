@@ -41,44 +41,12 @@ def parse_args():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str,
+        "--save_folder", default="/home/aakdemir/pca_visuals_2301", type=str,
         required=False)
     parser.add_argument(
-        "--dataset_name", default="random", type=str, required=False)
+        "--select_size", default=5000, type=int, required=False)
     parser.add_argument(
-        "--save_folder", default="/home/aakdemir/all_encoded_vectors_0606", type=str, required=False)
-    parser.add_argument(
-        "--dev_save_folder", default="/home/aakdemir/all_dev_encoded_vectors_0606", type=str, required=False)
-    parser.add_argument(
-        "--test_save_folder", default="/home/aakdemir/bioner_testvectors_0606", type=str, required=False)
-    parser.add_argument(
-        "--selected_save_root", default="/home/aakdemir/dataselection_0606_labeled", type=str, required=False)
-    parser.add_argument(
-        "--random", default=False, action="store_true", required=False)
-    parser.add_argument(
-        "--repeat", default=4, type=int, required=False)
-    parser.add_argument(
-        "--entity_size", default=500, type=int, required=False)
-    parser.add_argument(
-        "--select_mode", default="size", choices=["size", "similarity"], required=False)
-    parser.add_argument(
-        "--selection_method", default="cosine_instance", choices=["cosine_instance", "cosine_subset"], required=False)
-    parser.add_argument(
-        "--select_size", default=100000, type=int, required=False)
-    parser.add_argument(
-        "--select_thres", default=0.9, type=float, required=False)
-    parser.add_argument(
-        "--subset_size", default=20, type=int, required=False)
-    parser.add_argument(
-        "--train_size", default=50000, type=int, required=False)
-    parser.add_argument(
-        "--dev_size", default=20000, type=int, required=False)
-    parser.add_argument(
-        "--biowordvec_folder", default="/home/aakdemir/biobert_data/bio_embedding_extrinsic", type=str, required=False)
-    parser.add_argument(
-        "--word2vec_folder", default="/home/aakdemir/biobert_data/word2Vec/en/en.bin", type=str, required=False)
-    parser.add_argument(
-        "--cos_sim_sample_size", default=1000, type=int, required=False)
+        "--pickle_path", default="../bioMLT_folder/entity_vectors_2201/entity_vectors_5000_entities.pkl", type=str, required=False)
     args = parser.parse_args()
     args.device = device
     return args
@@ -168,7 +136,7 @@ def plot_sizes():
     # fig.show()
 
 def pca_visualize_entities(args):
-    pass
+    pickle_path = args.pickle_path
     p = "../bioMLT_folder/entity_vectors_2201/entity_vectors_5000_entities.pkl"
     entity_dict = pkl.load(open(p, "rb"))
 

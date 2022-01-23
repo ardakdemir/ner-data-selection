@@ -334,7 +334,7 @@ def get_entity_states(words, entity_ids, token_map, vectors):
         print("{} vectors for {}".format(len(my_vecs), entity))
         mean_vec = torch.mean(torch.stack(my_vecs), dim=0)  # represent each entity as the mean of all subtokens
         mean_vec = my_vecs[0]  # represent each entity with the first subtoken
-        entity_states[entity] = mean_vec
+        entity_states[entity] = mean_vec.detach().cpu()
     return entity_states
 
 
