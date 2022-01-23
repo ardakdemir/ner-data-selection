@@ -11,7 +11,8 @@ from numpy.linalg import norm
 from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 from torch.utils.data import Dataset, DataLoader
-from transformers import RobertaModel, RobertaTokenizer, DistilBertModel, DistilBertTokenizer, BertModel, BertTokenizer
+from transformers import RobertaModel, BertForSequenceClassification, RobertaTokenizer, DistilBertModel, \
+    DistilBertTokenizer, BertModel, BertTokenizer
 from write_selected_sentences import write_selected_sentences
 from collections import defaultdict, Counter
 from itertools import product, chain
@@ -28,9 +29,11 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 from gensim.utils import tokenize
 
-MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge"),
-          (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased"),
-          (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT")]
+MODELS = [(RobertaModel, RobertaTokenizer, 'roberta-large', "robertaLarge", None),
+          (DistilBertModel, DistilBertTokenizer, 'distilbert-base-uncased', "distilbertBaseUncased", None),
+          (BertModel, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT", None),
+          (BertForSequenceClassification, BertTokenizer, "dmis-lab/biobert-v1.1", "BioBERT+DC", None)
+          ]
 
 train_file_name = "ent_train.tsv"
 test_file_name = "ent_test.tsv"
@@ -38,7 +41,7 @@ test_file_name = "ent_test.tsv"
 ROOT_FOLDER = "/home/aakdemir/biobert_data/datasets/BioNER_2804"
 SAVE_FOLDER = "/home/aakdemir/all_encoded_vectors_0405"
 DEV_SAVE_FOLDER = "/home/aakdemir/all_dev_encoded_vectors_0405"
-TEST_SAVE_FOLDER = "/home/aakdemir/bioner_testvectors_3005"
+TEST_SAVE_FOLDER = "/home/aakdemir/bioner_testvectors_2301"
 SELECTED_SAVE_ROOT = "../dummy_selected_save_root"
 COS_SIM_SAMPLE_SIZE = 1000
 BioWordVec_FOLDER = "../biobert_data/bio_embedding_extrinsic"
@@ -48,10 +51,12 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def parse_args():
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print("Working  on {}".format(device))
-
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "--root_folder", default="/home/aakdemir/biobert_data/datasets/BioNER_2804_labeled_cleaned", type=str,
+        required=False)
+    parser.add_argument(
+        "--model_load_path", default=None, type=str,
         required=False)
     parser.add_argument(
         "--dataset_name", default="random", type=str, required=False)
@@ -69,6 +74,8 @@ def parse_args():
         "--repeat", default=4, type=int, required=False)
     parser.add_argument(
         "--entity_size", default=500, type=int, required=False)
+    parser.add_argument(
+        "--sentence_size", default=3000, type=int, required=False)
     parser.add_argument(
         "--select_mode", default="size", choices=["size", "similarity"], required=False)
     parser.add_argument(
@@ -268,15 +275,25 @@ def encode_with_models(datasets, models_to_use, save_folder):
     :return:
     """
     model_to_domain_to_encodings = defaultdict(dict)
+    args = parse_args()
+    model_load_path = args.model_load_path
     for dataset_name, dataset in tqdm(datasets, desc="Datasets"):
         model_to_states = {}
-        for model_class, tokenizer_class, model_name, save_name in tqdm(MODELS, desc="Models"):
+        for model_class, tokenizer_class, model_name, save_name, load_path in tqdm(MODELS, desc="Models"):
             if save_name not in models_to_use:
                 print("Skipping {}".format(save_name))
                 continue
             # Load pretrained model/tokenizer
+            print("Model name", model_name)
             tokenizer = tokenizer_class.from_pretrained(model_name)
-            model = model_class.from_pretrained(model_name)
+
+            if save_name != "BioBERT+DC":
+                model = model_class.from_pretrained(model_name)
+            if save_name == "BioBERT+DC" and model_load_path is not None:
+                print("Loading {} model from previous checkpoint: {}!".format(model_name, model_load_path))
+                model = BertForSequenceClassification.from_pretrained(model_name, return_dict=True, num_labels=2)
+                load_weights = torch.load(model_load_path, map_location=DEVICE)
+                model.load_state_dict(load_weights)
             model.to(DEVICE)
             model_to_states[save_name] = {"sents": [], "tokens": [], "states": [], "labels": []}
             # Encode text
@@ -297,8 +314,13 @@ def encode_with_models(datasets, models_to_use, save_folder):
                                                            max_length=128)])  # Add special tokens takes care of adding [CLS], [SEP], <s>... tokens in the right way for each model.
                 input_ids = input_ids.to(DEVICE)
                 with torch.no_grad():
-                    output = model(input_ids)
-                    last_hidden_states = output[0]
+                    if save_name == "BioBERT+DC":
+                        output = model(input_ids, output_hidden_states=True)
+                        hidden_state = output["hidden_states"]
+                    else:
+                        output = model(input_ids)
+                        hidden_state = output[0]
+                    last_hidden_states = hidden_state[0]
 
                     # avg pool last hidden layer
                     squeezed = last_hidden_states.squeeze(dim=0)
@@ -683,10 +705,18 @@ def data_selection_for_all_models():
     select_store_data(models_to_use, dataset_list, args)
 
 
-def save_test_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER, dataset_list):
-    model_to_domain_to_encodings = get_domaintest_vectors(ROOT_FOLDER, size, models_to_use, TEST_SAVE_FOLDER,
+def save_test_vectors(root_folder, size, models_to_use, test_save_folder, dataset_list):
+    model_to_domain_to_encodings = get_domaintest_vectors(root_folder, size, models_to_use, test_save_folder,
                                                           dataset_list=dataset_list)
-    allsentences_pickle_save_path = os.path.join(SELECTED_SAVE_ROOT, "alltest_sentences_pickle.p")
+    allsentences_pickle_save_path = os.path.join(test_save_folder, "alltest_sentences_pickle.p")
+    pickle.dump(model_to_domain_to_encodings, open(allsentences_pickle_save_path, "wb"))
+
+
+def save_test_vectors_with_dc(root_folder, size, models_to_use, test_save_folder, dataset_list):
+    model_to_domain_to_encodings = get_domaintest_vectors(root_folder, size, models_to_use, test_save_folder,
+                                                          dataset_list=dataset_list)
+    allsentences_pickle_save_path = os.path.join(test_save_folder, "alltest_sentences_pickle.p")
+    print("Saving the pickle to {} ".format(allsentences_pickle_save_path))
     pickle.dump(model_to_domain_to_encodings, open(allsentences_pickle_save_path, "wb"))
 
 
@@ -730,7 +760,9 @@ def main():
     if not os.path.exists(SAVE_FOLDER):
         os.makedirs(SAVE_FOLDER)
 
-    save_entity_vectors(ROOT_FOLDER, SAVE_FOLDER, args)
+    # Entity vector generation
+    # save_entity_vectors(ROOT_FOLDER, SAVE_FOLDER, args)
+
     # if args.random:
     #     for r in range(args.repeat):
     #         print("Generating random dataset {}".format(r + 1))
@@ -745,10 +777,13 @@ def main():
     #
     # select_with_lda(ROOT_FOLDER, train_size, dev_size, select_size, SAVE_FOLDER)
     # TEST_SAVE_FOLDER = args.test_save_folder
-    # models_to_use = [x[-1] for x in [MODELS[-1]]]
+
+    size = args.sentence_size
+    models_to_use = [x[-2] for x in MODELS[-2:]]
     # models_to_use = models_to_use + ["BioWordVec"]
     # dataset_list = ['s800', 'NCBI-disease', 'JNLPBA', 'linnaeus', 'BC4CHEMD', 'BC2GM', 'BC5CDR', 'conll-eng']
-    # save_test_vectors(ROOT_FOLDER, None, models_to_use, TEST_SAVE_FOLDER, dataset_list)
+    dataset_list = ["BC2GM", "BC5CDR", "JNLPBA", 'NCBI-disease', "BC4CHEMD", 'conll-eng']
+    save_test_vectors_with_dc(ROOT_FOLDER, size, models_to_use, SAVE_FOLDER, dataset_list)
 
 
 if __name__ == "__main__":

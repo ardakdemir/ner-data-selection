@@ -408,6 +408,8 @@ def traindc_all_datasets(save_folder_root, my_dataset_list, args):
         results[d] = res
     return results
 
+def inference_wrapper():
+    print("To be implemented...")
 
 def main():
     args = parse_args()
