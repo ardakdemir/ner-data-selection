@@ -6,5 +6,5 @@ do
   my_save_folder=${save_folder}${dataset_name}
   exp_name="vectorgeneration_2301_"${dataset_name}
   echo ${my_save_folder}"  "${dataset_name}
-#  qsub -N $exp_name generate_vector_submit_2301.sh ${dataset_name} ${my_save_folder}
+  qsub -N $exp_name generate_vector_submit_2301.sh ${dataset_name} ${my_save_folder}
 done
